@@ -1,4 +1,4 @@
-.PHONY: db, down, fresh, run
+.PHONY: db down fresh run test
 
 db:
 	docker-compose up -d mysql
