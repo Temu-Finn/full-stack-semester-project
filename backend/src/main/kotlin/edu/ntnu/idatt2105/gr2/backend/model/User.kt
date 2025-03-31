@@ -8,14 +8,14 @@ class User(
     val name: String,
     val email: String,
 
-    private var password_hashed: String
+    private var passwordHashed: String
 ) : UserDetails {
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
         return mutableListOf()
     }
 
-    override fun getPassword(): String = password_hashed
+    override fun getPassword(): String = passwordHashed
 
     override fun getUsername(): String = email
 

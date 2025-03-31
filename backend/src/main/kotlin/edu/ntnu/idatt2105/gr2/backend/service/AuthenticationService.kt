@@ -20,7 +20,7 @@ class AuthenticationService(
             throw IllegalArgumentException("User with email $email already exists")
         }
 
-        val userToSave = User(name = name, email = email, password_hashed = passwordEncoder.encode(password))
+        val userToSave = User(name = name, email = email, passwordHashed = passwordEncoder.encode(password))
 
         return userRepository.save(userToSave)
     }
