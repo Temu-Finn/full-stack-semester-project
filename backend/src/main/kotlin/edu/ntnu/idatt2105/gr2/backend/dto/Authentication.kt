@@ -1,17 +1,19 @@
 package edu.ntnu.idatt2105.gr2.backend.dto
 
+import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 
 data class CreateUserRequest(
-    @field:NotBlank(message = "Username cannot be empty")
-    val username: String,
+    @field:NotBlank(message = "Name cannot be empty")
+    val name: String,
 
     @field:NotBlank(message = "Email cannot be empty")
-    @field:jakarta.validation.constraints.Email(message = "Invalid email format")
+    @field:Email(message = "Invalid email format")
     val email: String,
 
     @field:NotBlank(message = "Password cannot be empty")
-    @field:jakarta.validation.constraints.Size(
+    @field:Size(
         min = 8,
         message = "Password must be at least 8 characters"
     )
@@ -19,15 +21,17 @@ data class CreateUserRequest(
 )
 
 data class LoginRequest(
-    @field:NotBlank(message = "Username cannot be empty")
-    val username: String,
+    @field:NotBlank(message = "Email cannot be empty")
+    @field:Email(message = "Invalid email format")
+    val email: String,
 
     @field:NotBlank(message = "Password cannot be empty")
     val password: String
 )
 
 data class UserResponse(
-    val username: String,
+    val userId: Int,
+    val name: String,
     val email: String,
     val token: String,
     val expiresIn: Long,

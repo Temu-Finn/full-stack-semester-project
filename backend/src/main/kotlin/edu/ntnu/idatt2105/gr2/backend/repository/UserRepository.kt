@@ -35,22 +35,6 @@ class UserRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun existsByEmail(email: String): Boolean {
-        dataSource.connection.use { conn ->
-            val sql = "SELECT COUNT(*) FROM users WHERE email = ?"
-            conn.prepareStatement(sql).use { stmt ->
-                stmt.setString(1, email)
-                stmt.executeQuery().use { rows ->
-                    if (rows.next()) {
-                        return rows.getInt(1) > 0
-                    }
-                }
-            }
-        }
-
-        return false
-    }
-
     fun findByEmail(email: String): User? {
         dataSource.connection.use { conn ->
             val sql = "SELECT * FROM users WHERE email = ?"
