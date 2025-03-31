@@ -28,9 +28,7 @@ class JwtService {
         val userId = if (userDetails is User) userDetails.userId else throw IllegalArgumentException("UserDetails must be an instance of custom User class")
         val email = userDetails.username
 
-        val claims = Jwts.claims().apply {
-            this["email"] = email
-        }
+        val claims: Map<String, Any> = mapOf("email" to email)
 
         return Jwts.builder()
             .claims(claims)
