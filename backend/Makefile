@@ -27,3 +27,7 @@ run:
 	@$(MVN) clean package -DskipTests
 	@echo "Running the application..."
 	@java -jar ${JAR_NAME}
+
+test:
+	@echo "Running the tests..."
+	@$(MVN) test
