@@ -37,14 +37,17 @@ class JwtAuthenticationFilter(
 
         try {
             val jwt = authHeader.substring(7)
-            val userId: Int? = jwtService.extractUserIdFromToken(jwt)
+            val email: String? = jwtService.extractEmailFromToken(jwt)
 
             val authentication: Authentication? = SecurityContextHolder.getContext().authentication
 
-            if (userId != null && authentication == null) {
-                val userDetails = userDetailsService.loadUserByUsername(userId.toString())
+            if (email != null && authentication == null) {
+                val userDetails = userDetailsService.loadUserByUsername(email)
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
+                    val userId = jwtService.extractUserIdFromToken(jwt)
+                        ?: throw IllegalStateException("UserID not found in valid token")
+
                     userContextService.setCurrentUserId(userId)
                     val authToken = UsernamePasswordAuthenticationToken(
                         userDetails,

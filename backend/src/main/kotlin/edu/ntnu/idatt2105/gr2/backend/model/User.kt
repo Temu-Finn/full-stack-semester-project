@@ -17,10 +17,9 @@ class User(
 
     override fun getPassword(): String = password_hashed
 
-    override fun getUsername(): String = userId.toString()
+    override fun getUsername(): String = email
 
     fun getName(): String = name
-    fun getEmail(): String = email
 
     override fun isAccountNonExpired(): Boolean = true
 

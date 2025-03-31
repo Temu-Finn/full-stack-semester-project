@@ -25,14 +25,25 @@ class JwtService {
         val now = System.currentTimeMillis();
         val expirationTime = now + expiration;
 
-        val userId = userDetails.username
+        val userId = if (userDetails is User) userDetails.userId else throw IllegalArgumentException("UserDetails must be an instance of custom User class")
+        val email = userDetails.username
+
+        val claims = Jwts.claims().apply {
+            this["email"] = email
+        }
 
         return Jwts.builder()
-            .subject(userId)
+            .claims(claims)
+            .subject(userId.toString())
             .issuedAt(Date(now))
             .expiration(Date(expirationTime))
             .signWith(getSignInKey())
             .compact()
+    }
+
+    fun extractEmailFromToken(token: String): String? {
+        val claims = getAllClaimsFromToken(token)
+        return claims["email"] as? String
     }
 
     fun extractUserIdFromToken(token: String): Int? {
@@ -42,7 +53,7 @@ class JwtService {
 
     fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
         val extractedUserId: Int? = extractUserIdFromToken(token)
-        val userIdFromUserDetails: Int? = userDetails.username.toIntOrNull()
+        val userIdFromUserDetails = if (userDetails is User) userDetails.userId else null
         return extractedUserId != null && extractedUserId == userIdFromUserDetails && !isTokenExpired(token)
     }
 
