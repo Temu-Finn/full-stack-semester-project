@@ -19,8 +19,6 @@ class User(
 
     override fun getUsername(): String = email
 
-    fun getName(): String = name
-
     override fun isAccountNonExpired(): Boolean = true
 
     override fun isAccountNonLocked(): Boolean = true
