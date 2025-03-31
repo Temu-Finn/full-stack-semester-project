@@ -21,7 +21,7 @@ class TestConfig {
     @Primary
     fun testUserContextService(): UserContextService {
         val service = UserContextService()
-        service.setCurrentUsername("test-user")
+        service.setCurrentUserId(1)
         return service
     }
 }
