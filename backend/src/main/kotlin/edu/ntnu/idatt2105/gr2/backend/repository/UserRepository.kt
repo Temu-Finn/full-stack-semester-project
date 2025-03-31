@@ -13,7 +13,7 @@ class UserRepository(private val dataSource: DataSource) {
         val email = user.email
         val password = user.password
         dataSource.connection.use { conn ->
-            val sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)"
+            val sql = "INSERT INTO users (email, name, password) VALUES (?, ?, ?)"
             conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS).use { stmt ->
                 stmt.setString(1, username)
                 stmt.setString(2, email)
