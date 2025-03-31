@@ -1,11 +1,13 @@
 package edu.ntnu.idatt2105.gr2.backend.service
 
+import edu.ntnu.idatt2105.gr2.backend.model.User
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import java.util.*
 import javax.crypto.SecretKey
@@ -19,25 +21,29 @@ class JwtService {
     @Value("\${security.jwt.expiration-time}")
     private var expiration: Long = 0
 
-    fun generateToken(username: String): String {
+    fun generateToken(userDetails: UserDetails): String {
         val now = System.currentTimeMillis();
         val expirationTime = now + expiration;
 
+        val userId = userDetails.username
+
         return Jwts.builder()
-            .subject(username)
+            .subject(userId)
             .issuedAt(Date(now))
             .expiration(Date(expirationTime))
             .signWith(getSignInKey())
             .compact()
     }
 
-    fun extractUsernameFromToken(token: String): String? {
+    fun extractUserIdFromToken(token: String): Int? {
         val claims = getAllClaimsFromToken(token)
-        return claims.subject?.toString()
+        return claims.subject?.toIntOrNull()
     }
 
-    fun isTokenValid(token: String, username: String): Boolean {
-        return username == extractUsernameFromToken(token) && !isTokenExpired(token)
+    fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
+        val extractedUserId: Int? = extractUserIdFromToken(token)
+        val userIdFromUserDetails: Int? = userDetails.username.toIntOrNull()
+        return extractedUserId != null && extractedUserId == userIdFromUserDetails && !isTokenExpired(token)
     }
 
     fun getExpirationTime(): Long {

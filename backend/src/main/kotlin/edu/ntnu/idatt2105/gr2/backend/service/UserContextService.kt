@@ -6,13 +6,13 @@ import org.springframework.web.context.annotation.RequestScope
 @Service
 @RequestScope
 class UserContextService {
-    private var username: String? = null
+    private var userId: Int? = null
 
-    fun getCurrentUsername(): String {
-        return username ?: throw IllegalStateException("No user id set in current context")
+    fun getCurrentUserId(): Int {
+        return userId ?: throw IllegalStateException("No userId set in current context")
     }
 
-    fun setCurrentUsername(username: String) {
-        this.username = username
+    fun setCurrentUserId(userId: Int) {
+        this.userId = userId
     }
 }

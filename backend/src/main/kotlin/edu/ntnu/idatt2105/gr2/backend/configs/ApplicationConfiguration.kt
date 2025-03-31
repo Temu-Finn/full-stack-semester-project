@@ -17,8 +17,10 @@ class ApplicationConfiguration(private val userRepository: UserRepository) {
     @Bean
     fun userDetailsService(): UserDetailsService {
         return UserDetailsService { username ->
-            userRepository.findByUsername(username)
-                ?: throw UsernameNotFoundException("User with username $username not found")
+            val userId = username.toIntOrNull()
+                ?: throw UsernameNotFoundException("Invalid userId format: $username")
+            userRepository.findById(userId)
+                ?: throw UsernameNotFoundException("User with ID $userId not found")
         }
     }
 
