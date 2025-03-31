@@ -4,7 +4,7 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
 class User(
-    val userId: Int,
+    val userId: Int = -1,
     val name: String,
     val email: String,
 
