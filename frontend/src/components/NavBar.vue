@@ -9,7 +9,7 @@
       <p>Temu Finn</p>
     </a>
   <div class="items-section">
-    <a href="">Page 1</a>
+    <a href="/about">Page 1</a>
     <a href="">Page 2</a>
     <a href="">Page 3</a>
   </div>
