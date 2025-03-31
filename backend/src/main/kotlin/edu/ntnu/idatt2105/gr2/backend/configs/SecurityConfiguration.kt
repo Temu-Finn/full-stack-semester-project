@@ -25,7 +25,7 @@ class SecurityConfiguration(
         http.csrf { it.disable() }
             .cors { it.configurationSource(corsConfigurationSource()) }
             .authorizeHttpRequests { authorize ->
-                authorize.requestMatchers("/auth/**").permitAll()
+                authorize.requestMatchers("/api/auth/**").permitAll()
                 authorize.anyRequest().authenticated()
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
@@ -40,7 +40,7 @@ class SecurityConfiguration(
         val configuration = CorsConfiguration()
 
         configuration.allowedOrigins = listOf("http://localhost:5173")
-        configuration.allowedMethods = listOf("GET", "POST")
+        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE")
         configuration.allowedHeaders = listOf("Authorization", "Content-Type")
 
         val source = UrlBasedCorsConfigurationSource()
