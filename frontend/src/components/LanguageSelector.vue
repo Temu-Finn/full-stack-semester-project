@@ -8,10 +8,19 @@ const changeLanguage = () => {
 </script>
 
 <template>
-  <select v-model="localeStore.currentLocale" @change="changeLanguage">
-    <option value="en">English</option>
-    <option value="no">Norsk</option>
-  </select>
+  <div class="language-selector">
+    <label for="language">{{ $t('profile.language') }}</label>
+    <select v-model="localeStore.currentLocale" @change="changeLanguage">
+      <option value="en">English</option>
+      <option value="no">Norsk</option>
+    </select>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.language-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+</style>
