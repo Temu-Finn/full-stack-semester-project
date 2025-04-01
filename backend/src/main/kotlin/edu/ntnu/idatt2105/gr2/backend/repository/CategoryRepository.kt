@@ -33,6 +33,10 @@ class CategoryRepository (private val dataSource: DataSource) {
         }
     }
 
+    fun saveAll(categories: List<Category>) {
+        categories.forEach { save(it) }
+    }
+
     // Finds all categories
     fun findAll(): List<Category> {
         dataSource.connection.use { conn ->
@@ -83,7 +87,7 @@ class CategoryRepository (private val dataSource: DataSource) {
     }
 
     // Updates the description of a category
-    fun updateDescription(description: String, name: String) {
+    fun updateDescription(name: String, description: String) {
         if (!existsByName(name)) {
             throw IllegalArgumentException("Category with name $name does not exist")
         }
