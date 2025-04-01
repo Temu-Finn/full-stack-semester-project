@@ -16,9 +16,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 class ApplicationConfiguration(private val userRepository: UserRepository) {
     @Bean
     fun userDetailsService(): UserDetailsService {
-        return UserDetailsService { username ->
-            userRepository.findByUsername(username)
-                ?: throw UsernameNotFoundException("User with username $username not found")
+        return UserDetailsService { email ->
+            userRepository.findByEmail(email)
+                ?: throw UsernameNotFoundException("User with email $email not found")
         }
     }
 

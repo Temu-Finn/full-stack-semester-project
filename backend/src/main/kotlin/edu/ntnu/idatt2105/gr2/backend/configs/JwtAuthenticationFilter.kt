@@ -37,16 +37,18 @@ class JwtAuthenticationFilter(
 
         try {
             val jwt = authHeader.substring(7)
-            val username: String? = jwtService.extractUsernameFromToken(jwt)
+            val email: String? = jwtService.extractEmailFromToken(jwt)
 
             val authentication: Authentication? = SecurityContextHolder.getContext().authentication
 
-            if (username != null && authentication == null) {
-                val userDetails = userDetailsService.loadUserByUsername(username)
+            if (email != null && authentication == null) {
+                val userDetails = userDetailsService.loadUserByUsername(email)
 
-                if (jwtService.isTokenValid(jwt, userDetails.username)) {
-                    // Set context only after token is validated
-                    userContextService.setCurrentUsername(username)
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    val userId = jwtService.extractUserIdFromToken(jwt)
+                        ?: throw IllegalStateException("UserID not found in valid token")
+
+                    userContextService.setCurrentUserId(userId)
                     val authToken = UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -61,6 +63,7 @@ class JwtAuthenticationFilter(
             filterChain.doFilter(request, response)
         } catch (exception: Exception) {
             logger.error("Error occurred while processing JWT token: ${exception.message}")
+            SecurityContextHolder.clearContext()
             handlerExceptionResolver.resolveException(request, response, null, exception)
         }
     }
