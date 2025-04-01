@@ -1,19 +1,9 @@
+<script lang="ts" setup></script>
+
 <template>
   <main>
-    <div class="about">
-      <p>Profile page</p>
-    </div>
+    <p>Profile page</p>
   </main>
 </template>
 
-<style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 90vh;
-    display: flex;
-    align-items: center;
-  }
-}
-</style>
-<script setup lang="ts">
-</script>
+<style></style>
