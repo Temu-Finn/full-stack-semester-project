@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useSessionStore } from '@/stores/session'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
 const router = useRouter()
-const authStore = useAuthStore()
+const authStore = useSessionStore()
 
 const email = ref('')
 const password = ref('')

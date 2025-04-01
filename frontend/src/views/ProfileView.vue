@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import LanguageSelector from '@/components/LanguageSelector.vue'
-import { useAuthStore } from '@/stores/auth'
+import { useSessionStore } from '@/stores/session'
 
-const authStore = useAuthStore()
+const authStore = useSessionStore()
 </script>
 
 <template>

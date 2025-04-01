@@ -5,7 +5,7 @@ import MessagesView from '@/views/MessagesView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import LogInView from '@/views/LogInView.vue'
 import SignUpView from '@/views/SignUpView.vue'
-import { useAuthStore } from '@/stores/auth'
+import { useSessionStore } from '@/stores/session'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -47,7 +47,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore()
+  const authStore = useSessionStore()
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
 
   if (requiresAuth && !authStore.isAuthenticated) {
