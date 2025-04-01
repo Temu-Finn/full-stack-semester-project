@@ -2,7 +2,7 @@
 
 <template>
   <main>
-    <p>Home page</p>
+    <p>New Product Page</p>
   </main>
 </template>
 
