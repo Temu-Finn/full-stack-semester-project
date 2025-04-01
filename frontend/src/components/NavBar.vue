@@ -1,22 +1,20 @@
-<script setup lang="ts">
-
-</script>
+<script lang="ts" setup></script>
 
 <template>
-<nav class="nav-bar">
-    <a  class="logo-section" href="/">
-      <img width="36" src="../assets/logo.svg" alt="logo">
+  <nav class="nav-bar">
+    <a class="logo-section" href="/">
+      <img alt="logo" src="../assets/logo.svg" width="36" />
       <p>Temu Finn</p>
     </a>
-  <div class="items-section">
-    <a href="/new">Nytt produkt</a>
-    <a href="/messages">Meldinger</a>
-  </div>
+    <div class="items-section">
+      <a href="/new">{{ $t('navbar.newProduct') }}</a>
+      <a href="/messages">{{ $t('navbar.messages') }}</a>
+    </div>
     <a class="profile-section" href="/profile">
-      <img width="36" src="../assets/logo.svg" alt="profile-icon">
+      <img alt="profile-icon" src="../assets/logo.svg" width="36" />
       <p>Henrik</p>
     </a>
-</nav>
+  </nav>
 </template>
 
 <style scoped>
@@ -33,7 +31,7 @@
 }
 .logo-section {
   display: flex;
-  gap:1rem;
+  gap: 1rem;
   align-items: center;
 }
 .items-section {
