@@ -4,7 +4,8 @@ import edu.ntnu.idatt2105.gr2.backend.model.User
 import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.core.AuthenticationException
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 
@@ -12,32 +13,35 @@ import org.springframework.stereotype.Service
 class AuthenticationService(
     private val userRepository: UserRepository,
     private val authenticationManager: AuthenticationManager,
-    private val passwordEncoder: BCryptPasswordEncoder,
+    private val passwordEncoder: PasswordEncoder,
 ) {
-    fun signup(username: String, email: String, password: String): User {
-        // Input is already validated with jakarta.validation
-        // Check if user already exists
-        if (userRepository.existsByUsername(username)) {
-            throw IllegalArgumentException("User with username $username already exists")
+    fun signup(name: String, email: String, password: String): User {
+        if (userRepository.findByEmail(email) != null) {
+            throw IllegalArgumentException("User with email $email already exists")
         }
 
-        val user = User(username, email, passwordEncoder.encode(password))
+        val userToSave = User(name = name, email = email, passwordHashed = passwordEncoder.encode(password))
 
-        return userRepository.save(user)
+        return userRepository.save(userToSave)
     }
 
-    fun authenticate(username: String, password: String): User? {
-        if (username.isBlank() || password.isBlank()) {
-            throw IllegalArgumentException("Username and password cannot be blank")
+    fun authenticate(email: String, password: String): User {
+        if (email.isBlank() || password.isBlank()) {
+            throw IllegalArgumentException("Email and password cannot be blank")
         }
 
-        authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(
-                username,
-                password
+        try {
+            authenticationManager.authenticate(
+                UsernamePasswordAuthenticationToken(
+                    email,
+                    password
+                )
             )
-        )
+        } catch (e: AuthenticationException) {
+            throw IllegalArgumentException("Invalid email or password", e)
+        }
 
-        return userRepository.findByUsername(username)
+        return userRepository.findByEmail(email)
+            ?: throw IllegalStateException("User $email authenticated but not found in repository.")
     }
 }
