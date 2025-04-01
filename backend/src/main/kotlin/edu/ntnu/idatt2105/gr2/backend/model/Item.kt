@@ -1,6 +1,6 @@
 package edu.ntnu.idatt2105.gr2.backend.model
 
-class Item (
+data class Item (
     val id: Long = -1,
     val owner: Long,
     val category: Long,
