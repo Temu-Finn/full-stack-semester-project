@@ -44,29 +44,33 @@ class ItemRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun findAllByCategoryId(categoryId: Long): Item? {
+    fun findAllByCategoryId(categoryId: Long): List<Item> {
+        val items = mutableListOf<Item>()
+
         dataSource.connection.use { conn ->
             val sql = "SELECT * FROM items WHERE category_id = ?"
             conn.prepareStatement(sql).use { stmt ->
-                stmt.setString(1, categoryId.toString())
+                stmt.setLong(1, categoryId)
                 stmt.executeQuery().use { rows ->
-                    if (rows.next()) {
-                        return Item(
-                            rows.getLong("id"),
-                            rows.getLong("owner"),
-                            rows.getLong("category"),
-                            rows.getString("name"),
-                            rows.getDouble("price"),
-                            rows.getString("description"),
-                            rows.getBoolean("is_sold"),
-                            rows.getString("condition")
+                    while (rows.next()) {
+                        items.add(
+                            Item(
+                                id = rows.getLong("id"),
+                                owner = rows.getLong("owner"),
+                                category = rows.getLong("category"),
+                                name = rows.getString("name"),
+                                price = rows.getDouble("price"),
+                                description = rows.getString("description"),
+                                isSold = rows.getBoolean("is_sold"),
+                                condition = rows.getString("condition")
+                            )
                         )
                     }
                 }
             }
         }
 
-        return null
+        return items
     }
 
     fun deleteById(id: Long): Boolean {
