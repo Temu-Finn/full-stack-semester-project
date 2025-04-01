@@ -17,7 +17,7 @@ class ItemRepository(private val dataSource: DataSource) {
         val isSold = item.isSold
         val itemCondition = item.condition // Should be ENUM
         dataSource.connection.use { conn ->
-            val sql = "INSERT INTO items (owner_id, category_id, item_name, price, description, is_sold, item_condition) VALUES(?,?,?,?,?,?,?)"
+            val sql = "INSERT INTO items (item_owner, item_category, item_name, item_price, item_description, is_sold, item_condition) VALUES(?,?,?,?,?,?,?)"
             conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS).use { stmt ->
                 stmt.setLong(1, ownerId)
                 stmt.setLong(2, categoryId)
@@ -48,21 +48,21 @@ class ItemRepository(private val dataSource: DataSource) {
         val items = mutableListOf<Item>()
 
         dataSource.connection.use { conn ->
-            val sql = "SELECT * FROM items WHERE category_id = ?"
+            val sql = "SELECT * FROM items WHERE item_category = ?"
             conn.prepareStatement(sql).use { stmt ->
                 stmt.setLong(1, categoryId)
                 stmt.executeQuery().use { rows ->
                     while (rows.next()) {
                         items.add(
                             Item(
-                                id = rows.getLong("id"),
-                                owner = rows.getLong("owner"),
-                                category = rows.getLong("category"),
-                                name = rows.getString("name"),
-                                price = rows.getDouble("price"),
-                                description = rows.getString("description"),
+                                id = rows.getLong("item_id"),
+                                owner = rows.getLong("item_owner"),
+                                category = rows.getLong("item_category"),
+                                name = rows.getString("item_name"),
+                                price = rows.getDouble("item_price"),
+                                description = rows.getString("item_description"),
                                 isSold = rows.getBoolean("is_sold"),
-                                condition = rows.getString("condition")
+                                condition = rows.getString("item_condition")
                             )
                         )
                     }
@@ -75,7 +75,7 @@ class ItemRepository(private val dataSource: DataSource) {
 
     fun deleteById(id: Long): Boolean {
         dataSource.connection.use { conn ->
-            val sql = "DELETE FROM items WHERE id = ?"
+            val sql = "DELETE FROM items WHERE item_id = ?"
             conn.prepareStatement(sql).use { stmt ->
                 stmt.setLong(1, id)
                 val affectedRows = stmt.executeUpdate()

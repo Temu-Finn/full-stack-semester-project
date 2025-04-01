@@ -22,7 +22,7 @@ class ItemController(private val itemService: ItemService) {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedItem)
     }
 
-    @GetMapping("/category/{id}")
+    @GetMapping("/category/{categoryId}")
     fun getItemsByCategoryId(@PathVariable id: Long): ResponseEntity<List<Item>> {
         val items = itemService.getItemsByCategoryId(id)
         return ResponseEntity.ok(items)
