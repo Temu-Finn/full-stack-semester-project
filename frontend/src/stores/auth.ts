@@ -17,9 +17,9 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function login(username: string, password: string) {
+  async function login(email: string, password: string) {
     try {
-      const response = await api.post(`/auth/login`, { username, password })
+      const response = await api.post(`/auth/login`, { email, password })
       setToken(response.data.token)
       return true
     } catch (error) {
@@ -28,11 +28,11 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function signup(username: string, email: string, password: string) {
+  async function signup(email: string, name: string, password: string) {
     try {
       const response = await axios.post(`/auth/signup`, {
-        username,
         email,
+        name,
         password,
       })
       setToken(response.data.token)

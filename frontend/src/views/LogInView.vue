@@ -2,32 +2,40 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-const username = ref('')
+const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
 const isLoading = ref(false)
 
 const handleLogin = async () => {
-  if (!username.value || !password.value) {
-    errorMessage.value = 'Username and password are required'
+  if (!email.value || !password.value) {
+    errorMessage.value = t('login.error.required')
     return
   }
 
   isLoading.value = true
   try {
-    const success = await authStore.login(username.value, password.value)
+    const success = await authStore.login(email.value, password.value)
     if (success) {
-      router.push('/') // Redirect to home or dashboard on success
+      router.push('/')
     } else {
-      errorMessage.value = 'Invalid credentials'
+      errorMessage.value = t('login.error.invalidCredentials')
     }
-  } catch (error) {
-    errorMessage.value = 'An error occurred during login'
-    console.error('Login error:', error) // Log the actual error
+  } catch (error: unknown) {
+    console.error('Login error:', error)
+
+    if (error instanceof Error) {
+      errorMessage.value = error.message
+    } else {
+      errorMessage.value = t('login.error.unexpected')
+    }
   } finally {
     isLoading.value = false
   }
@@ -36,7 +44,7 @@ const handleLogin = async () => {
 
 <template>
   <div class="login-container">
-    <h2 class="login-title">Log In</h2>
+    <h2 class="login-title">{{ $t('login.title') }}</h2>
 
     <form @submit.prevent="handleLogin" class="login-form">
       <div v-if="errorMessage" class="error-message">
@@ -44,30 +52,30 @@ const handleLogin = async () => {
       </div>
 
       <div>
-        <label for="username" class="input-label">Username</label>
-        <input id="username" v-model="username" type="text" class="input-field" required />
+        <label for="email" class="input-label">{{ $t('login.emailLabel') }}</label>
+        <input id="email" v-model="email" type="email" class="input-field" required />
       </div>
 
       <div>
-        <label for="password" class="input-label">Password</label>
+        <label for="password" class="input-label">{{ $t('login.passwordLabel') }}</label>
         <input id="password" v-model="password" type="password" class="input-field" required />
       </div>
 
       <div>
         <button type="submit" :disabled="isLoading" class="submit-button">
-          <span v-if="isLoading">Logging in...</span>
-          <span v-else>Log In</span>
+          <span v-if="isLoading">{{ $t('login.loadingButton') }}</span>
+          <span v-else>{{ $t('login.submitButton') }}</span>
         </button>
       </div>
 
       <div class="signup-link-container">
-        <router-link to="/signup" class="signup-link"> Don't have an account? Sign up </router-link>
+        <router-link to="/signup" class="signup-link"> {{ $t('login.signupLink') }} </router-link>
       </div>
     </form>
   </div>
 </template>
 
-<style>
+<style scoped>
 .login-container {
   max-width: 400px;
   margin: 50px auto;
@@ -82,6 +90,7 @@ const handleLogin = async () => {
   font-weight: bold;
   margin-bottom: 1.5rem; /* mb-6 */
   text-align: center;
+  color: #374151;
 }
 
 .login-form {

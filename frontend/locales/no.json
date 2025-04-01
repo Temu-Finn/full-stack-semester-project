@@ -2,5 +2,39 @@
   "navbar": {
     "newProduct": "Nytt produkt",
     "messages": "Meldinger"
+  },
+  "login": {
+    "title": "Logg inn",
+    "emailLabel": "E-post",
+    "passwordLabel": "Passord",
+    "submitButton": "Logg inn",
+    "loadingButton": "Logger inn...",
+    "signupLink": "Har du ikke konto? Registrer deg",
+    "error": {
+      "required": "E-post og passord er påkrevd",
+      "invalidCredentials": "Ugyldig brukernavn eller passord",
+      "unexpected": "En uventet feil oppstod under innlogging."
+    }
+  },
+  "signup": {
+    "title": "Registrer deg",
+    "nameLabel": "Navn",
+    "emailLabel": "E-post",
+    "passwordLabel": "Passord (minst 8 tegn)",
+    "repeatPasswordLabel": "Gjenta passord",
+    "submitButton": "Registrer deg",
+    "loadingButton": "Registrerer...",
+    "loginLink": "Har du allerede en konto? Logg inn",
+    "error": {
+      "required": "Alle felt er påkrevd",
+      "passwordLength": "Passord må være minst 8 tegn langt",
+      "passwordMismatch": "Passordene stemmer ikke overens",
+      "failed": "Registrering feilet. Vennligst prøv igjen.",
+      "unexpected": "En uventet feil oppstod under registrering."
+    }
+  },
+  "profile": {
+    "title": "Profil",
+    "language": "Språk"
   }
 }

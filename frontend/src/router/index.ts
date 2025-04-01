@@ -4,7 +4,7 @@ import NewProductView from '@/views/NewProductView.vue'
 import MessagesView from '@/views/MessagesView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import LogInView from '@/views/LogInView.vue'
-import SignUpView from '@/views/SingUpView.vue'
+import SignUpView from '@/views/SignUpView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
