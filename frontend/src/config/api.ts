@@ -30,7 +30,7 @@ api.interceptors.request.use(
     return config
   },
   (error) => {
-    return Promise.reject(error)
+    return Promise.reject(new Error(error.message || 'An error occurred'))
   },
 )
 
@@ -43,7 +43,7 @@ api.interceptors.response.use(
       // Redirect to login page
       router.push('/login')
     }
-    return Promise.reject(error)
+    return Promise.reject(new Error(error.message || 'An error occurred'))
   },
 )
 
