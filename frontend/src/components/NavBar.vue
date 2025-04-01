@@ -1,11 +1,15 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+</script>
 
 <template>
   <nav class="nav-bar">
     <div class="nav-content">
       <a class="logo-section" href="/">
         <img alt="logo" src="../assets/logo.svg" width="36" />
-        <!-- p>Temu Finn</p-->
+        <p>Temu Finn</p>
       </a>
       <div class="items-section">
         <a href="/new">{{ $t('navbar.newProduct') }}</a>
@@ -13,7 +17,7 @@
       </div>
       <a class="profile-section" href="/profile">
         <img alt="profile-icon" src="../assets/logo.svg" width="36" />
-        <p>Henrik</p>
+        <p>{{ authStore.user?.name ?? 'Log in' }}</p>
       </a>
     </div>
   </nav>

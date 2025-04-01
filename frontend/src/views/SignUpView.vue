@@ -9,32 +9,44 @@ const { t } = useI18n()
 const router = useRouter()
 const authStore = useAuthStore()
 
+const name = ref('')
 const email = ref('')
 const password = ref('')
+const repeatPassword = ref('')
 const errorMessage = ref('')
 const isLoading = ref(false)
 
-const handleLogin = async () => {
-  if (!email.value || !password.value) {
-    errorMessage.value = t('login.error.required')
+const handleSignup = async () => {
+  errorMessage.value = ''
+
+  if (!name.value || !email.value || !password.value || !repeatPassword.value) {
+    errorMessage.value = t('signup.error.required')
+    return
+  }
+  if (password.value.length < 8) {
+    errorMessage.value = t('signup.error.passwordLength')
+    return
+  }
+  if (password.value !== repeatPassword.value) {
+    errorMessage.value = t('signup.error.passwordMismatch')
     return
   }
 
   isLoading.value = true
   try {
-    const success = await authStore.login(email.value, password.value)
+    const success = await authStore.signup(email.value, name.value, password.value)
     if (success) {
       router.push('/')
     } else {
-      errorMessage.value = t('login.error.invalidCredentials')
+      errorMessage.value = t('signup.error.failed')
     }
   } catch (error: unknown) {
-    console.error('Login error:', error)
+    console.error('Signup error:', error)
 
     if (error instanceof Error) {
       errorMessage.value = error.message
     } else {
-      errorMessage.value = t('login.error.unexpected')
+      errorMessage.value = t('signup.error.unexpected')
     }
   } finally {
     isLoading.value = false
@@ -43,40 +55,58 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <div class="login-container">
-    <h2 class="login-title">{{ $t('login.title') }}</h2>
+  <div class="signup-container">
+    <h2 class="signup-title">{{ $t('signup.title') }}</h2>
 
-    <form @submit.prevent="handleLogin" class="login-form">
+    <form @submit.prevent="handleSignup" class="signup-form">
       <div v-if="errorMessage" class="error-message">
         {{ errorMessage }}
       </div>
 
       <div>
-        <label for="email" class="input-label">{{ $t('login.emailLabel') }}</label>
+        <label for="name" class="input-label">{{ $t('signup.nameLabel') }}</label>
+        <input id="name" v-model="name" type="text" class="input-field" required />
+      </div>
+
+      <div>
+        <label for="email" class="input-label">{{ $t('signup.emailLabel') }}</label>
         <input id="email" v-model="email" type="email" class="input-field" required />
       </div>
 
       <div>
-        <label for="password" class="input-label">{{ $t('login.passwordLabel') }}</label>
+        <label for="password" class="input-label">{{ $t('signup.passwordLabel') }}</label>
         <input id="password" v-model="password" type="password" class="input-field" required />
       </div>
 
       <div>
+        <label for="repeatPassword" class="input-label">{{
+          $t('signup.repeatPasswordLabel')
+        }}</label>
+        <input
+          id="repeatPassword"
+          v-model="repeatPassword"
+          type="password"
+          class="input-field"
+          required
+        />
+      </div>
+
+      <div>
         <button type="submit" :disabled="isLoading" class="submit-button">
-          <span v-if="isLoading">{{ $t('login.loadingButton') }}</span>
-          <span v-else>{{ $t('login.submitButton') }}</span>
+          <span v-if="isLoading">{{ $t('signup.loadingButton') }}</span>
+          <span v-else>{{ $t('signup.submitButton') }}</span>
         </button>
       </div>
 
-      <div class="signup-link-container">
-        <router-link to="/signup" class="signup-link"> {{ $t('login.signupLink') }} </router-link>
+      <div class="login-link-container">
+        <router-link to="/login" class="login-link"> {{ $t('signup.loginLink') }} </router-link>
       </div>
     </form>
   </div>
 </template>
 
 <style scoped>
-.login-container {
+.signup-container {
   max-width: 400px;
   margin: 50px auto;
   padding: 2rem;
@@ -85,7 +115,7 @@ const handleLogin = async () => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.login-title {
+.signup-title {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 1.5rem;
@@ -93,7 +123,7 @@ const handleLogin = async () => {
   color: #374151;
 }
 
-.login-form {
+.signup-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -163,23 +193,23 @@ const handleLogin = async () => {
   cursor: not-allowed;
 }
 
-.signup-link-container {
+.login-link-container {
   text-align: center;
   margin-top: 1rem;
 }
 
-.signup-link {
+.login-link {
   font-size: 0.875rem;
   color: #60a5fa;
   text-decoration: none;
   transition: color 0.2s;
 }
 
-.signup-link:hover {
+.login-link:hover {
   color: #3b82f6;
 }
 
-.login-form div {
+.signup-form div {
   width: 100%;
 }
 </style>
