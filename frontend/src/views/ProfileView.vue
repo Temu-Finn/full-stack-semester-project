@@ -1,7 +1,7 @@
 <template>
   <main>
     <div class="about">
-      <p>Messages page</p>
+      <p>Profile page</p>
     </div>
   </main>
 </template>
