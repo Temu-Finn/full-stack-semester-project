@@ -1,18 +1,14 @@
 <script lang="ts" setup>
-import { useI18n } from 'vue-i18n'
-import { watch } from 'vue'
+import { useLocaleStore } from '@/stores/locale'
 
-const { locale } = useI18n()
-
+const localeStore = useLocaleStore()
 const changeLanguage = () => {
-  watch(locale, (newLocale) => {
-    localStorage.setItem('locale', newLocale)
-  })
+  localeStore.setLocale(localeStore.currentLocale)
 }
 </script>
 
 <template>
-  <select v-model="locale" @change="changeLanguage">
+  <select v-model="localeStore.currentLocale" @change="changeLanguage">
     <option value="en">English</option>
     <option value="no">Norsk</option>
   </select>

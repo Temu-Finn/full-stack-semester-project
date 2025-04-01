@@ -4,7 +4,7 @@ import LanguageSelector from '@/components/LanguageSelector.vue'
 
 <template>
   <main>
-    <p>Profile page</p>
+    <p>{{ $t('profile.title') }}</p>
     <LanguageSelector />
   </main>
 </template>
