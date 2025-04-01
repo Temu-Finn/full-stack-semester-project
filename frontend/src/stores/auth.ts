@@ -11,7 +11,7 @@ interface User {
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(localStorage.getItem('token'))
-  const user = ref<User | null>(JSON.parse(localStorage.getItem('user') || 'null'))
+  const user = ref<User | null>(JSON.parse(localStorage.getItem('user') ?? 'null'))
 
   const isAuthenticated = computed(() => !!token.value)
 
@@ -68,7 +68,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   function logout() {
     setToken(null, null)
-    router.push('/login')
+    router.push('/')
   }
 
   return { token, isAuthenticated, login, signup, logout, user }

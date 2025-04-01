@@ -16,7 +16,7 @@ const authStore = useAuthStore()
     </div>
     <a class="profile-section" href="/profile">
       <img alt="profile-icon" src="../assets/logo.svg" width="36" />
-      <p>{{ authStore.user?.name }}</p>
+      <p>{{ authStore.user?.name ?? 'Log in' }}</p>
     </a>
   </nav>
 </template>
