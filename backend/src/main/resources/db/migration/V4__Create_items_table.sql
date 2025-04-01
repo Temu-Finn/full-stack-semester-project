@@ -5,7 +5,7 @@ CREATE TABLE items
     category_id       INT            NOT NULL, -- FK to categories table
     postal_code       VARCHAR(10)    NOT NULL, -- FK to postal_codes table
     title             VARCHAR(100)   NOT NULL,
-    description       TEXT           NULL,
+    description       TEXT           NOT NULL,
     price             DECIMAL(10, 2) NOT NULL,
     purchase_price    DECIMAL(10, 2) NULL COMMENT 'Actual price sold for, if different from listing price and sold',
     latitude          DECIMAL(9, 6)  NULL,
