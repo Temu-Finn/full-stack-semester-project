@@ -23,14 +23,14 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const authStore = useAuthStore()
-    if (authStore.token) {
+    if (authStore.token && !config.url?.includes('/auth')) {
       config.headers.Authorization = `Bearer ${authStore.token}`
     }
 
     return config
   },
   (error) => {
-    return Promise.reject(error)
+    return Promise.reject(new Error(error.message || 'An error occurred'))
   },
 )
 
@@ -43,7 +43,7 @@ api.interceptors.response.use(
       // Redirect to login page
       router.push('/login')
     }
-    return Promise.reject(error)
+    return Promise.reject(new Error(error.message || 'An error occurred'))
   },
 )
 

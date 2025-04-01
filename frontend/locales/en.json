@@ -2,5 +2,39 @@
   "navbar": {
     "newProduct": "New product",
     "messages": "Messages"
+  },
+  "login": {
+    "title": "Log In",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "submitButton": "Log In",
+    "loadingButton": "Logging in...",
+    "signupLink": "Don't have an account? Sign up",
+    "error": {
+      "required": "Email and password are required",
+      "invalidCredentials": "Invalid credentials",
+      "unexpected": "An unexpected error occurred during login."
+    }
+  },
+  "signup": {
+    "title": "Sign Up",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "passwordLabel": "Password (min. 8 characters)",
+    "repeatPasswordLabel": "Repeat Password",
+    "submitButton": "Sign Up",
+    "loadingButton": "Signing up...",
+    "loginLink": "Already have an account? Log in",
+    "error": {
+      "required": "All fields are required",
+      "passwordLength": "Password must be at least 8 characters long",
+      "passwordMismatch": "Passwords do not match",
+      "failed": "Signup failed. Please try again.",
+      "unexpected": "An unexpected error occurred during signup."
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "language": "Language"
   }
 }
