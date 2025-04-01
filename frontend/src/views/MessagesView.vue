@@ -2,7 +2,7 @@
 
 <template>
   <main>
-    <p>Home page</p>
+    <p>Messages page</p>
   </main>
 </template>
 

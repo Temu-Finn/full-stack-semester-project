@@ -1,23 +1,24 @@
-<script setup lang="ts">
+<script lang="ts" setup>
+import { useSessionStore } from '@/stores/session'
 
+const authStore = useSessionStore()
 </script>
 
 <template>
-<nav class="nav-bar">
-    <a  class="logo-section" href="/">
-      <img width="48" src="../assets/logo.svg" alt="logo">
+  <nav class="nav-bar">
+    <a class="logo-section" href="/">
+      <img alt="logo" src="../assets/logo.svg" width="36" />
       <p>Temu Finn</p>
     </a>
-  <div class="items-section">
-    <a href="/about">Page 1</a>
-    <a href="">Page 2</a>
-    <a href="">Page 3</a>
-  </div>
-    <a class="profile-section" href="">
-      <img src="" alt="profile-icon">
-      <p>Henrik</p>
+    <div class="items-section">
+      <a href="/new">{{ $t('navbar.newProduct') }}</a>
+      <a href="/messages">{{ $t('navbar.messages') }}</a>
+    </div>
+    <a class="profile-section" href="/profile">
+      <img alt="profile-icon" src="../assets/logo.svg" width="36" />
+      <p>{{ authStore.user?.name ?? 'Log in' }}</p>
     </a>
-</nav>
+  </nav>
 </template>
 
 <style scoped>
@@ -34,7 +35,7 @@
 }
 .logo-section {
   display: flex;
-  gap:1rem;
+  gap: 1rem;
   align-items: center;
 }
 .items-section {
