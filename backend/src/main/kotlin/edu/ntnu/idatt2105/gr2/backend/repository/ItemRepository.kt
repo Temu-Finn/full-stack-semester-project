@@ -1,6 +1,6 @@
 package edu.ntnu.idatt2105.gr2.backend.repository
 
-import edu.ntnu.idatt2105.gr2.backend.model.User
+import edu.ntnu.idatt2105.gr2.backend.model.Item
 import org.springframework.stereotype.Repository
 import java.sql.Statement
 import javax.sql.DataSource
@@ -15,9 +15,9 @@ class ItemRepository(private val dataSource: DataSource) {
         val description = item.description
         // val picture = item.picture
         val isSold = item.isSold
-        val itemCondition = item.condition
+        val itemCondition = item.condition // Should be ENUM
         dataSource.connection.use { conn ->
-            val sql = "INSERT INTO items (owner_id, category_id, item_name, price, description, is_sold, item_condition) VALUES(?,?,?,?,?,?)"
+            val sql = "INSERT INTO items (owner_id, category_id, item_name, price, description, is_sold, item_condition) VALUES(?,?,?,?,?,?,?)"
             conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS).use { stmt ->
                 stmt.setLong(1, ownerId)
                 stmt.setLong(2, categoryId)
@@ -35,7 +35,7 @@ class ItemRepository(private val dataSource: DataSource) {
                 stmt.generatedKeys.use { keys ->
                     if (keys.next()) {
                         val id = keys.getLong(1)
-                        return item.copy(id = id)
+                        return item.copy(id = id) //
                     } else {
                         throw RuntimeException("Creating item failed, no ID obtained.")
                     }
@@ -55,6 +55,7 @@ class ItemRepository(private val dataSource: DataSource) {
                             rows.getLong("id"),
                             rows.getLong("owner"),
                             rows.getLong("category"),
+                            rows.getString("name"),
                             rows.getDouble("price"),
                             rows.getString("description"),
                             rows.getBoolean("is_sold"),
