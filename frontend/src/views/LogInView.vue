@@ -2,7 +2,7 @@
 
 <template>
   <main>
-    <p>Home page</p>
+    <p>Login Page</p>
   </main>
 </template>
 

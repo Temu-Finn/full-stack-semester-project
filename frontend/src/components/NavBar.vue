@@ -5,16 +5,15 @@
 <template>
 <nav class="nav-bar">
     <a  class="logo-section" href="/">
-      <img width="48" src="../assets/logo.svg" alt="logo">
+      <img width="36" src="../assets/logo.svg" alt="logo">
       <p>Temu Finn</p>
     </a>
   <div class="items-section">
-    <a href="/about">Page 1</a>
-    <a href="">Page 2</a>
-    <a href="">Page 3</a>
+    <a href="/new">Nytt produkt</a>
+    <a href="/messages">Meldinger</a>
   </div>
-    <a class="profile-section" href="">
-      <img src="" alt="profile-icon">
+    <a class="profile-section" href="/profile">
+      <img width="36" src="../assets/logo.svg" alt="profile-icon">
       <p>Henrik</p>
     </a>
 </nav>
