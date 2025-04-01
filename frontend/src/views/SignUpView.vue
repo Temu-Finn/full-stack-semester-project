@@ -106,7 +106,6 @@ const handleSignup = async () => {
 </template>
 
 <style scoped>
-/* Styles adapted from LogInView.vue */
 .signup-container {
   max-width: 400px;
   margin: 50px auto;
@@ -195,13 +194,11 @@ const handleSignup = async () => {
 }
 
 .login-link-container {
-  /* Adjusted class name */
   text-align: center;
   margin-top: 1rem;
 }
 
 .login-link {
-  /* Adjusted class name */
   font-size: 0.875rem;
   color: #60a5fa;
   text-decoration: none;
@@ -209,11 +206,9 @@ const handleSignup = async () => {
 }
 
 .login-link:hover {
-  /* Adjusted class name */
   color: #3b82f6;
 }
 
-/* Ensure inputs take full width inside flex container */
 .signup-form div {
   width: 100%;
 }

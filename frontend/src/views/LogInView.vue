@@ -86,9 +86,9 @@ const handleLogin = async () => {
 }
 
 .login-title {
-  font-size: 1.5rem; /* 2xl */
+  font-size: 1.5rem;
   font-weight: bold;
-  margin-bottom: 1.5rem; /* mb-6 */
+  margin-bottom: 1.5rem;
   text-align: center;
   color: #374151;
 }
@@ -96,32 +96,32 @@ const handleLogin = async () => {
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* space-y-4 */
+  gap: 1rem;
 }
 
 .error-message {
-  background-color: #fee2e2; /* bg-red-100 */
-  border: 1px solid #f87171; /* border-red-400 */
-  color: #b91c1c; /* text-red-700 */
-  padding: 0.75rem 1rem; /* px-4 py-3 */
-  border-radius: 0.375rem; /* rounded */
+  background-color: #fee2e2;
+  border: 1px solid #f87171;
+  color: #b91c1c;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
 }
 
 .input-label {
   display: block;
-  font-size: 0.875rem; /* text-sm */
-  font-weight: 500; /* font-medium */
-  color: #374151; /* text-gray-700 */
-  margin-bottom: 0.25rem; /* Implicit margin from mt-1 on input */
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
 }
 
 .input-field {
   display: block;
   width: 100%;
-  padding: 0.5rem 0.75rem; /* px-3 py-2 */
-  border: 1px solid #d1d5db; /* border-gray-300 */
-  border-radius: 0.375rem; /* rounded-md */
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   transition:
     border-color 0.2s,
     box-shadow 0.2s;
@@ -129,57 +129,56 @@ const handleLogin = async () => {
 
 .input-field:focus {
   outline: none;
-  border-color: #3b82f6; /* focus:border-blue-500 */
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); /* focus:ring-blue-500 */
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
 }
 
 .submit-button {
   width: 100%;
   display: flex;
   justify-content: center;
-  padding: 0.5rem 1rem; /* py-2 px-4 */
+  padding: 0.5rem 1rem;
   border: 1px solid transparent;
-  border-radius: 0.375rem; /* rounded-md */
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* shadow-sm */
-  font-size: 0.875rem; /* text-sm */
-  font-weight: 500; /* font-medium */
-  color: #fff; /* text-white */
-  background-color: #60a5fa; /* bg-blue-400 */
+  border-radius: 0.375rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  background-color: #60a5fa;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
 .submit-button:hover {
-  background-color: #3b82f6; /* hover:bg-blue-500 */
+  background-color: #3b82f6;
 }
 
 .submit-button:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
 }
 
 .submit-button:disabled {
-  opacity: 0.5; /* disabled:opacity-50 */
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .signup-link-container {
   text-align: center;
-  margin-top: 1rem; /* mt-4 */
+  margin-top: 1rem;
 }
 
 .signup-link {
-  font-size: 0.875rem; /* text-sm */
-  color: #60a5fa; /* text-blue-400 */
+  font-size: 0.875rem;
+  color: #60a5fa;
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .signup-link:hover {
-  color: #3b82f6; /* hover:text-blue-500 */
+  color: #3b82f6;
 }
 
-/* Ensure inputs take full width inside flex container */
 .login-form div {
   width: 100%;
 }
