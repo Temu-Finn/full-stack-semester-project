@@ -33,7 +33,7 @@ class CategoryService (
     }
 
     fun updateDescription(name: String, description: String) {
-        if (name.isBlank()) {
+        if (name.isBlank() || description.isBlank()) {
             throw IllegalArgumentException("Name cannot be blank")
         }
         categoryRepository.updateDescription(name, description)
