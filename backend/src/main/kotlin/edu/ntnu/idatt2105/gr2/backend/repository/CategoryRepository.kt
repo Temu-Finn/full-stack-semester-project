@@ -10,8 +10,8 @@ class CategoryRepository (private val dataSource: DataSource) {
 
     // Saves a category
     fun save(category: Category) : Category {
-        val name = category.getName()
-        val description = category.getDescription()
+        val name = category.name
+        val description = category.description
 
         if (existsByName(name)) {
             throw IllegalArgumentException("Category with name $name already exists")
