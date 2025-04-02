@@ -1,11 +1,10 @@
-<script setup lang="ts">
-import NavBar from "@/components/NavBar.vue";
+<script lang="ts" setup>
+import NavBar from '@/components/NavBar.vue'
 </script>
 
 <template>
-    <NavBar></NavBar>
-    <RouterView />
+  <NavBar></NavBar>
+  <RouterView />
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>
