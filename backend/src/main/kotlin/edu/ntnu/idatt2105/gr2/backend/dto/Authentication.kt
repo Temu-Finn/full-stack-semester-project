@@ -35,6 +35,4 @@ data class UserResponse(
     val email: String,
     val token: String,
     val expiresIn: Long,
-    val error: String? = null,
-    val status: Int = 200,
 )
