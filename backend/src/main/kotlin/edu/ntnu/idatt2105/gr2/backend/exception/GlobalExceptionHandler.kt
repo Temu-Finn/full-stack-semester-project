@@ -55,6 +55,18 @@ class GlobalExceptionHandler {
     }
 
     /**
+     * Handles UserAlreadyExistsException and converts it to a 409 Conflict response.
+     * @param ex The UserAlreadyExistsException that was thrown
+     * @return A ProblemDetail containing the error information
+     */
+    @ExceptionHandler(UserAlreadyExistsException::class)
+    fun handleUserAlreadyExistsException(ex: UserAlreadyExistsException): ProblemDetail {
+        logger.warn("Attempt to create an already existing user", ex)
+        return ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.message)
+            .apply { setProperty("description", "A user with the provided email already exists.") }
+    }
+
+    /**
      * Handles IllegalArgumentException and converts it to a 400 Bad Request response.
      * @param ex The IllegalArgumentException that was thrown
      * @return A ProblemDetail containing the error information
