@@ -3,7 +3,7 @@
  */
 
 import router from '@/router'
-import { useAuthStore } from '@/stores/auth'
+import { useSessionStore } from '@/stores/session'
 import axios from 'axios'
 
 export const API_CONFIG = {
@@ -22,15 +22,15 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const authStore = useAuthStore()
-    if (authStore.token) {
+    const authStore = useSessionStore()
+    if (authStore.token && !config.url?.includes('/auth')) {
       config.headers.Authorization = `Bearer ${authStore.token}`
     }
 
     return config
   },
   (error) => {
-    return Promise.reject(error)
+    return Promise.reject(new Error(error.message || 'An error occurred'))
   },
 )
 
@@ -38,12 +38,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      const authStore = useAuthStore()
+      const authStore = useSessionStore()
       authStore.logout()
       // Redirect to login page
       router.push('/login')
     }
-    return Promise.reject(error)
+    return Promise.reject(new Error(error.message || 'An error occurred'))
   },
 )
 

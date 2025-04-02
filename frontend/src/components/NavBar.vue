@@ -1,4 +1,8 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { useSessionStore } from '@/stores/session'
+
+const authStore = useSessionStore()
+</script>
 
 <template>
   <nav class="nav-bar">
@@ -12,7 +16,7 @@
     </div>
     <a class="profile-section" href="/profile">
       <img alt="profile-icon" src="../assets/logo.svg" width="36" />
-      <p>Henrik</p>
+      <p>{{ authStore.user?.name ?? 'Log in' }}</p>
     </a>
   </nav>
 </template>
