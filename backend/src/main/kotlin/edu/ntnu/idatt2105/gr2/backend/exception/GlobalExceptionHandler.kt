@@ -4,11 +4,15 @@ import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.security.SignatureException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
+import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.security.authentication.AccountStatusException
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.MissingServletRequestParameterException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.servlet.NoHandlerFoundException
 import org.slf4j.LoggerFactory
 
 /**
@@ -85,5 +89,55 @@ class GlobalExceptionHandler {
             .joinToString(", ")
         
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, errorMessage)
+    }
+
+    /**
+     * Handles malformed JSON requests and converts them to a 400 Bad Request response.
+     * @param ex The HttpMessageNotReadableException that was thrown
+     * @return A ProblemDetail containing the error information
+     */
+    @ExceptionHandler(HttpMessageNotReadableException::class)
+    fun handleHttpMessageNotReadableException(ex: HttpMessageNotReadableException): ProblemDetail {
+        logger.warn("Malformed JSON request received", ex)
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Malformed JSON request")
+            .apply { setProperty("description", "The request body is not valid JSON") }
+    }
+
+    /**
+     * Handles unsupported HTTP methods and converts them to a 405 Method Not Allowed response.
+     * @param ex The HttpRequestMethodNotSupportedException that was thrown
+     * @return A ProblemDetail containing the error information
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
+    fun handleHttpRequestMethodNotSupportedException(ex: HttpRequestMethodNotSupportedException): ProblemDetail {
+        logger.warn("Unsupported HTTP method requested", ex)
+        return ProblemDetail.forStatusAndDetail(HttpStatus.METHOD_NOT_ALLOWED, ex.message)
+            .apply { setProperty("description", "The HTTP method is not supported for this endpoint") }
+    }
+
+    /**
+     * Handles 404 Not Found errors and converts them to a 404 response.
+     * @param ex The NoHandlerFoundException that was thrown
+     * @return A ProblemDetail containing the error information
+     */
+    @ExceptionHandler(NoHandlerFoundException::class)
+    fun handleNoHandlerFoundException(ex: NoHandlerFoundException): ProblemDetail {
+        logger.warn("No handler found for request", ex)
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, "Endpoint not found")
+            .apply { setProperty("description", "The requested endpoint does not exist") }
+    }
+
+    /**
+     * Handles missing required parameters and converts them to a 400 Bad Request response.
+     * @param ex The MissingServletRequestParameterException that was thrown
+     * @return A ProblemDetail containing the error information
+     */
+    @ExceptionHandler(MissingServletRequestParameterException::class)
+    fun handleMissingServletRequestParameterException(ex: MissingServletRequestParameterException): ProblemDetail {
+        logger.warn("Missing required parameter", ex)
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Missing required parameter")
+            .apply { 
+                setProperty("description", "The required parameter '${ex.parameterName}' of type '${ex.parameterType}' is missing")
+            }
     }
 }
