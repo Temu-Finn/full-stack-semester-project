@@ -7,11 +7,11 @@ import org.springframework.http.ProblemDetail
 import org.springframework.security.authentication.AccountStatusException
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.MethodArgumentNotValidException
-import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.RestControllerAdvice
 
 
-@ControllerAdvice
+@RestControllerAdvice
 class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
@@ -24,8 +24,6 @@ class GlobalExceptionHandler {
         if (exception is BadCredentialsException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(401), exception.message)
             errorDetail.setProperty("description", "The username or password is incorrect")
-
-            return errorDetail
         }
 
         if (exception is AccountStatusException) {
@@ -54,6 +52,16 @@ class GlobalExceptionHandler {
         }
 
         return errorDetail
+    }
+
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgumentException(ex: IllegalArgumentException): ProblemDetail {
+        return ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), ex.message)
+    }
+
+    @ExceptionHandler(IllegalStateException::class)
+    fun handleIllegalStateException(ex: IllegalStateException): ProblemDetail {
+        return ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), ex.message)
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
