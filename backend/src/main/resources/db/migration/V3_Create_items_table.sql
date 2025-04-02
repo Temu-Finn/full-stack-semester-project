@@ -7,8 +7,8 @@ CREATE TABLE items
     item_price DOUBLE NOT NULL,
     item_description TEXT,
     is_sold BOOLEAN DEFAULT FALSE,
-    item_condition ENUM('NEW', 'LIKE_NEW', 'USED', 'WELL_USED', 'DAMAGED') DEFAULT USED,
+    item_condition ENUM('NEW', 'LIKE_NEW', 'USED', 'WELL_USED', 'DAMAGED') DEFAULT 'USED',
 
-    FOREIGN KEY (item_owner) REFERENCES users(user_id),
-    FOREIGN KEY (item_category) REFERENCES categories(category_id)
+    FOREIGN KEY (item_owner) REFERENCES users(user_id)
+    /**FOREIGN KEY (item_category) REFERENCES categories(category_id)**/
 );
