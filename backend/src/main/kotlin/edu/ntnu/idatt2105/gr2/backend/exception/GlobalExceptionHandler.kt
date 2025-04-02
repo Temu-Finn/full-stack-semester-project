@@ -4,13 +4,11 @@ import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.security.SignatureException
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.ProblemDetail
-import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AccountStatusException
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
-import java.time.LocalDateTime
 
 
 @ControllerAdvice
@@ -59,7 +57,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
-    fun handleValidationException(ex: MethodArgumentNotValidException): ResponseEntity<ValidationErrorResponse> {
+    fun handleValidationException(ex: MethodArgumentNotValidException): ProblemDetail {
         var errorMessage = "";
         ex.bindingResult.allErrors.forEach { error ->
             if (errorMessage.isNotEmpty()) {
@@ -68,18 +66,6 @@ class GlobalExceptionHandler {
             errorMessage += error.defaultMessage
         }
 
-        val errorResponse = ValidationErrorResponse(
-            timestamp = LocalDateTime.now(),
-            status = 400,
-            error = errorMessage
-        )
-
-        return ResponseEntity.badRequest().body(errorResponse)
+        return ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(400), errorMessage)
     }
 }
-
-data class ValidationErrorResponse(
-    val timestamp: LocalDateTime,
-    val status: Int,
-    val error: String = "Bad Request"
-)
