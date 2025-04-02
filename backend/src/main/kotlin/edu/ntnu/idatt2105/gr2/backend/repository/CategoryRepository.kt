@@ -37,6 +37,15 @@ class CategoryRepository (private val dataSource: DataSource) {
         categories.forEach { save(it) }
     }
 
+    fun deleteAll() {
+        dataSource.connection.use { conn ->
+            val sql = "DELETE FROM categories"
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.executeUpdate()
+            }
+        }
+    }
+
     // Finds all categories
     fun findAll(): List<Category> {
         dataSource.connection.use { conn ->
