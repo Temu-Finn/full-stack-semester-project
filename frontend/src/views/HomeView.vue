@@ -1,9 +1,11 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import Search from '@/components/home/Search.vue'
+import Products from '@/components/home/ProductsGrid.vue'
+</script>
 
 <template>
-  <main>
-    <p>Home page</p>
-  </main>
+  <Search />
+  <Products />
 </template>
 
 <style></style>

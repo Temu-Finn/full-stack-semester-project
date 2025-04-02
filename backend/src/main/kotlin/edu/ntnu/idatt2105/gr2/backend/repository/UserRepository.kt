@@ -43,7 +43,7 @@ class UserRepository(private val dataSource: DataSource) {
                 stmt.executeQuery().use { rows ->
                     if (rows.next()) {
                         return User(
-                            rows.getInt("user_id"),
+                            rows.getInt("id"),
                             rows.getString("name"),
                             rows.getString("email"),
                             rows.getString("password")

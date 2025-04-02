@@ -83,7 +83,9 @@ make fresh
 
 ### API
 
-The API will be documented using OpenAPI 3.0 and swagger.
+The API is documented using OpenAPI 3.0 and swagger.
+
+To view the API documentation, run the application and navigate to `http://localhost:8080/swagger-ui/index.html`.
 
 ### Testing
 
