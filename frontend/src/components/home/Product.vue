@@ -7,9 +7,8 @@
     />
     <div class="product-info">
       <h3 class="product-name">{{ product.name }}</h3>
-      <p class="product-description">{{ product.description }}</p>
       <div class="product-meta">
-        <span class="product-category">{{ product.category }}</span>
+        <span class="product-location">{{ product.municipality }}</span>
         <span class="product-price">${{ product.price }}</span>
       </div>
     </div>
@@ -56,8 +55,11 @@ defineProps({
 
 .product-name {
   font-size: 1.1rem;
-  margin: 0 0 0.5rem 0;
   color: #333;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .product-description {
@@ -75,7 +77,7 @@ defineProps({
   justify-content: space-between;
   font-size: 0.9rem;
   color: #999;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
 .product-price {

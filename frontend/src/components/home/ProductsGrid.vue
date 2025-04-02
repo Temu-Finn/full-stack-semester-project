@@ -17,6 +17,7 @@ const products = ref([
     image: 'bamboo-watch.jpg',
     price: 65,
     category: 'Accessories',
+    municipality: 'Bergen',
   },
   {
     id: '1001',
@@ -25,6 +26,7 @@ const products = ref([
     image: 'black-watch.jpg',
     price: 72,
     category: 'Accessories',
+    municipality: 'Oslo',
   },
   {
     id: '1002',
@@ -34,6 +36,7 @@ const products = ref([
     image: 'blue-band.jpg',
     price: 79,
     category: 'Fitness',
+    municipality: 'Stavanger',
   },
   {
     id: '1003',
@@ -42,6 +45,7 @@ const products = ref([
     image: 'blue-t-shirt.jpg',
     price: 29,
     category: 'Clothing',
+    municipality: 'Tromsø',
   },
   {
     id: '1004',
@@ -51,6 +55,7 @@ const products = ref([
     image: 'bracelet.jpg',
     price: 15,
     category: 'Accessories',
+    municipality: 'Kristiansand',
   },
   {
     id: '1005',
@@ -59,6 +64,7 @@ const products = ref([
     image: 'brown-purse.jpg',
     price: 120,
     category: 'Accessories',
+    municipality: 'Fredrikstad',
   },
   {
     id: '1006',
@@ -68,6 +74,7 @@ const products = ref([
     image: 'chakra-bracelet.jpg',
     price: 32,
     category: 'Accessories',
+    municipality: 'Bodø',
   },
   {
     id: '1007',
@@ -77,6 +84,7 @@ const products = ref([
     image: 'galaxy-earrings.jpg',
     price: 34,
     category: 'Accessories',
+    municipality: 'Ålesund',
   },
   {
     id: '1008',
@@ -87,6 +95,7 @@ const products = ref([
     image: 'game-controller.jpg',
     price: 99,
     category: 'Electronics',
+    municipality: 'Trondheim',
   },
 ])
 </script>
@@ -97,6 +106,6 @@ const products = ref([
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1.5rem;
-  padding-top: 2rem;
+  padding: 1.5rem 0;
 }
 </style>
