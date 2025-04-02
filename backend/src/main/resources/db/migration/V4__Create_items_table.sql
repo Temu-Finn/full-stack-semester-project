@@ -8,8 +8,8 @@ CREATE TABLE items
     description      TEXT                                               NOT NULL,
     price            DECIMAL(10, 2)                                     NOT NULL,
     purchase_price   DECIMAL(10, 2)                                     NULL COMMENT 'Actual price sold for, if different from listing price and sold',
-    latitude         DECIMAL(9, 6)                                      NULL,
-    longitude        DECIMAL(9, 6)                                      NULL,
+    buyer_id         INT                                                NULL, -- FK to users table (the buyer)
+    location         POINT                                              NULL,
     allow_vipps_buy  BOOLEAN                                            NOT NULL DEFAULT FALSE,
     primary_image_id INT                                                NULL,     -- FK to item_images (main image). Constraint added via V6 migration.
     status           ENUM ('available', 'reserved', 'sold', 'archived') NOT NULL DEFAULT 'available' COMMENT 'Current status of the listing',
@@ -24,6 +24,7 @@ CREATE TABLE items
 
     FOREIGN KEY fk_items_seller (seller_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY fk_items_category (category_id) REFERENCES categories (id) ON DELETE RESTRICT,
-    FOREIGN KEY fk_items_postal_code (postal_code) REFERENCES postal_codes (postal_code) ON DELETE RESTRICT
+    FOREIGN KEY fk_items_postal_code (postal_code) REFERENCES postal_codes (postal_code) ON DELETE RESTRICT,
+    FOREIGN KEY fk_items_buyer (buyer_id) REFERENCES users (id) ON DELETE SET NULL
     -- FK for primary_image_id added in V6
 );
