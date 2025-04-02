@@ -3,10 +3,10 @@ package edu.ntnu.idatt2105.gr2.backend.service
 import edu.ntnu.idatt2105.gr2.backend.config.TestConfig
 import edu.ntnu.idatt2105.gr2.backend.repository.CategoryRepository
 import edu.ntnu.idatt2105.gr2.backend.model.Category
-import edu.ntnu.idatt2105.gr2.backend.service.CategoryService
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -15,39 +15,67 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Import
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
-import javax.transaction.Transactional
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
+import org.springframework.test.context.jdbc.Sql
+import org.testcontainers.containers.MariaDBContainer
+import org.testcontainers.junit.jupiter.Testcontainers
 
 
+@Testcontainers
 @SpringBootTest
+@Sql(scripts = ["classpath:testdb/testData.sql"])
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 @Import(TestConfig::class)
 class CategoryServiceTest {
 
+    companion object {
+        private val db = MariaDBContainer<Nothing>("mariadb").apply {
+            withDatabaseName("test")
+            withUsername("mariadb")
+            withPassword("mariadb")
+        }
+
+        @BeforeAll
+        @JvmStatic
+        fun startTestDBContainer() {
+            db.start()
+        }
+
+        @AfterAll
+        @JvmStatic
+        fun stopTestDBContainer() {
+            db.stop()
+        }
+
+        @DynamicPropertySource
+        @JvmStatic
+        fun registerDBContainer(registry: DynamicPropertyRegistry){
+            registry.add("spring.datasource.url", db::getJdbcUrl)
+            registry.add("spring.datasource.username", db::getUsername)
+            registry.add("spring.datasource.password", db::getPassword)
+        }
+    }
+
+
     @Autowired
     private lateinit var categoryService: CategoryService
 
-    @Autowired
-    private lateinit var categoryRepository: CategoryRepository
-
     @BeforeEach
     fun setup() {
-        //categoryRepository.deleteAll()
-        categoryRepository.save(Category("ELECTRONICS", "A description of electronics"))
-        categoryRepository.save(Category("CLOTHING", "A description of clothing"))
-        categoryRepository.save(Category("FURNITURE", "A description of furniture"))
-        categoryRepository.save(Category("BOOKS", "A description of books"))
+        categoryService.deleteAllCategories()
+        categoryService.createCategory("ELECTRONICS", "A description of electronics")
+        categoryService.createCategory("CLOTHING", "A description of clothing")
+        categoryService.createCategory("FURNITURE", "A description of furniture")
+        categoryService.createCategory("BOOKS", "A description of books")
     }
 
-    @AfterEach
-    fun cleanUp() {
-        categoryRepository.delete("ELECTRONICS")
-        categoryRepository.delete("CLOTHING")
-        categoryRepository.delete("FURNITURE")
-        categoryRepository.delete("BOOKS")
+    @Test
+    @DisplayName("Is dbContainer running")
+    fun `is dbContainer running`() {
+        assert(db.isRunning)
     }
 
     @Nested
@@ -121,7 +149,7 @@ class CategoryServiceTest {
             assertEquals("Name cannot be blank", exception.message)
         }
         @Test
-        @DisplayName("Test delete category")
+        @DisplayName("Test delete category throws exception")
         fun `test delete category`() {
             val exception = org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
                 categoryService.deleteCategory("")

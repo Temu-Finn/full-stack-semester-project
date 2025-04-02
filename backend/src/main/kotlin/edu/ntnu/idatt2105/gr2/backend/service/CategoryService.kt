@@ -32,6 +32,10 @@ class CategoryService (
         categoryRepository.delete(name)
     }
 
+    fun deleteAllCategories() {
+        categoryRepository.deleteAll()
+    }
+
     fun updateDescription(name: String, description: String) {
         if (name.isBlank() || description.isBlank()) {
             throw IllegalArgumentException("Name cannot be blank")
