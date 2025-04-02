@@ -23,8 +23,8 @@ class ItemController(private val itemService: ItemService) {
     }
 
     @GetMapping("/category/{categoryId}")
-    fun getItemsByCategoryId(@PathVariable id: Long): ResponseEntity<List<Item>> {
-        val items = itemService.getItemsByCategoryId(id)
+    fun getItemsByCategoryId(@PathVariable categoryId: Long): ResponseEntity<List<Item>> {
+        val items = itemService.getItemsByCategoryId(categoryId)
         return ResponseEntity.ok(items)
     }
 
