@@ -1,14 +1,23 @@
-.PHONY: db down fresh run test
+.PHONY: db down fresh run test build backend
+
+default: build
+	docker compose up -d
 
 db:
-	docker-compose up -d mysql
+	docker compose up -d mysql
 
 down:
-	docker-compose down
+	docker compose down
 
 fresh:
-	docker-compose down -v
+	docker compose down -v
 	make db
+
+build:
+	./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=spring-boot-backend
+
+backend:
+	docker compose up -d spring-boot
 
 ARTIFACT_ID := backend
 VERSION := 0.0.1-SNAPSHOT
