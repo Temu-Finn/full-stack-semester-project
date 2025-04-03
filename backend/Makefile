@@ -14,7 +14,7 @@ fresh:
 	make db
 
 build:
-	./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=spring-boot-backend
+	./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=zilaxe/full-stack-semester-project -DskipTests
 
 backend:
 	docker compose up -d spring-boot
