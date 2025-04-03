@@ -1,6 +1,6 @@
 .PHONY: db down fresh run test build backend
 
-default: build
+default:
 	docker compose up -d
 
 db:
@@ -12,9 +12,6 @@ down:
 fresh:
 	docker compose down -v
 	make db
-
-build:
-	./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=zilaxe/full-stack-semester-project -DskipTests
 
 backend:
 	docker compose up -d spring-boot
