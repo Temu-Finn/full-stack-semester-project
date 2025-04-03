@@ -25,6 +25,8 @@ services:
   spring-boot:
     env_file:
       - ".env"
+    environment:
+      - DB_HOST=mysql
     image: spring-boot-backend
     container_name: spring-boot
     ports:
@@ -34,7 +36,6 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-
 
 volumes:
   mysql_volume:
