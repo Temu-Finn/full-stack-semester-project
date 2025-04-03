@@ -27,7 +27,7 @@ services:
       - ".env"
     environment:
       - DB_HOST=mysql
-    image: spring-boot-backend
+    image: backend
     container_name: spring-boot
     ports:
       - "8080:8080"
