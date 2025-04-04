@@ -14,9 +14,34 @@ services:
     ports:
       - "${MYSQL_PORT}:${MYSQL_PORT}"
     restart: unless-stopped
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  spring-boot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ".env"
+    environment:
+      - DB_HOST=mysql
+    container_name: spring-boot
+    ports:
+      - "8080:8080"
+    networks:
+      - app_network
+    depends_on:
+      mysql:
+        condition: service_healthy
 
 volumes:
   mysql_volume:
 
 networks:
-  mysql_network:
+  app_network:
+    driver: bridge

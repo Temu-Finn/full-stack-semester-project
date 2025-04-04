@@ -2,6 +2,7 @@ package edu.ntnu.idatt2105.gr2.backend.service
 
 import edu.ntnu.idatt2105.gr2.backend.model.User
 import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
+import edu.ntnu.idatt2105.gr2.backend.exception.UserAlreadyExistsException
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.AuthenticationException
@@ -17,7 +18,7 @@ class AuthenticationService(
 ) {
     fun signup(name: String, email: String, password: String): User {
         if (userRepository.findByEmail(email) != null) {
-            throw IllegalArgumentException("User with email $email already exists")
+            throw UserAlreadyExistsException("User with email $email already exists")
         }
 
         val userToSave = User(name = name, email = email, passwordHashed = passwordEncoder.encode(password))

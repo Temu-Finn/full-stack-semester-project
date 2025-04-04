@@ -3,16 +3,10 @@ Backend is written in Kotlin using Spring Boot 3 framework.
 
 ### TL;DR
 
-First start the database:
+Start the application and database:
 
 ```bash
-make db
-```
-
-Then run the application:
-
-```bash
-make run
+make
 ```
 
 To reset the database and start fresh:
@@ -21,7 +15,7 @@ To reset the database and start fresh:
 make fresh
 ```
 
-To stop the database:
+To stop the application:
 
 ```bash
 make down
@@ -83,7 +77,9 @@ make fresh
 
 ### API
 
-The API will be documented using OpenAPI 3.0 and swagger.
+The API is documented using OpenAPI 3.0 and swagger.
+
+To view the API documentation, run the application and navigate to `http://localhost:8080/swagger-ui/index.html`.
 
 ### Testing
 
