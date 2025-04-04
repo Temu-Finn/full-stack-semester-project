@@ -96,4 +96,13 @@ class ItemRepository(private val dataSource: DataSource) {
             }
         }
     }
+
+    fun deleteAll() {
+        dataSource.connection.use { conn ->
+            val sql = "DELETE FROM items"
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.executeUpdate()
+            }
+        }
+    }
 }
