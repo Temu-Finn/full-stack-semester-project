@@ -9,7 +9,11 @@ class ItemService(private val itemRepository: ItemRepository) {
 
     fun createItem(item: Item): Item {
         validateItem(item)
-        return itemRepository.create(item)
+        return try {
+            itemRepository.create(item)
+        } catch (ex: Exception) {
+            throw IllegalStateException("Failed to create item", ex)
+        }
     }
 
     fun getItemsByCategoryId(categoryId: Long): List<Item> {
