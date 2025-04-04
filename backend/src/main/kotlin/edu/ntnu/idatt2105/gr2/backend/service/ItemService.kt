@@ -24,6 +24,10 @@ class ItemService(private val itemRepository: ItemRepository) {
         return itemRepository.deleteById(id)
     }
 
+    fun deleteAllItems() {
+        itemRepository.deleteAll()
+    }
+
     private fun validateItem(item: Item) {
         require(item.sellerId > 0) { "Item must be assigned a seller" }
         require(item.categoryId > 0) { "Item must be assigned a category" }
