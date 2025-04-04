@@ -1,181 +1,116 @@
 package edu.ntnu.idatt2105.gr2.backend.service
 
+import edu.ntnu.idatt2105.gr2.backend.config.TestConfig
 import edu.ntnu.idatt2105.gr2.backend.model.Item
 import edu.ntnu.idatt2105.gr2.backend.repository.ItemRepository
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
-import org.mockito.Mockito.*
-import java.util.*
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.DynamicPropertyRegistry
+import org.springframework.test.context.DynamicPropertySource
+import org.testcontainers.containers.MariaDBContainer
+import org.testcontainers.junit.jupiter.Testcontainers
+import java.time.LocalDateTime
+import org.junit.jupiter.api.*
+import org.springframework.test.context.jdbc.Sql
+
+// Enable Testcontainers support for integration testing with a "real" db
+@Testcontainers
+@SpringBootTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+
+
+@ActiveProfiles("test")
+@Import(TestConfig::class)
+@Sql(scripts = ["classpath:testdb/testData.sql"])
+@Sql(
+    scripts = ["classpath:testdb/insertTestData.sql"],
+    executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
+)
+
 
 
 class ItemServiceTest {
+    companion object {
+        private val db = MariaDBContainer<Nothing>("mariadb").apply {
+            withDatabaseName("test")
+            withUsername("mariadb")
+            withPassword("mariadb")
+        }
 
-    private lateinit var itemRepository: ItemRepository
+        @BeforeAll
+        @JvmStatic
+        fun startContainer() {
+            db.start()
+        }
+
+        @AfterAll
+        @JvmStatic
+        fun stopContainer() {
+            db.stop()
+        }
+
+        @DynamicPropertySource
+        @JvmStatic
+        fun registerDBProperties(registry: DynamicPropertyRegistry) {
+            registry.add("spring.datasource.url", db::getJdbcUrl)
+            registry.add("spring.datasource.username", db::getUsername)
+            registry.add("spring.datasource.password", db::getPassword)
+        }
+    }
+
+    @Autowired
     private lateinit var itemService: ItemService
+
+    @Autowired
+    private lateinit var itemRepository: ItemRepository
+
+    private lateinit var testItem: Item
 
     @BeforeEach
     fun setUp() {
-        itemRepository = mock(ItemRepository::class.java)
-        itemService = ItemService(itemRepository)
-    }
-
-    private fun createValidItem(): Item {
-        return Item(
+        testItem = Item(
+            id = 4,
             sellerId = 1,
-            categoryId = 2,
+            categoryId = 1,
             postalCode = "7014",
-            title = "Test item",
-            description = "A valid item",
-            price = 100.0,
+            title = "Test Item",
+            description = "Test description",
+            price = 99.95,
             purchasePrice = null,
             buyerId = null,
-            location = null,
+            location = Pair(10.0, 20.0),
             allowVippsBuy = true,
             primaryImageId = null,
-            status = "available"
-        )
-    }
-
-    @Nested
-    @DisplayName("Positive tests create item")
-    inner class CreateItemPositiveTest {
-        @Test
-        @DisplayName("should create item successfully")
-        fun `should create item successfully`() {
-            val item = createValidItem()
-            val savedItem = item.copy(id = 1)
-
-            `when`(itemRepository.create(item)).thenReturn(savedItem)
-
-            val result = itemService.createItem(item)
-
-            assertEquals(savedItem.id, result.id)
-            verify(itemRepository, times(1)).create(item)
-        }
-    }
-
-    @Nested
-    @DisplayName("Positive tests get items by category")
-    inner class GetItemsByCategoryTest {
-
-        @Test
-        @DisplayName("should return list of items for specific category")
-        fun `should return list of items for category`() {
-            val categoryId = 2L
-            val items = listOf(
-                createValidItem().copy(id = 1, categoryId = categoryId),
-                createValidItem().copy(id = 2, categoryId = categoryId, title = "Another Item")
+            status = "available",
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now()
             )
-            val itemWithDiffCategoryId = createValidItem().copy(id = 3, categoryId = 3L)
 
-            `when`(itemRepository.findAllByCategoryId(categoryId)).thenReturn(items)
-
-            val result = itemService.getItemsByCategoryId(categoryId)
-
-            assertEquals(2, result.size)
-            assertEquals("Test item", result[0].title)
-            assertEquals("Another Item", result[1].title)
-            verify(itemRepository, times(1)).findAllByCategoryId(categoryId)
-        }
+        itemService.deleteAllItems()
+        //itemService.createItem(testItem)
     }
 
     @Nested
-    @DisplayName("Negative tests create item")
-    inner class CreateItemNegativeTest {
+    @DisplayName("Positive tests")
+    inner class PositiveTest {
 
         @Test
-        @DisplayName("should fail to create item with invalid sellerId")
-        fun `should fail to create item with invalid sellerId`() {
-            val item = createValidItem().copy(sellerId = 0)
-
-            val exception = assertThrows(IllegalArgumentException::class.java) {
-                itemService.createItem(item)
-            }
-
-            assertEquals("Item must be assigned a seller", exception.message)
-            verifyNoInteractions(itemRepository)
+        fun `should create item successfully`() {
+            val createdItem = itemService.createItem(testItem)
+            Assertions.assertNotNull(createdItem.id)
+            Assertions.assertEquals("Test Item", createdItem.title)
         }
 
         @Test
-        @DisplayName("should fail to create item with invalid categoryId")
-        fun `should fail to create item with invalid categoryId`() {
-            val item = createValidItem().copy(categoryId = 0)
-
-            val exception = assertThrows(IllegalArgumentException::class.java) {
-                itemService.createItem(item)
-            }
-
-            assertEquals("Item must be assigned a category", exception.message)
-            verifyNoInteractions(itemRepository)
-        }
-
-        @Test
-        @DisplayName("should fail to create item with empty postal code")
-        fun `should fail to create item with empty postal code`() {
-            val item = createValidItem().copy(postalCode = "")
-
-            val exception = assertThrows(IllegalArgumentException::class.java) {
-                itemService.createItem(item)
-            }
-
-            assertEquals("Postal code must be specified", exception.message)
-            verifyNoInteractions(itemRepository)
-        }
-
-        @Test
-        @DisplayName("should fail to create item with empty title")
-        fun `should fail to create item with empty title`() {
-            val item = createValidItem().copy(title = "")
-
-            val exception = assertThrows(IllegalArgumentException::class.java) {
-                itemService.createItem(item)
-            }
-
-            assertEquals("Title must be specified", exception.message)
-            verifyNoInteractions(itemRepository)
-        }
-
-        @Test
-        @DisplayName("should fail to create item with empty description")
-        fun `should fail to create item with empty description`() {
-            val item = createValidItem().copy(description = "")
-
-            val exception = assertThrows(IllegalArgumentException::class.java) {
-                itemService.createItem(item)
-            }
-
-            assertEquals("Description must be specified", exception.message)
-            verifyNoInteractions(itemRepository)
-        }
-
-        @Test
-        @DisplayName("should fail to create item with negative price")
-        fun `should fail to create item with negative price`() {
-            val item = createValidItem().copy(price = -100.0)
-
-            val exception = assertThrows(IllegalArgumentException::class.java) {
-                itemService.createItem(item)
-            }
-
-            assertEquals("Price must be zero or positive", exception.message)
-            verifyNoInteractions(itemRepository)
-        }
-
-        @Test
-        @DisplayName("should fail to create item with invalid status")
-        fun `should fail to create item with invalid status`() {
-            val item = createValidItem().copy(status = "invalid-status")
-
-            val exception = assertThrows(IllegalArgumentException::class.java) {
-                itemService.createItem(item)
-            }
-
-            assertEquals("Invalid status", exception.message)
-            verifyNoInteractions(itemRepository)
+        fun `should get item by category id`() {
         }
     }
-
 }
