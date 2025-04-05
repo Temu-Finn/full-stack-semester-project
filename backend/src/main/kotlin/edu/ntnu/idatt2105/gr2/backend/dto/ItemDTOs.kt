@@ -7,3 +7,7 @@ data class ItemCard (
     val municipality: String,
     val imageUrl: String,
 )
+
+data class RecommendedItemsResponse(
+    val items: List<ItemCard>,
+)
