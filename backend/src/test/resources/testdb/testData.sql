@@ -14,8 +14,8 @@ CREATE TABLE users
 DROP TABLE IF EXISTS categories;
 CREATE TABLE categories
 (
-    category_id     INT             NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    name            VARCHAR(255)    NOT NULL UNIQUE,
-    description     TEXT            NOT NULL,
-    created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id          INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name        VARCHAR(30)  NOT NULL UNIQUE,
+    description VARCHAR(255) NOT NULL,
+    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

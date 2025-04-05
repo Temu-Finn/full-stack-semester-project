@@ -18,13 +18,6 @@ import javax.sql.DataSource
 @TestConfiguration
 class TestConfig {
     @Bean
-    fun dataSource(): DataSource {
-        return EmbeddedDatabaseBuilder()
-            .setType(EmbeddedDatabaseType.H2)
-            .build()
-    }
-
-    @Bean
     @Primary
     fun testUserContextService(): UserContextService {
         val service = UserContextService()
