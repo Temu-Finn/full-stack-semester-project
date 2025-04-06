@@ -72,12 +72,14 @@ class ItemServiceTest {
     @Autowired
     private lateinit var itemRepository: ItemRepository
 
-    private lateinit var testItem: Item
+    private lateinit var testItem1: Item
+    private lateinit var testItem2: Item
+    private lateinit var itemWithNegData: Item
 
     @BeforeEach
     fun setUp() {
-        testItem = Item(
-            id = 4,
+        testItem1 = Item(
+            //id = 0,
             sellerId = 1,
             categoryId = 1,
             postalCode = "7014",
@@ -94,23 +96,148 @@ class ItemServiceTest {
             updatedAt = LocalDateTime.now()
             )
 
+        testItem2 = Item(
+            //id = 1,
+            sellerId = 2,
+            categoryId = 2,
+            postalCode = "7014",
+            title = "Test Item2",
+            description = "Test description2",
+            price = 10.25,
+            purchasePrice = null,
+            buyerId = null,
+            location = Pair(2.0, 3.0),
+            allowVippsBuy = false,
+            primaryImageId = null,
+            status = "available",
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now()
+        )
+
+        itemWithNegData = Item(
+            sellerId = 1,
+            categoryId = 2,
+            postalCode = "7014",
+            title = "Test Item2",
+            description = "Test description2",
+            price = -4.9,
+            purchasePrice = null,
+            buyerId = null,
+            location = Pair(2.0, 3.0),
+            allowVippsBuy = false,
+            primaryImageId = null,
+            status = "available",
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now()
+        )
+
         itemService.deleteAllItems()
-        //itemService.createItem(testItem)
     }
 
     @Nested
     @DisplayName("Positive tests")
     inner class PositiveTest {
+        @Test
+        fun `repository should load items from DB`() {
+            itemService.createItem(testItem1)
+            val allItems = itemRepository.findAllByCategoryId(categoryId = 1)
+            println(allItems.size)
+        }
 
         @Test
         fun `should create item successfully`() {
-            val createdItem = itemService.createItem(testItem)
+            val createdItem = itemService.createItem(testItem1)
             Assertions.assertNotNull(createdItem.id)
             Assertions.assertEquals("Test Item", createdItem.title)
         }
 
         @Test
-        fun `should get item by category id`() {
+        fun `should get item by  id`() {
+            itemService.createItem(testItem1)
+            itemService.createItem(testItem2)
+
+            val itemFromId = itemService.getItemById(1)
+            Assertions.assertNotNull(itemFromId)
+            Assertions.assertEquals("Test Item", itemFromId!!.title)
         }
+
+        @Test
+        fun `should delete item by id`() {
+            itemService.createItem(testItem1)
+            itemService.createItem(testItem2)
+
+            itemService.deleteItemById(1)
+            val itemId1 = itemService.getItemById(1)
+            Assertions.assertNull(itemId1, "Item with id 1 should be deleted")
+        }
+
+        @Test
+        fun `should get item by category id`() {
+            itemService.createItem(testItem1)
+            itemService.createItem(testItem2)
+
+            val itemCategoryId1 = itemService.getItemsByCategoryId(1)
+            Assertions.assertEquals(1, itemCategoryId1.size)
+        }
+
+        @Test
+        fun `should get all existing items`() {
+            itemService.createItem(testItem1)
+            itemService.createItem(testItem2)
+
+            val allExistingItems = itemService.getAllItems()
+            Assertions.assertEquals(2, allExistingItems.size)
+        }
+
+        @Test
+        fun `should delete all items`() {
+            itemService.createItem(testItem1)
+            itemService.createItem(testItem2)
+
+            itemService.deleteAllItems()
+            val allExistingItemsAfterDeleting = itemService.getAllItems()
+
+            Assertions.assertEquals(0, allExistingItemsAfterDeleting.size)
+        }
+    }
+
+    @Nested
+    @DisplayName("Negative tests")
+    inner class NegativeTest {
+        @Test
+        fun `should not create item when price is negative`() {
+            Assertions.assertThrows(IllegalArgumentException::class.java) {
+                itemService.createItem(itemWithNegData)
+            }
+
+            val allExistingItems = itemService.getAllItems()
+
+            Assertions.assertEquals(0, allExistingItems.size)
+        }
+
+        @Test
+        fun `should return null when getting item by non-existing id`() {
+            val item = itemService.getItemById(999L)
+            Assertions.assertNull(item, "Item with id 999 should be returned null")
+        }
+
+        @Test
+        fun `should not delete anything when deleting non-existing item`() {
+            itemService.createItem(testItem1)
+            itemService.createItem(testItem2)
+
+            itemService.deleteItemById(999L)
+
+            val allItems = itemService.getAllItems()
+            Assertions.assertEquals(2, allItems.size)
+        }
+
+        @Test
+        fun `should not throw when deleting non-existing item`() {
+            Assertions.assertDoesNotThrow {
+                itemService.deleteItemById(999L)
+            }
+        }
+
     }
 }
