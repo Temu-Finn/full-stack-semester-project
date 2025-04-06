@@ -5,7 +5,7 @@ data class ItemCard (
     val title: String,
     val price: Double,
     val municipality: String,
-    val imageUrl: String,
+    val imageBase64: String?,
 )
 
 data class RecommendedItemsResponse(
