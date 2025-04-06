@@ -43,42 +43,62 @@ class ItemRepository(private val dataSource: DataSource) {
         }
     }
 
+    fun getItemById(id: Long): Item? =
+        queryItems("SELECT * FROM items WHERE id = ?") {
+            it.setLong(1, id)
+        }.firstOrNull()
+
     fun findAllByCategoryId(categoryId: Long): List<Item> {
+        return queryItems("SELECT * FROM items WHERE category_id = ?") { stmt ->
+            stmt.setLong(1, categoryId)
+        }
+    }
+
+    fun deleteById(id: Long): Boolean {
+        return executeUpdateAndReturnCount("DELETE FROM items WHERE id = ?") {
+            it.setLong(1, id)
+        } > 0
+    }
+
+    fun getAll(): List<Item> {
+        return queryItems("SELECT * FROM items")
+    }
+
+    fun deleteAll() {
+        executeUpdateAndReturnCount("DELETE FROM items")
+    }
+
+    private fun mapRowToItem(rs: java.sql.ResultSet): Item{
+        // Temporary fix for location, doesn't handle Pair
+        val location: Pair<Double, Double>? = null
+
+        return Item(
+            id = rs.getLong("id"),
+            sellerId = rs.getLong("seller_id"),
+            categoryId = rs.getLong("category_id"),
+            postalCode = rs.getString("postal_code"),
+            title = rs.getString("title"),
+            description = rs.getString("description"),
+            price = rs.getDouble("price"),
+            purchasePrice = rs.getObject("purchase_price") as? Double,
+            buyerId = rs.getObject("buyer_id") as? Long,
+            location = location,
+            allowVippsBuy = rs.getBoolean("allow_vipps_buy"),
+            primaryImageId = rs.getObject("primary_image_id") as? Long,
+            status = rs.getString("status"),
+            createdAt = rs.getTimestamp("created_at")?.toLocalDateTime(),
+            updatedAt = rs.getTimestamp("updated_at")?.toLocalDateTime()
+        )
+    }
+
+    private fun queryItems(sql: String, setParams: (java.sql.PreparedStatement) -> Unit = {}): List<Item> {
         val items = mutableListOf<Item>()
         dataSource.connection.use { conn ->
-            val sql = "SELECT * FROM items WHERE category_id = ?"
             conn.prepareStatement(sql).use { stmt ->
-                stmt.setLong(1, categoryId)
-                stmt.executeQuery().use { rows ->
-                    while (rows.next()) {
-                        val location = rows.getObject("location")?.let {
-                            val point = it.toString()
-                                .removePrefix("POINT(")
-                                .removeSuffix(")")
-                                .split(" ")
-                                .map { coord -> coord.toDouble() }
-                            Pair(point[0], point[1])
-                        }
-
-                        items.add(
-                            Item(
-                                id = rows.getLong("id"),
-                                sellerId = rows.getLong("seller_id"),
-                                categoryId = rows.getLong("category_id"),
-                                postalCode = rows.getString("postal_code"),
-                                title = rows.getString("title"),
-                                description = rows.getString("description"),
-                                price = rows.getDouble("price"),
-                                purchasePrice = rows.getObject("purchase_price") as? Double,
-                                buyerId = rows.getObject("buyer_id") as? Long,
-                                location = location,
-                                allowVippsBuy = rows.getBoolean("allow_vipps_buy"),
-                                primaryImageId = rows.getObject("primary_image_id") as? Long,
-                                status = rows.getString("status"),
-                                createdAt = rows.getTimestamp("created_at")?.toLocalDateTime(),
-                                updatedAt = rows.getTimestamp("updated_at")?.toLocalDateTime()
-                            )
-                        )
+                setParams(stmt)
+                stmt.executeQuery().use { rs ->
+                    while (rs.next()) {
+                        items.add(mapRowToItem(rs))
                     }
                 }
             }
@@ -86,22 +106,12 @@ class ItemRepository(private val dataSource: DataSource) {
         return items
     }
 
-    fun deleteById(id: Long): Boolean {
+    private fun executeUpdateAndReturnCount(sql: String, setParams: (java.sql.PreparedStatement) -> Unit = {}
+    ): Int {
         dataSource.connection.use { conn ->
-            val sql = "DELETE FROM items WHERE id = ?"
             conn.prepareStatement(sql).use { stmt ->
-                stmt.setLong(1, id)
-                val affectedRows = stmt.executeUpdate()
-                return affectedRows > 0
-            }
-        }
-    }
-
-    fun deleteAll() {
-        dataSource.connection.use { conn ->
-            val sql = "DELETE FROM items"
-            conn.prepareStatement(sql).use { stmt ->
-                stmt.executeUpdate()
+                setParams(stmt)
+                return stmt.executeUpdate()
             }
         }
     }
