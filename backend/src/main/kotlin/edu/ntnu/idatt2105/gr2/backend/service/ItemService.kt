@@ -16,12 +16,20 @@ class ItemService(private val itemRepository: ItemRepository) {
         }
     }
 
-    fun getItemsByCategoryId(categoryId: Long): List<Item> {
-        return itemRepository.findAllByCategoryId(categoryId)
+    fun getItemById(id: Long): Item? {
+        return itemRepository.getItemById(id)
     }
 
     fun deleteItemById(id: Long): Boolean {
         return itemRepository.deleteById(id)
+    }
+
+    fun getItemsByCategoryId(categoryId: Long): List<Item> {
+        return itemRepository.findAllByCategoryId(categoryId)
+    }
+
+    fun getAllItems(): List<Item> {
+        return itemRepository.getAll()
     }
 
     fun deleteAllItems() {
