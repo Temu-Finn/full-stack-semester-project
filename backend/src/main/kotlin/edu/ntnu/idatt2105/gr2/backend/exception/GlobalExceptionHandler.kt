@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.servlet.NoHandlerFoundException
 import org.slf4j.LoggerFactory
 
+class ItemNotFoundException(message: String) : RuntimeException(message)
+
 /**
  * Global exception handler for the application that handles various types of exceptions
  * and converts them to appropriate HTTP responses using Spring's ProblemDetail.
@@ -151,5 +153,19 @@ class GlobalExceptionHandler {
             .apply { 
                 setProperty("description", "The required parameter '${ex.parameterName}' of type '${ex.parameterType}' is missing")
             }
+    }
+
+    @ExceptionHandler(ItemNotFoundException::class)
+    fun handleItemNotFoundException(ex: ItemNotFoundException): ProblemDetail {
+        logger.warn("Item not found", ex)
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.message)
+            .apply { setProperty("description", "The requested item was not found") }
+    }
+
+    @ExceptionHandler(IllegalAccessException::class)
+    fun handleIllegalAccessException(ex: IllegalAccessException): ProblemDetail {
+        logger.warn("Unauthorized access attempt", ex)
+        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.message)
+            .apply { setProperty("description", "You are not authorized to perform this action") }
     }
 }
