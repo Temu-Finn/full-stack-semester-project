@@ -81,6 +81,8 @@ The API is documented using OpenAPI 3.0 and swagger.
 
 To view the API documentation, run the application and navigate to `http://localhost:8080/swagger-ui/index.html`.
 
+To view the documentation as json, navigate to `http://localhost:8080/v3/api-docs`.
+
 ### Testing
 
 To run the tests, run in the root directory:
