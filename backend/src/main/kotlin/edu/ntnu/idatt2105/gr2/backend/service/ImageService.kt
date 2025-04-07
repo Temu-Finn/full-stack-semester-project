@@ -7,11 +7,20 @@ import edu.ntnu.idatt2105.gr2.backend.repository.ImageRepository
 import org.springframework.web.multipart.MultipartFile
 
 @Service
-class ImageService {
+class ImageService(
+    private val imageRepository: ImageRepository
+) {
     private val logger = LoggerFactory.getLogger(ImageService::class.java)
 
-    fun uploadImage(image: MultipartFile): Image {
-        logger.info("Uploading image: ${image.originalFilename}")
-        return imageRepository.save(image)
+    fun uploadImage(imageFile: MultipartFile, altText: String): Image {
+        logger.info("Uploading image: ${imageFile.originalFilename}")
+        val fileType = imageFile.contentType ?: "application/octet-stream"
+        val imageData = imageFile.bytes
+        val image = Image(
+            data = imageData,
+            fileType = fileType,
+            altText = altText
+        )
+        return imageRepository.save()
     }
 }

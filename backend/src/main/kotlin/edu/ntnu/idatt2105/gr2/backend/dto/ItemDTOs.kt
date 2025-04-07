@@ -1,10 +1,7 @@
 package edu.ntnu.idatt2105.gr2.backend.dto
 
 import edu.ntnu.idatt2105.gr2.backend.model.ItemStatus
-import jakarta.validation.constraints.DecimalMin
-import jakarta.validation.constraints.DecimalMax
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Positive
+import jakarta.validation.constraints.*
 import java.time.LocalDateTime
 
 /**
@@ -15,7 +12,7 @@ data class ItemCard(
     val title: String,
     val price: Double,
     val municipality: String,
-    val imageBase64: String?,
+    val image: ImageResponse,
     val location: Location?,
     val status: ItemStatus,
     val updatedAt: LocalDateTime?
@@ -41,18 +38,9 @@ data class ItemResponse(
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?,
     val municipality: String,
-    val images: List<ItemImage>
+    val images: List<ImageResponse>
 )
 
-/**
- * Represents an item image with its data and metadata
- */
-data class ItemImage(
-    val id: Int,
-    val data: String, // base64 encoded image
-    val fileType: String,
-    val isPrimary: Boolean
-)
 
 data class RecommendedItemsResponse(
     val items: List<ItemCard>
@@ -93,7 +81,7 @@ data class CreateItemRequest(
     val status: ItemStatus = ItemStatus.Available,
 
     @field:NotNull(message = "Images cannot be null")
-    val images: List<MultipartFile>
+    val images: List<CreateImageRequest>
 )
 
 data class Location(
