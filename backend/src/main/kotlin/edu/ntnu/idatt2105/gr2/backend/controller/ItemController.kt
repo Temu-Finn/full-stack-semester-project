@@ -25,6 +25,20 @@ class ItemController (
 ) {
     private val logger = LoggerFactory.getLogger(ItemController::class.java)
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Get item by ID", description = "Returns an item by its ID")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Item retrieved successfully"),
+            ApiResponse(responseCode = "404", description = "Item not found"),
+            ApiResponse(responseCode = "500", description = "Internal server error")
+        ]
+    )
+    fun getItemById(@Parameter(description = "Item ID", required = true) @PathVariable id: Int): ResponseEntity<ItemResponse> {
+        val item = itemService.getItemById(id) ?: throw ItemNotFoundException("Item with ID $id not found")
+        return ResponseEntity.ok(item.toResponse())
+    }
+
     @PostMapping
     @Operation(summary = "Create new item", description = "Creates a new item and returns it")
     @ApiResponses(
