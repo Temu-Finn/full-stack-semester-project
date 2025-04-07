@@ -1,6 +1,7 @@
 package edu.ntnu.idatt2105.gr2.backend.controller
 
 import edu.ntnu.idatt2105.gr2.backend.dto.*
+import edu.ntnu.idatt2105.gr2.backend.exception.ItemNotFoundException
 import edu.ntnu.idatt2105.gr2.backend.service.ItemService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
