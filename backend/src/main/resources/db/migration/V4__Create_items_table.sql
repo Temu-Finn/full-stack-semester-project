@@ -9,7 +9,7 @@ CREATE TABLE items
     price            DECIMAL(10, 2)                                     NOT NULL,
     purchase_price   DECIMAL(10, 2)                                     NULL COMMENT 'Actual price sold for, if different from listing price and sold',
     buyer_id         INT                                                NULL, -- FK to users table (the buyer)
-    location         POINT                                              NULL,
+    location         POINT SRID 4326                                    NULL,
     allow_vipps_buy  BOOLEAN                                            NOT NULL DEFAULT FALSE,
     primary_image_id INT                                                NULL,     -- FK to item_images (main image). Constraint added via V6 migration.
     status           ENUM ('available', 'reserved', 'sold', 'archived') NOT NULL DEFAULT 'available' COMMENT 'Current status of the listing',
