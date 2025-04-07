@@ -8,16 +8,17 @@ import javax.sql.DataSource
 class ImageRepository(private val dataSource: DataSource) {
     fun save(image: Image): Image {
         val sql = """
-            INSERT INTO item_images (image_data, file_type, alt_text)
-            VALUES (?, ?, ?)
+            INSERT INTO item_images (item_id, image_data, file_type, alt_text)
+            VALUES (?, ?, ?, ?)
             RETURNING id
         """.trimIndent()
 
         dataSource.connection.use { conn ->
             conn.prepareStatement(sql).use { stmt ->
-                stmt.setBytes(1, image.data)
-                stmt.setString(2, image.fileType)
-                stmt.setString(3, image.altText)
+                stmt.setInt(1, image.itemId)
+                stmt.setBytes(2, image.data)
+                stmt.setString(3, image.fileType)
+                stmt.setString(4, image.altText)
 
                 val rs = stmt.executeQuery()
                 if (rs.next()) {
@@ -26,6 +27,18 @@ class ImageRepository(private val dataSource: DataSource) {
                 } else {
                     throw RuntimeException("Failed to save image, no ID obtained.")
                 }
+            }
+        }
+    }
+
+    fun setPrimaryImage(itemId: Int, imageId: Int) {
+        val sql = "UPDATE items SET primary_image_id = ? WHERE id = ?"
+
+        dataSource.connection.use { conn ->
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setInt(1, imageId)
+                stmt.setInt(2, itemId)
+                stmt.executeUpdate()
             }
         }
     }

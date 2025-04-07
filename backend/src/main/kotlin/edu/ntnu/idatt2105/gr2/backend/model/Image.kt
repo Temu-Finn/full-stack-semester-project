@@ -3,6 +3,7 @@ package edu.ntnu.idatt2105.gr2.backend.model
 
 data class Image(
     val id: Int = -1,
+    val itemId: Int,
     val data: ByteArray,
     val fileType: String,
     val altText: String? = null,

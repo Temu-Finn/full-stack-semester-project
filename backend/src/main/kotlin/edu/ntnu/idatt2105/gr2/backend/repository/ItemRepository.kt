@@ -14,7 +14,7 @@ class ItemRepository(private val dataSource: DataSource) {
     fun create(item: Item): Item {
         dataSource.connection.use { conn ->
             val sql = """
-                INSERT INTO items (seller_id, category_id, postal_code, title, description, price, purchase_price, buyer_id, location, allow_vipps_buy, primary_image_id, status) 
+                INSERT INTO items (seller_id, category_id, postal_code, title, description, price, purchase_price, buyer_id, location, allow_vipps_buy, status) 
                 VALUES(?, ?, ?, ?, ?, ?, ?, ?, ST_PointFromText(?, 4326), ?, ?, ?)
             """.trimIndent()
             conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS).use { stmt ->
@@ -26,9 +26,8 @@ class ItemRepository(private val dataSource: DataSource) {
                 stmt.setDouble(6, item.price)
                 stmt.setObject(7, item.purchasePrice)
                 stmt.setObject(8, item.buyerId)
-                stmt.setString(9, item.location?.let { "POINT(${it.first} ${it.second})" })
+                stmt.setString(9, item.location?.let { "POINT(${it.latitude} ${it.longitude})" })
                 stmt.setBoolean(10, item.allowVippsBuy)
-                stmt.setObject(11, item.primaryImageId)
                 stmt.setString(12, item.status.toString())
 
                 val affectedRows = stmt.executeUpdate()
@@ -42,6 +41,18 @@ class ItemRepository(private val dataSource: DataSource) {
                         throw RuntimeException("Creating item failed, no ID obtained.")
                     }
                 }
+            }
+        }
+    }
+
+    fun setPrimaryImage(itemId: Int, imageId: Int) {
+        val sql = "UPDATE items SET primary_image_id = ? WHERE id = ?"
+
+        dataSource.connection.use { conn ->
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setInt(1, imageId)
+                stmt.setInt(2, itemId)
+                stmt.executeUpdate()
             }
         }
     }
