@@ -4,7 +4,7 @@ package edu.ntnu.idatt2105.gr2.backend.dto
 import edu.ntnu.idatt2105.gr2.backend.model.Item
 import java.time.LocalDateTime
 
-fun CreateItemRequest.toItem(userId: Int): Item {
+internal fun CreateItemRequest.toItem(userId: Int): Item {
     return Item(
         sellerId = userId,
         categoryId = this.categoryId,
@@ -23,7 +23,7 @@ fun CreateItemRequest.toItem(userId: Int): Item {
     )
 }
 
-fun Item.toResponse(): ItemResponse {
+internal fun Item.toResponse(): ItemResponse {
     return ItemResponse(
         id = this.id,
         sellerId = this.sellerId,
