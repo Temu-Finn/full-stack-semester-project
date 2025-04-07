@@ -1,12 +1,12 @@
 <template>
   <a class="product-card" href="">
     <img
-      :alt="product.name"
-      :src="'https://primefaces.org/cdn/primevue/images/product/' + product.image"
+      :alt="product.title"
+      :src="'data:image/png;base64,' + product.imageBase64"
       class="product-image"
     />
     <div class="product-info">
-      <h3 class="product-name">{{ product.name }}</h3>
+      <h3 class="product-name">{{ product.title }}</h3>
       <div class="product-meta">
         <span class="product-location">{{ product.municipality }}</span>
         <span class="product-price">${{ product.price }}</span>
@@ -15,10 +15,12 @@
   </a>
 </template>
 
-<script setup>
-defineProps({
-  product: Object,
-})
+<script setup lang="ts">
+import { type ItemCard } from '@/service/itemService'
+
+defineProps<{
+  product: ItemCard
+}>()
 </script>
 
 <style scoped>
