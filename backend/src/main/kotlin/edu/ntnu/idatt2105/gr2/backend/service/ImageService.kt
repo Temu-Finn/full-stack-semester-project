@@ -36,4 +36,19 @@ class ImageService(
             dataURL = image.base64()
         )
     }
+
+    fun getImagesByItemId(itemId: Int): List<ImageResponse> {
+        return imageRepository.getByItemId(itemId).map { it.toResponse() }
+    }
+
+    fun getImageById(id: Int): ImageResponse {
+        return imageRepository.getById(id).toResponse()
+    }
+}
+
+fun Image.toResponse(): ImageResponse {
+    return ImageResponse(
+        id = this.id,
+        dataURL = this.base64()
+    )
 }

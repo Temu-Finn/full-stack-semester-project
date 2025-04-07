@@ -36,7 +36,7 @@ class ItemController (
     )
     fun getItemById(@Parameter(description = "Item ID", required = true) @PathVariable id: Int): ResponseEntity<ItemResponse> {
         val item = itemService.getItemById(id)
-        return ResponseEntity.ok(item.toResponse())
+        return ResponseEntity.ok(item)
     }
 
     @PostMapping
@@ -54,7 +54,7 @@ class ItemController (
     ): ResponseEntity<ItemResponse> {
         logger.info("Creating new item: ${request.title}")
         val savedItem = itemService.createItem(request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedItem.toResponse())
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedItem)
     }
 
     @GetMapping("/recommended")
@@ -80,10 +80,10 @@ class ItemController (
         @RequestParam(required = false) searchText: String?,
         @Parameter(description = "Category ID to filter items")
         @RequestParam(required = false) categoryId: Int?
-    ): ResponseEntity<ItemsResponse> {
+    ): ResponseEntity<SearchResponse> {
         logger.info("Searching items with text: $searchText, category: $categoryId")
         val items = itemService.searchItems(SearchItemRequest(searchText = searchText, categoryId = categoryId))
-        return ResponseEntity.ok(ItemsResponse(items))
+        return ResponseEntity.ok(SearchResponse(items))
     }
 
     @DeleteMapping("/{id}")

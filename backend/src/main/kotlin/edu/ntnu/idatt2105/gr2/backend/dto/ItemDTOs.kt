@@ -12,9 +12,9 @@ data class ItemCard(
     val title: String,
     val price: Double,
     val municipality: String,
-    val image: ImageResponse,
+    val image: ImageResponse?,
     val location: Location?,
-    val status: ItemStatus,
+    val status: String,
     val updatedAt: LocalDateTime?
 )
 
@@ -34,7 +34,7 @@ data class ItemResponse(
     val location: Location?,
     val allowVippsBuy: Boolean,
     val primaryImageId: Int?,
-    val status: ItemStatus,
+    val status: String,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?,
     val municipality: String,
@@ -46,7 +46,7 @@ data class RecommendedItemsResponse(
     val items: List<ItemCard>
 )
 
-data class ItemsResponse(
+data class SearchResponse(
     val items: List<ItemCard>
 )
 
@@ -78,7 +78,7 @@ data class CreateItemRequest(
     val allowVippsBuy: Boolean = false,
 
     @field:NotNull(message = "Status cannot be null")
-    val status: ItemStatus = ItemStatus.Available,
+    val status: String,
 
     @field:NotNull(message = "Images cannot be null")
     val images: List<CreateImageRequest>

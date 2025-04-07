@@ -31,23 +31,48 @@ class ImageRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun getById(id: Int): Image? {
+    fun getById(id: Int): Image {
         val sql = "SELECT * FROM item_images WHERE id = ?"
 
         dataSource.connection.use { conn ->
             conn.prepareStatement(sql).use { stmt ->
                 stmt.setInt(1, id)
                 val rs = stmt.executeQuery()
-                return if (rs.next()) {
-                    Image(
+                if (rs.next()) {
+                    return Image(
                         id = rs.getInt("id"),
+                        itemId = rs.getInt("item_id"),
                         data = rs.getBytes("image_data"),
                         fileType = rs.getString("file_type"),
                         altText = rs.getString("alt_text")
                     )
                 } else {
-                    null
+                    throw IllegalArgumentException("Image with ID $id not found")
                 }
+            }
+        }
+    }
+
+    fun getByItemId(itemId: Int): List<Image> {
+        val sql = "SELECT * FROM item_images WHERE item_id = ?"
+
+        dataSource.connection.use { conn ->
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setInt(1, itemId)
+                val rs = stmt.executeQuery()
+                val images = mutableListOf<Image>()
+                while (rs.next()) {
+                    images.add(
+                        Image(
+                            id = rs.getInt("id"),
+                            itemId = rs.getInt("item_id"),
+                            data = rs.getBytes("image_data"),
+                            fileType = rs.getString("file_type"),
+                            altText = rs.getString("alt_text")
+                        )
+                    )
+                }
+                return images
             }
         }
     }

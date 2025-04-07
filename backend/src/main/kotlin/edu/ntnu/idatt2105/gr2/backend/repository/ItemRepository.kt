@@ -69,10 +69,11 @@ class ItemRepository(private val dataSource: DataSource) {
 
     fun findRecommendedItems(): List<Item> {
         val sql = """
-            SELECT i.id, i.title, i.price, pc.municipality, ii.image_data, ii.file_type, ST_X(i.location) AS longitude, ST_Y(i.location) AS latitude, i.status, i.updated_at
+            SELECT id, seller_id, category_id, i.postal_code, title, description, price, purchase_price, buyer_id, 
+                   ST_X(location) AS longitude, ST_Y(location) AS latitude, allow_vipps_buy, primary_image_id, 
+                   status, created_at, updated_at, municipality
             FROM items i
             JOIN postal_codes pc ON i.postal_code = pc.postal_code
-            LEFT JOIN item_images ii ON ii.id = i.primary_image_id
             WHERE i.status = ?
             ORDER BY RAND()
             LIMIT 10
@@ -84,7 +85,7 @@ class ItemRepository(private val dataSource: DataSource) {
                 stmt.setString(1, ItemStatus.Available.toString())
                 stmt.executeQuery().use { rs ->
                     while (rs.next()) {
-                        cards.add(mapRowToItemCard(rs))
+                        cards.add(mapRowToItem(rs))
                     }
                 }
             }
@@ -128,10 +129,11 @@ class ItemRepository(private val dataSource: DataSource) {
         setParams: (java.sql.PreparedStatement) -> Unit = {}
     ): List<Item> {
         val sql = """
-            SELECT id, seller_id, category_id, postal_code, title, description, price, purchase_price, buyer_id, 
+            SELECT id, seller_id, category_id, i.postal_code, title, description, price, purchase_price, buyer_id, 
                    ST_X(location) AS longitude, ST_Y(location) AS latitude, allow_vipps_buy, primary_image_id, 
-                   status, created_at, updated_at
-            FROM items
+                   status, created_at, updated_at, municipality
+            FROM items i
+            JOIN postal_codes pc ON i.postal_code = pc.postal_code
             WHERE $where
         """.trimIndent()
         return dataSource.connection.use { conn ->

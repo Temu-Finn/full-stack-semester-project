@@ -1,5 +1,7 @@
 package edu.ntnu.idatt2105.gr2.backend.model
 
+import edu.ntnu.idatt2105.gr2.backend.dto.ImageResponse
+import edu.ntnu.idatt2105.gr2.backend.dto.ItemResponse
 import edu.ntnu.idatt2105.gr2.backend.dto.Location
 import java.time.LocalDateTime
 
