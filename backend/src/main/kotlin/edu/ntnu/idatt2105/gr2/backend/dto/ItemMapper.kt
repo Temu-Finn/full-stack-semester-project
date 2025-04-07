@@ -2,9 +2,10 @@
 package edu.ntnu.idatt2105.gr2.backend.dto
 
 import edu.ntnu.idatt2105.gr2.backend.model.Item
+import edu.ntnu.idatt2105.gr2.backend.model.ItemStatus
 import java.time.LocalDateTime
 
-fun CreateItemRequest.toItem(userId: Int): Item {
+internal fun CreateItemRequest.toItem(userId: Int): Item {
     return Item(
         sellerId = userId,
         categoryId = this.categoryId,
@@ -14,7 +15,7 @@ fun CreateItemRequest.toItem(userId: Int): Item {
         price = this.price,
         purchasePrice = this.purchasePrice,
         buyerId = this.buyerId,
-        location = this.location?.let {Pair(it.latitude, it.longitude)},
+        location = this.location?.let { Pair(it.latitude, it.longitude) },
         allowVippsBuy = this.allowVippsBuy,
         primaryImageId = this.primaryImageId,
         status = this.status,
@@ -23,7 +24,7 @@ fun CreateItemRequest.toItem(userId: Int): Item {
     )
 }
 
-fun Item.toResponse(): ItemResponse {
+internal fun Item.toResponse(): ItemResponse {
     return ItemResponse(
         id = this.id,
         sellerId = this.sellerId,

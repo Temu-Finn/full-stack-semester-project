@@ -2,7 +2,31 @@ package edu.ntnu.idatt2105.gr2.backend.model
 
 import java.time.LocalDateTime
 
-data class Item (
+sealed class ItemStatus {
+    object Available : ItemStatus()
+    object Reserved : ItemStatus()
+    object Sold : ItemStatus()
+    object Archived : ItemStatus()
+
+    override fun toString(): String = when (this) {
+        is Available -> "available"
+        is Reserved -> "reserved"
+        is Sold -> "sold"
+        is Archived -> "archived"
+    }
+
+    companion object {
+        fun fromString(value: String): ItemStatus = when (value) {
+            "available" -> Available
+            "reserved" -> Reserved
+            "sold" -> Sold
+            "archived" -> Archived
+            else -> throw IllegalArgumentException("Invalid status: $value")
+        }
+    }
+}
+
+data class Item(
     val id: Int = -1,
     val sellerId: Int,
     val categoryId: Int,
@@ -15,17 +39,20 @@ data class Item (
     val location: Pair<Double, Double>?, // Latitude, Longitude
     val allowVippsBuy: Boolean = false,
     val primaryImageId: Int?,
-    val status: String = "available",
+    val status: ItemStatus = ItemStatus.Available,
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null
 ) {
     init {
         require(sellerId > 0) { "Item must be assigned a seller" }
         require(categoryId > 0) { "Item must be assigned a category" }
-        require(postalCode.isNotEmpty()) { "Postal code must be specified" }
-        require(title.isNotEmpty()) { "Title must be specified" }
-        require(description.isNotEmpty()) { "Description must be specified" }
+        require(postalCode.isNotBlank()) { "Postal code must be specified" }
+        require(title.isNotBlank()) { "Title must be specified" }
+        require(description.isNotBlank()) { "Description must be specified" }
         require(price >= 0) { "Price must be zero or positive" }
-        require(status in listOf("available", "reserved", "sold", "archived")) { "Invalid status" }
+        require(purchasePrice == null || purchasePrice >= 0) { "Purchase price must be zero or positive" }
+        require(location == null || (location.first in -90.0..90.0 && location.second in -180.0..180.0)) {
+            "Location coordinates must be valid (latitude: -90 to 90, longitude: -180 to 180)"
+        }
     }
 }
