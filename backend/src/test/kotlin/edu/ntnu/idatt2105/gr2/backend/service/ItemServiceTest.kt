@@ -114,23 +114,6 @@ class ItemServiceTest {
             updatedAt = LocalDateTime.now()
         )
 
-        itemWithNegData = Item(
-            sellerId = 1,
-            categoryId = 2,
-            postalCode = "7014",
-            title = "Test Item2",
-            description = "Test description2",
-            price = -4.9,
-            purchasePrice = null,
-            buyerId = null,
-            location = Pair(2.0, 3.0),
-            allowVippsBuy = false,
-            primaryImageId = null,
-            status = "available",
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
-        )
-
         itemService.deleteAllItems()
     }
 
@@ -207,11 +190,27 @@ class ItemServiceTest {
         @Test
         fun `should not create item when price is negative`() {
             Assertions.assertThrows(IllegalArgumentException::class.java) {
+                val itemWithNegData = Item(
+                    sellerId = 1,
+                    categoryId = 2,
+                    postalCode = "7014",
+                    title = "Test Item2",
+                    description = "Test description2",
+                    price = -4.9, // This triggers the exception
+                    purchasePrice = null,
+                    buyerId = null,
+                    location = Pair(2.0, 3.0),
+                    allowVippsBuy = false,
+                    primaryImageId = null,
+                    status = "available",
+                    createdAt = LocalDateTime.now(),
+                    updatedAt = LocalDateTime.now()
+                )
+
                 itemService.createItem(itemWithNegData)
             }
 
             val allExistingItems = itemService.getAllItems()
-
             Assertions.assertEquals(0, allExistingItems.size)
         }
 

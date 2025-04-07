@@ -1,4 +1,5 @@
 -- V1
+DROP TABLE IF EXISTS items;
 DROP TABLE IF EXISTS users;
 CREATE TABLE users
 (
@@ -56,7 +57,7 @@ CREATE TABLE items
     INDEX idx_items_status (status),
 
     FOREIGN KEY fk_items_seller (seller_id) REFERENCES users (user_id) ON DELETE CASCADE,
-    FOREIGN KEY fk_items_category (category_id) REFERENCES categories (category_id) ON DELETE RESTRICT,
+    FOREIGN KEY fk_items_category (category_id) REFERENCES categories (id) ON DELETE RESTRICT,
     FOREIGN KEY fk_items_postal_code (postal_code) REFERENCES postal_codes (postal_code) ON DELETE RESTRICT,
     FOREIGN KEY fk_items_buyer (buyer_id) REFERENCES users (user_id) ON DELETE SET NULL
 );

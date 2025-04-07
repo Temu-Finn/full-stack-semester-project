@@ -89,7 +89,7 @@ class CategoryServiceTest {
         @DisplayName("Test get category by name")
         fun `test get category by name`() {
             val category = categoryService.getCategory("ELECTRONICS")
-            assertEquals("ELECTRONICS", category.name)
+            assertEquals("ELECTRONICS", category?.name)
         }
         @Test
         @DisplayName("Test create category")
@@ -115,7 +115,7 @@ class CategoryServiceTest {
         fun `test update category`() {
             categoryService.updateDescription("ELECTRONICS", "A brand new Description")
             val category = categoryService.getCategory("ELECTRONICS")
-            assertEquals("A brand new Description", category.description)
+            assertEquals("A brand new Description", category?.description)
         }
         @Test
         @DisplayName("Test delete category")

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service
 class ItemService(private val itemRepository: ItemRepository) {
 
     fun createItem(item: Item): Item {
-        validateItem(item)
         return try {
             itemRepository.create(item)
         } catch (ex: Exception) {
@@ -34,15 +33,5 @@ class ItemService(private val itemRepository: ItemRepository) {
 
     fun deleteAllItems() {
         itemRepository.deleteAll()
-    }
-
-    private fun validateItem(item: Item) {
-        require(item.sellerId > 0) { "Item must be assigned a seller" }
-        require(item.categoryId > 0) { "Item must be assigned a category" }
-        require(item.postalCode.isNotEmpty()) { "Postal code must be specified" }
-        require(item.title.isNotEmpty()) { "Title must be specified" }
-        require(item.description.isNotEmpty()) { "Description must be specified" }
-        require(item.price >= 0) { "Price must be zero or positive" }
-        require(item.status in listOf("available", "reserved", "sold", "archived")) { "Invalid status" }
     }
 }
