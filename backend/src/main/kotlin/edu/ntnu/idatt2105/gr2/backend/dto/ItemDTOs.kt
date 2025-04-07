@@ -7,6 +7,9 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Positive
 import java.time.LocalDateTime
 
+/**
+ * Basic item information used in list views and search results
+ */
 data class ItemCard(
     val id: Int,
     val title: String,
@@ -18,14 +21,9 @@ data class ItemCard(
     val updatedAt: LocalDateTime?
 )
 
-data class RecommendedItemsResponse(
-    val items: List<ItemCard>
-)
-
-data class SearchResult(
-    val items: List<ItemCard>
-)
-
+/**
+ * Detailed item information used in product detail pages
+ */
 data class ItemResponse(
     val id: Int,
     val sellerId: Int,
@@ -41,10 +39,28 @@ data class ItemResponse(
     val primaryImageId: Int?,
     val status: ItemStatus,
     val createdAt: LocalDateTime?,
-    val updatedAt: LocalDateTime?
+    val updatedAt: LocalDateTime?,
+    val municipality: String,
+    val images: List<ItemImage>
 )
 
-data class ItemsResponse(val items: List<ItemResponse>)
+/**
+ * Represents an item image with its data and metadata
+ */
+data class ItemImage(
+    val id: Int,
+    val data: String, // base64 encoded image
+    val fileType: String,
+    val isPrimary: Boolean
+)
+
+data class RecommendedItemsResponse(
+    val items: List<ItemCard>
+)
+
+data class ItemsResponse(
+    val items: List<ItemCard>
+)
 
 data class CreateItemRequest(
     @field:Positive(message = "Category ID must be positive")

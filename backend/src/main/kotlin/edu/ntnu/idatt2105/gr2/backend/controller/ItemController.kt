@@ -51,10 +51,10 @@ class ItemController (
     fun createItem(
         @Parameter(description = "Item data to create", required = true)
         @RequestBody @Valid request: CreateItemRequest
-    ): ResponseEntity<ItemCard> {
+    ): ResponseEntity<ItemResponse> {
         logger.info("Creating new item: ${request.title}")
         val savedItem = itemService.createItem(request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedItem.toCard())
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedItem.toResponse())
     }
 
     @GetMapping("/recommended")
@@ -83,7 +83,7 @@ class ItemController (
     ): ResponseEntity<ItemsResponse> {
         logger.info("Searching items with text: $searchText, category: $categoryId")
         val items = itemService.searchItems(SearchItemRequest(searchText = searchText, categoryId = categoryId))
-        return ResponseEntity.ok(ItemsResponse(items.map { it.toCard() }))
+        return ResponseEntity.ok(ItemsResponse(items))
     }
 
     @DeleteMapping("/{id}")

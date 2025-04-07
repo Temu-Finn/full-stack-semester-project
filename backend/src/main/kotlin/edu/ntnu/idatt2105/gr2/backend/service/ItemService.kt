@@ -54,7 +54,7 @@ class ItemService(
         return itemRepository.findRecommendedItems()
     }
 
-    fun searchItems(request: SearchItemRequest): List<Item> {
+    fun searchItems(request: SearchItemRequest): List<ItemCard> {
         logger.info("Searching items with request: $request")
         return itemRepository.searchItems(request)
     }

@@ -46,10 +46,47 @@ class ItemRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun getItemById(id: Int): Item? =
-        queryItemsWhere("id = ?") { it.setInt(1, id) }.firstOrNull()
+    fun getItemById(id: Int): Item? {
+        val sql = """
+            SELECT i.id, i.seller_id, i.category_id, i.postal_code, i.title, i.description, i.price, i.purchase_price, 
+                   i.buyer_id, ST_X(i.location) AS longitude, ST_Y(i.location) AS latitude, i.allow_vipps_buy, 
+                   i.primary_image_id, i.status, i.created_at, i.updated_at, pc.municipality,
+                   ii.id AS image_id, ii.image_data, ii.file_type, ii.id = i.primary_image_id AS is_primary
+            FROM items i
+            JOIN postal_codes pc ON i.postal_code = pc.postal_code
+            LEFT JOIN item_images ii ON ii.item_id = i.id
+            WHERE i.id = ?
+        """.trimIndent()
 
-    fun findAllBySellerId(sellerId: Int): List<Item> =
+        return dataSource.connection.use { conn ->
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setInt(1, id)
+                stmt.executeQuery().use { rs ->
+                    if (!rs.next()) return@use null
+
+                    val item = mapRowToItem(rs)
+                    val images = mutableListOf<ItemImage>()
+                    
+                    // Add first image
+                    if (rs.getIntOrNull("image_id") != null) {
+                        images.add(mapRowToItemImage(rs))
+                    }
+
+                    // Get additional images if any
+                    while (rs.next()) {
+                        images.add(mapRowToItemImage(rs))
+                    }
+
+                    item.copy(
+                        municipality = rs.getString("municipality"),
+                        images = images
+                    )
+                }
+            }
+        }
+    }
+
+    fun findAllBySellerId(sellerId: Int): List<ItemCard> =
         queryItemsWhere("seller_id = ?") { it.setInt(1, sellerId) }
 
     fun deleteById(id: Int): Boolean =
@@ -177,6 +214,13 @@ class ItemRepository(private val dataSource: DataSource) {
             updatedAt = rs.getTimestamp("updated_at")?.toLocalDateTime()
         )
     }
+
+    private fun mapRowToItemImage(rs: ResultSet): ItemImage = ItemImage(
+        id = rs.getInt("image_id"),
+        data = rs.getString("image_data"),
+        fileType = rs.getString("file_type"),
+        isPrimary = rs.getBoolean("is_primary")
+    )
 
     private fun mapRowToItemCard(rs: ResultSet): ItemCard {
         return ItemCard(
