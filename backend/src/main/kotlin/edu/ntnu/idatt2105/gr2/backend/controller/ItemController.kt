@@ -74,7 +74,9 @@ class ItemController (
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "204", description = "Item deleted successfully"),
-            ApiResponse(responseCode = "404", description = "Item not found")
+            ApiResponse(responseCode = "403", description = "User is not the owner"),
+            ApiResponse(responseCode = "404", description = "Item not found"),
+            ApiResponse(responseCode = "500", description = "Internal server error")
         ]
     )
     fun deleteItemByIdOfOwner(
