@@ -81,13 +81,23 @@ class ItemController (
         @Parameter(description = "Item ID to delete", required = true)
         @PathVariable id: Long
     ): ResponseEntity<Void> {
-        logger.info("Attempting to delete item with ID: $id")
-        return if (itemService.deleteItemById(id)) {
-            logger.info("Item with ID $id deleted")
-            ResponseEntity.noContent().build()
-        } else {
-            logger.warn("Item with ID $id not found")
-            ResponseEntity.notFound().build()
+        logger.info("Request to delete item ID: $id")
+
+        return try {
+            val deleted = itemService.deleteItemByIdOwner(id)
+            if (deleted) {
+                logger.info("Item with ID $id deleted")
+                ResponseEntity.noContent().build()
+            } else {
+                logger.warn("Item with ID $id not found")
+                ResponseEntity.notFound().build()
+            }
+        } catch (e: IllegalAccessException) {
+            logger.warn("Unauthorized delete attempt: ${e.message}")
+            ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+        } catch (e: Exception) {
+            logger.error("Unexpected error during item deletion", e)
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build()
         }
     }
 }

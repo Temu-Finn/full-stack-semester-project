@@ -25,6 +25,20 @@ class ItemService(
         return itemRepository.getItemById(id)
     }
 
+    fun deleteItemByIdOwner(itemId: Long): Boolean {
+        val item = itemRepository.getItemById(itemId)
+            ?: return false // 404 not found
+
+        val currentUserId = userContextService.getCurrentUserId()
+
+        if (item.sellerId != currentUserId.toLong()) {
+            logger.warn("User $currentUserId is not allowed to delete item ${item.id} owned by ${item.sellerId}")
+            throw IllegalAccessException("You do not have permission to delete this item.")
+        }
+
+        return itemRepository.deleteById(itemId)
+    }
+
     fun deleteItemById(id: Long): Boolean {
         return itemRepository.deleteById(id)
     }
