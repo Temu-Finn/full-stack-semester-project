@@ -21,7 +21,7 @@ data class ItemCard(
 /**
  * Detailed item information used in product detail pages
  */
-data class ItemResponse(
+data class CompleteItem(
     val id: Int,
     val sellerId: Int,
     val categoryId: Int,
@@ -77,7 +77,7 @@ data class CreateItemRequest(
     @field:NotNull(message = "Allow Vipps Buy must be true or false")
     val allowVippsBuy: Boolean = false,
 
-    @field:Pattern(regexp = "available|reserved|sold|archived", message = "Status must be one of: available, reserved, sold, archived")
+    @field:Pattern(regexp = "evailable|reserved|sold|archived", message = "Status must be one of: available, reserved, sold, archived")
     val status: String = ItemStatus.Available.toString(),
 
     @field:NotNull(message = "Images cannot be null")

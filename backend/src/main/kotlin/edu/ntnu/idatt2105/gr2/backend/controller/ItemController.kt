@@ -34,7 +34,7 @@ class ItemController (
             ApiResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    fun getItemById(@Parameter(description = "Item ID", required = true) @PathVariable id: Int): ResponseEntity<ItemResponse> {
+    fun getItemById(@Parameter(description = "Item ID", required = true) @PathVariable id: Int): ResponseEntity<CompleteItem> {
         val item = itemService.getItemById(id)
         return ResponseEntity.ok(item)
     }
@@ -51,7 +51,7 @@ class ItemController (
     fun createItem(
         @Parameter(description = "Item data to create", required = true)
         @RequestBody @Valid request: CreateItemRequest
-    ): ResponseEntity<ItemResponse> {
+    ): ResponseEntity<CompleteItem> {
         logger.info("Creating new item: ${request.title}")
         val savedItem = itemService.createItem(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(savedItem)
@@ -84,6 +84,24 @@ class ItemController (
         logger.info("Searching items with text: $searchText, category: $categoryId")
         val items = itemService.searchItems(SearchItemRequest(searchText = searchText, categoryId = categoryId))
         return ResponseEntity.ok(SearchResponse(items))
+    }
+
+    @GetMapping("/user/{userId}")
+    @Operation(summary = "Get items of user", description = "Returns all items of a specific user")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Items retrieved successfully"),
+            ApiResponse(responseCode = "404", description = "User not found"),
+            ApiResponse(responseCode = "500", description = "Internal server error")
+        ]
+    )
+    fun getItemsOfUser(
+        @Parameter(description = "User ID to filter items")
+        @PathVariable userId: Int
+    ): ResponseEntity<List<ItemCard>> {
+        logger.info("Fetching items for user ID: $userId")
+        val items = itemService.getItemsOfUser(userId)
+        return ResponseEntity.ok(items)
     }
 
     @DeleteMapping("/{id}")

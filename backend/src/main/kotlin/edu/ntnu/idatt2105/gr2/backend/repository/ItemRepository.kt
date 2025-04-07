@@ -61,8 +61,13 @@ class ItemRepository(private val dataSource: DataSource) {
             .firstOrNull()
     }
 
-    fun findAllBySellerId(sellerId: Int): List<Item> =
-        queryItemsWhere("seller_id = ?") { it.setInt(1, sellerId) }
+    fun findAllBySellerId(sellerId: Int, isOwnUser: Boolean): List<Item> {
+        return if (isOwnUser) {
+            queryItemsWhere("seller_id = ?") { it.setInt(1, sellerId) }
+        } else {
+            queryItemsWhere("seller_id = ? AND status = ?") { it.setInt(1, sellerId); it.setString(2, ItemStatus.Available.toString()) }
+        }
+    }
 
     fun deleteById(id: Int): Boolean =
         executeUpdateAndReturnCount("DELETE FROM items WHERE id = ?") { it.setInt(1, id) } > 0

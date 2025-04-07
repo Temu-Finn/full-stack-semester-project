@@ -18,7 +18,7 @@ class ItemService(
     private val logger = LoggerFactory.getLogger(ItemService::class.java)
 
     @Transactional
-    fun createItem(itemRequest: CreateItemRequest): ItemResponse {
+    fun createItem(itemRequest: CreateItemRequest): CompleteItem {
         logger.info("Creating new item: ${itemRequest.title}")
         val item = itemRepository.create(itemRequest.toItem(userContextService.getCurrentUserId()))
         val images = itemRequest.images.map { image ->
@@ -31,7 +31,7 @@ class ItemService(
             itemRepository.setPrimaryImage(item.id, primaryImageId)
         }
 
-        return ItemResponse(
+        return CompleteItem(
             id = item.id,
             title = item.title,
             description = item.description,
@@ -52,7 +52,7 @@ class ItemService(
         )
     }
 
-    fun getItemById(id: Int): ItemResponse {
+    fun getItemById(id: Int): CompleteItem {
         logger.info("Fetching item with ID: $id")
         val item = itemRepository.getItemById(id)
             ?: throw ItemNotFoundException("Item with ID $id not found")
@@ -101,10 +101,16 @@ class ItemService(
         logger.info("Searching items with request: $request")
         return itemRepository.searchItems(request).map {  itemModelToCard(it) }
     }
+
+    fun getItemsOfUser(userId: Int): List<ItemCard> {
+        val isOwnUser = userId == userContextService.getCurrentUserId()
+        logger.info("Fetching items for user ID: $userId")
+        return itemRepository.findAllBySellerId(userId).map {  itemModelToCard(it) }
+    }
 }
 
-fun Item.toResponse(images: List<ImageResponse>): ItemResponse {
-    return ItemResponse(
+fun Item.toResponse(images: List<ImageResponse>): CompleteItem {
+    return CompleteItem(
         id = this.id,
         sellerId = this.sellerId,
         categoryId = this.categoryId,
