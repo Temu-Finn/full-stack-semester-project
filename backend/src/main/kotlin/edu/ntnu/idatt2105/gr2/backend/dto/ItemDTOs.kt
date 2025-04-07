@@ -1,5 +1,6 @@
 package edu.ntnu.idatt2105.gr2.backend.dto
 
+import edu.ntnu.idatt2105.gr2.backend.model.ItemStatus
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.DecimalMax
 import jakarta.validation.constraints.NotBlank
@@ -7,16 +8,16 @@ import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Positive
 import java.time.LocalDateTime
 
-data class ItemCard (
+data class ItemCard(
     val itemId: Int,
     val title: String,
     val price: Double,
     val municipality: String,
-    val imageBase64: String?,
+    val imageBase64: String?
 )
 
 data class RecommendedItemsResponse(
-    val items: List<ItemCard>,
+    val items: List<ItemCard>
 )
 
 data class ItemResponse(
@@ -32,7 +33,7 @@ data class ItemResponse(
     val location: Location?,
     val allowVippsBuy: Boolean,
     val primaryImageId: Int?,
-    val status: String,
+    val status: ItemStatus,
     val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?
 )
@@ -57,18 +58,10 @@ data class CreateItemRequest(
 
     val purchasePrice: Double? = null,
     val buyerId: Int? = null,
-
-    val location: Location? = null, // Lat, Lng
-
+    val location: Location? = null,
     val allowVippsBuy: Boolean = false,
-
     val primaryImageId: Int? = null,
-
-    @field:Pattern(
-        regexp = "available|reserved|sold|archived",
-        message = "Status must be one of: available, reserved, sold, archived"
-    )
-    val status: String = "available"
+    val status: ItemStatus = ItemStatus.Available
 )
 
 data class Location(

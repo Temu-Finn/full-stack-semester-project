@@ -1,7 +1,8 @@
 package edu.ntnu.idatt2105.gr2.backend.repository
 
 import edu.ntnu.idatt2105.gr2.backend.dto.ItemCard
-import edu.ntnu.idatt2105.gr2.backend.model.*
+import edu.ntnu.idatt2105.gr2.backend.model.Item
+import edu.ntnu.idatt2105.gr2.backend.model.ItemStatus
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
 import java.sql.Statement
@@ -25,10 +26,10 @@ class ItemRepository(private val dataSource: DataSource) {
                 stmt.setDouble(6, item.price)
                 stmt.setObject(7, item.purchasePrice)
                 stmt.setObject(8, item.buyerId)
-                stmt.setString(9, item.location?.let { "POINT(${it.first} ${it.second})" } )
+                stmt.setString(9, item.location?.let { "POINT(${it.first} ${it.second})" })
                 stmt.setBoolean(10, item.allowVippsBuy)
                 stmt.setObject(11, item.primaryImageId)
-                stmt.setString(12, item.status)
+                stmt.setString(12, item.status.toString())
 
                 val affectedRows = stmt.executeUpdate()
                 if (affectedRows == 0) throw RuntimeException("Creating item failed, no rows affected.")
@@ -51,26 +52,19 @@ class ItemRepository(private val dataSource: DataSource) {
     fun findAllByCategoryId(categoryId: Int): List<Item> =
         queryItemsWhere("category_id = ?") { it.setInt(1, categoryId) }
 
+    fun findAllBySellerId(sellerId: Int): List<Item> =
+        queryItemsWhere("seller_id = ?") { it.setInt(1, sellerId) }
+
     fun deleteById(id: Int): Boolean =
         executeUpdateAndReturnCount("DELETE FROM items WHERE id = ?") { it.setInt(1, id) } > 0
 
-    fun findAllByOwner(ownerId: Int): List<Item> {
-        return queryItemsWhere("seller_id = ?") {
-            it.setInt(1, ownerId)
-        }
-    }
-
-    fun deleteAll() {
-        executeUpdateAndReturnCount("DELETE FROM items")
-    }
-
-    fun findRecommendedItems(userId: Int): List<ItemCard> {
+    fun findRecommendedItems(): List<ItemCard> {
         val sql = """
-            SELECT i.id, i.title, i.price, pc.municipality, ii.image_data, ii.file_type,
-            ST_X(i.location) AS longitude, ST_Y(i.location) AS latitude
+            SELECT i.id, i.title, i.price, pc.municipality, ii.image_data, ii.file_type
             FROM items i
             JOIN postal_codes pc ON i.postal_code = pc.postal_code
             LEFT JOIN item_images ii ON ii.id = i.primary_image_id
+            WHERE i.status = ?
             ORDER BY RAND()
             LIMIT 10
         """.trimIndent()
@@ -78,6 +72,7 @@ class ItemRepository(private val dataSource: DataSource) {
         val cards = mutableListOf<ItemCard>()
         dataSource.connection.use { conn ->
             conn.prepareStatement(sql).use { stmt ->
+                stmt.setString(1, ItemStatus.Available.toString())
                 stmt.executeQuery().use { rs ->
                     while (rs.next()) {
                         cards.add(mapRowToItemCard(rs))
@@ -102,7 +97,7 @@ class ItemRepository(private val dataSource: DataSource) {
             location = rs.getLocation(),
             allowVippsBuy = rs.getBoolean("allow_vipps_buy"),
             primaryImageId = rs.getIntOrNull("primary_image_id"),
-            status = rs.getString("status"),
+            status = ItemStatus.fromString(rs.getString("status")),
             createdAt = rs.getTimestamp("created_at")?.toLocalDateTime(),
             updatedAt = rs.getTimestamp("updated_at")?.toLocalDateTime()
         )
@@ -123,32 +118,35 @@ class ItemRepository(private val dataSource: DataSource) {
         setParams: (java.sql.PreparedStatement) -> Unit = {}
     ): List<Item> {
         val sql = """
-            SELECT id, seller_id, category_id, postal_code, title, description, price, purchase_price, buyer_id, ST_X(location) AS longitude, ST_Y(location) AS latitude, allow_vipps_buy, primary_image_id, status, created_at, updated_at
+            SELECT id, seller_id, category_id, postal_code, title, description, price, purchase_price, buyer_id, 
+                   ST_X(location) AS longitude, ST_Y(location) AS latitude, allow_vipps_buy, primary_image_id, 
+                   status, created_at, updated_at
             FROM items
             WHERE $where
         """.trimIndent()
-        val items = mutableListOf<Item>()
-        dataSource.connection.use { conn ->
+        
+        return dataSource.connection.use { conn ->
             conn.prepareStatement(sql).use { stmt ->
                 setParams(stmt)
                 stmt.executeQuery().use { rs ->
-                    while (rs.next()) {
-                        items.add(mapRowToItem(rs))
+                    buildList {
+                        while (rs.next()) {
+                            add(mapRowToItem(rs))
+                        }
                     }
                 }
             }
         }
-        return items
     }
 
     private fun executeUpdateAndReturnCount(
         sql: String,
         setParams: (java.sql.PreparedStatement) -> Unit = {}
     ): Int {
-        dataSource.connection.use { conn ->
+        return dataSource.connection.use { conn ->
             conn.prepareStatement(sql).use { stmt ->
                 setParams(stmt)
-                return stmt.executeUpdate()
+                stmt.executeUpdate()
             }
         }
     }
