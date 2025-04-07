@@ -1,8 +1,6 @@
 package edu.ntnu.idatt2105.gr2.backend.dto
 
-import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Size
 
 data class CategoryResponse(
     val id: Int,

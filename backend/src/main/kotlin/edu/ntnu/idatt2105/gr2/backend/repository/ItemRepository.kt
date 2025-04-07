@@ -15,18 +15,18 @@ class ItemRepository(private val dataSource: DataSource) {
         dataSource.connection.use { conn ->
             val sql = """
                 INSERT INTO items (seller_id, category_id, postal_code, title, description, price, purchase_price, buyer_id, location, allow_vipps_buy, primary_image_id, status) 
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ST_PointFromText(?), ?, ?, ?)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ST_SRID(?, 4326), ?, ?, ?)
             """.trimIndent()
             conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS).use { stmt ->
-                stmt.setLong(1, item.sellerId)
-                stmt.setLong(2, item.categoryId)
+                stmt.setInt(1, item.sellerId)
+                stmt.setInt(2, item.categoryId)
                 stmt.setString(3, item.postalCode)
                 stmt.setString(4, item.title)
                 stmt.setString(5, item.description)
                 stmt.setDouble(6, item.price)
                 stmt.setObject(7, item.purchasePrice)
                 stmt.setObject(8, item.buyerId)
-                stmt.setString(9, item.location?.let { "POINT(${it.first} ${it.second})" } ?: null)
+                stmt.setString(9, item.location?.let { "POINT(${it.first},${it.second})" } )
                 stmt.setBoolean(10, item.allowVippsBuy)
                 stmt.setObject(11, item.primaryImageId)
                 stmt.setString(12, item.status)
@@ -36,7 +36,7 @@ class ItemRepository(private val dataSource: DataSource) {
 
                 stmt.generatedKeys.use { keys ->
                     if (keys.next()) {
-                        val id = keys.getLong(1)
+                        val id = keys.getInt(1)
                         return item.copy(id = id)
                     } else {
                         throw RuntimeException("Creating item failed, no ID obtained.")
@@ -46,18 +46,18 @@ class ItemRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun getItemById(id: Long): Item? =
-        queryItems("SELECT * FROM items WHERE id = ?") { it.setLong(1, id) }.firstOrNull()
+    fun getItemById(id: Int): Item? =
+        queryItems("SELECT * FROM items WHERE id = ?") { it.setInt(1, id) }.firstOrNull()
 
-    fun findAllByCategoryId(categoryId: Long): List<Item> =
-        queryItems("SELECT * FROM items WHERE category_id = ?") { it.setLong(1, categoryId) }
+    fun findAllByCategoryId(categoryId: Int): List<Item> =
+        queryItems("SELECT * FROM items WHERE category_id = ?") { it.setInt(1, categoryId) }
 
-    fun deleteById(id: Long): Boolean =
-        executeUpdateAndReturnCount("DELETE FROM items WHERE id = ?") { it.setLong(1, id) } > 0
+    fun deleteById(id: Int): Boolean =
+        executeUpdateAndReturnCount("DELETE FROM items WHERE id = ?") { it.setInt(1, id) } > 0
 
-    fun findAllByOwner(ownerId: Long): List<Item> {
+    fun findAllByOwner(ownerId: Int): List<Item> {
         return queryItems("SELECT * FROM items WHERE seller_id = ?") {
-            it.setLong(1, ownerId)
+            it.setInt(1, ownerId)
         }
     }
 
@@ -91,18 +91,18 @@ class ItemRepository(private val dataSource: DataSource) {
     private fun mapRowToItem(rs: ResultSet): Item {
         val location: Pair<Double, Double>? = null // TODO: parse location from geometry if needed
         return Item(
-            id = rs.getLong("id"),
-            sellerId = rs.getLong("seller_id"),
-            categoryId = rs.getLong("category_id"),
+            id = rs.getInt("id"),
+            sellerId = rs.getInt("seller_id"),
+            categoryId = rs.getInt("category_id"),
             postalCode = rs.getString("postal_code"),
             title = rs.getString("title"),
             description = rs.getString("description"),
             price = rs.getDouble("price"),
-            purchasePrice = rs.getObject("purchase_price") as? Double,
-            buyerId = rs.getObject("buyer_id") as? Long,
+            purchasePrice = rs.getDouble("purchase_price"),
+            buyerId = rs.getInt("buyer_id"),
             location = location,
             allowVippsBuy = rs.getBoolean("allow_vipps_buy"),
-            primaryImageId = rs.getObject("primary_image_id") as? Long,
+            primaryImageId = rs.getInt("primary_image_id"),
             status = rs.getString("status"),
             createdAt = rs.getTimestamp("created_at")?.toLocalDateTime(),
             updatedAt = rs.getTimestamp("updated_at")?.toLocalDateTime()

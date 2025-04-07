@@ -1,7 +1,6 @@
 package edu.ntnu.idatt2105.gr2.backend.controller
 
 import edu.ntnu.idatt2105.gr2.backend.dto.*
-import edu.ntnu.idatt2105.gr2.backend.dto.RecommendedItemsResponse
 import edu.ntnu.idatt2105.gr2.backend.service.ItemService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -53,7 +52,7 @@ class ItemController (
     )
     fun getItemsByCategoryId(
         @Parameter(description = "Category ID", required = true)
-        @PathVariable categoryId: Long
+        @PathVariable categoryId: Int
     ): ResponseEntity<ItemsResponse> {
         logger.info("Fetching items for category ID: $categoryId")
         val items = itemService.getItemsByCategoryId(categoryId).map { it.toResponse() }
@@ -79,14 +78,14 @@ class ItemController (
             ApiResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    fun deleteItemByIdOfOwner(
+    fun deleteItem(
         @Parameter(description = "Item ID to delete", required = true)
-        @PathVariable id: Long
+        @PathVariable id: Int
     ): ResponseEntity<Void> {
         logger.info("Request to delete item ID: $id")
 
         return try {
-            val deleted = itemService.deleteItemByIdOfOwner(id)
+            val deleted = itemService.deleteItem(id)
             if (deleted) {
                 logger.info("Item with ID $id deleted")
                 ResponseEntity.noContent().build()

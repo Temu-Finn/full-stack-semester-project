@@ -15,23 +15,23 @@ class ItemService(
 
     fun createItem(item: Item): Item {
         return try {
-            itemRepository.create(item)
+            itemRepository.create(item.copy(sellerId = userContextService.getCurrentUserId()))
         } catch (ex: Exception) {
             throw IllegalStateException("Failed to create item", ex)
         }
     }
 
-    fun getItemById(id: Long): Item? {
+    fun getItemById(id: Int): Item? {
         return itemRepository.getItemById(id)
     }
 
-    fun deleteItemByIdOfOwner(itemId: Long): Boolean {
+    fun deleteItem(itemId: Int): Boolean {
         val item = itemRepository.getItemById(itemId)
             ?: return false // 404 not found
 
         val currentUserId = userContextService.getCurrentUserId()
 
-        if (item.sellerId != currentUserId.toLong()) {
+        if (item.sellerId != currentUserId) {
             logger.warn("User $currentUserId is not allowed to delete item ${item.id} owned by ${item.sellerId}")
             throw IllegalAccessException("You do not have permission to delete this item.")
         }
@@ -39,18 +39,18 @@ class ItemService(
         return itemRepository.deleteById(itemId)
     }
 
-    fun deleteItemById(id: Long): Boolean {
+    fun deleteItemById(id: Int): Boolean {
         return itemRepository.deleteById(id)
     }
 
-    fun getItemsByCategoryId(categoryId: Long): List<Item> {
+    fun getItemsByCategoryId(categoryId: Int): List<Item> {
         return itemRepository.findAllByCategoryId(categoryId)
     }
 
     fun getAllByOwner(): List<Item> {
         val userId = userContextService.getCurrentUserId()
         logger.info("Fetching all items owned by user $userId")
-        return itemRepository.findAllByOwner(userId.toLong())
+        return itemRepository.findAllByOwner(userId)
     }
 
     fun deleteAllItems() {

@@ -3,18 +3,18 @@ package edu.ntnu.idatt2105.gr2.backend.model
 import java.time.LocalDateTime
 
 data class Item (
-    val id: Long = -1,
-    val sellerId: Long,
-    val categoryId: Long,
+    val id: Int = -1,
+    val sellerId: Int,
+    val categoryId: Int,
     val postalCode: String,
     val title: String,
     val description: String,
     val price: Double,
     val purchasePrice: Double?,
-    val buyerId: Long?,
+    val buyerId: Int?,
     val location: Pair<Double, Double>?, // Latitude, Longitude
     val allowVippsBuy: Boolean = false,
-    val primaryImageId: Long?,
+    val primaryImageId: Int?,
     val status: String = "available",
     val createdAt: LocalDateTime? = null,
     val updatedAt: LocalDateTime? = null

@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 
 fun CreateItemRequest.toItem(): Item {
     return Item(
-        sellerId = this.sellerId,
+        sellerId = -1,
         categoryId = this.categoryId,
         postalCode = this.postalCode,
         title = this.title,
