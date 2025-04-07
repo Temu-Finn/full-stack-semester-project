@@ -28,7 +28,7 @@ data class ItemResponse(
     val price: Double,
     val purchasePrice: Double?,
     val buyerId: Int?,
-    val location: Pair<Double, Double>?,
+    val location: Location?,
     val allowVippsBuy: Boolean,
     val primaryImageId: Int?,
     val status: String,
@@ -57,7 +57,7 @@ data class CreateItemRequest(
     val purchasePrice: Double? = null,
     val buyerId: Int? = null,
 
-    val location: Pair<Double, Double>? = null, // Lat, Lng
+    val location: Location? = null, // Lat, Lng
 
     val allowVippsBuy: Boolean = false,
 
@@ -68,4 +68,9 @@ data class CreateItemRequest(
         message = "Status must be one of: available, reserved, sold, archived"
     )
     val status: String = "available"
+)
+
+data class Location(
+    val latitude: Double,
+    val longitude: Double
 )

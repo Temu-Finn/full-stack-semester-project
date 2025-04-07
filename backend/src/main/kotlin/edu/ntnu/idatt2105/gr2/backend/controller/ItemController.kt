@@ -38,7 +38,7 @@ class ItemController (
         @RequestBody @Valid request: CreateItemRequest
     ): ResponseEntity<ItemResponse> {
         logger.info("Creating new item: ${request.title}")
-        val savedItem = itemService.createItem(request.toItem())
+        val savedItem = itemService.createItem(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(savedItem.toResponse())
     }
 

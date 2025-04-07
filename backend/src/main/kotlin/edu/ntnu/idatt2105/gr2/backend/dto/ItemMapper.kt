@@ -4,9 +4,9 @@ package edu.ntnu.idatt2105.gr2.backend.dto
 import edu.ntnu.idatt2105.gr2.backend.model.Item
 import java.time.LocalDateTime
 
-fun CreateItemRequest.toItem(): Item {
+fun CreateItemRequest.toItem(userId: Int): Item {
     return Item(
-        sellerId = -1,
+        sellerId = userId,
         categoryId = this.categoryId,
         postalCode = this.postalCode,
         title = this.title,
@@ -14,7 +14,7 @@ fun CreateItemRequest.toItem(): Item {
         price = this.price,
         purchasePrice = this.purchasePrice,
         buyerId = this.buyerId,
-        location = this.location,
+        location = this.location?.let {Pair(it.latitude, it.longitude)},
         allowVippsBuy = this.allowVippsBuy,
         primaryImageId = this.primaryImageId,
         status = this.status,
@@ -34,7 +34,7 @@ fun Item.toResponse(): ItemResponse {
         price = this.price,
         purchasePrice = this.purchasePrice,
         buyerId = this.buyerId,
-        location = this.location,
+        location = this.location?.let { Location(it.first, it.second) },
         allowVippsBuy = this.allowVippsBuy,
         primaryImageId = this.primaryImageId,
         status = this.status,

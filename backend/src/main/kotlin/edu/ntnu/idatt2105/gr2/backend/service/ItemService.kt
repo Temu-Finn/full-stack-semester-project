@@ -1,7 +1,9 @@
 package edu.ntnu.idatt2105.gr2.backend.service
 
+import edu.ntnu.idatt2105.gr2.backend.dto.CreateItemRequest
 import edu.ntnu.idatt2105.gr2.backend.model.Item
 import edu.ntnu.idatt2105.gr2.backend.dto.ItemCard
+import edu.ntnu.idatt2105.gr2.backend.dto.toItem
 import edu.ntnu.idatt2105.gr2.backend.repository.ItemRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -13,9 +15,9 @@ class ItemService(
 ) {
     private val logger = LoggerFactory.getLogger(ItemService::class.java)
 
-    fun createItem(item: Item): Item {
+    fun createItem(item: CreateItemRequest): Item {
         return try {
-            itemRepository.create(item.copy(sellerId = userContextService.getCurrentUserId()))
+            itemRepository.create(item.toItem(userContextService.getCurrentUserId()))
         } catch (ex: Exception) {
             throw IllegalStateException("Failed to create item", ex)
         }
