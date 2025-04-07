@@ -4,17 +4,19 @@ import edu.ntnu.idatt2105.gr2.backend.model.Item
 import edu.ntnu.idatt2105.gr2.backend.dto.ItemCard
 import edu.ntnu.idatt2105.gr2.backend.model.getImageDataUrl
 import org.springframework.stereotype.Repository
-import java.sql.Statement
 import java.sql.ResultSet
+import java.sql.Statement
 import javax.sql.DataSource
 
 @Repository
 class ItemRepository(private val dataSource: DataSource) {
-    fun create(item: Item): Item{
+
+    fun create(item: Item): Item {
         dataSource.connection.use { conn ->
             val sql = """
                 INSERT INTO items (seller_id, category_id, postal_code, title, description, price, purchase_price, buyer_id, location, allow_vipps_buy, primary_image_id, status) 
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ST_PointFromText(?), ?, ?, ?)""".trimIndent()
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ST_PointFromText(?), ?, ?, ?)
+            """.trimIndent()
             conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS).use { stmt ->
                 stmt.setLong(1, item.sellerId)
                 stmt.setLong(2, item.categoryId)
@@ -30,14 +32,12 @@ class ItemRepository(private val dataSource: DataSource) {
                 stmt.setString(12, item.status)
 
                 val affectedRows = stmt.executeUpdate()
-                if (affectedRows == 0) {
-                    throw RuntimeException("Creating item failed, no rows affected.")
-                }
+                if (affectedRows == 0) throw RuntimeException("Creating item failed, no rows affected.")
 
                 stmt.generatedKeys.use { keys ->
                     if (keys.next()) {
                         val id = keys.getLong(1)
-                        return item.copy(id = id) //
+                        return item.copy(id = id)
                     } else {
                         throw RuntimeException("Creating item failed, no ID obtained.")
                     }
@@ -47,58 +47,46 @@ class ItemRepository(private val dataSource: DataSource) {
     }
 
     fun getItemById(id: Long): Item? =
-        queryItems("SELECT * FROM items WHERE id = ?") {
-            it.setLong(1, id)
-        }.firstOrNull()
+        queryItems("SELECT * FROM items WHERE id = ?") { it.setLong(1, id) }.firstOrNull()
 
-    fun findAllByCategoryId(categoryId: Long): List<Item> {
-        return queryItems("SELECT * FROM items WHERE category_id = ?") { stmt ->
-            stmt.setLong(1, categoryId)
-        }
-    }
+    fun findAllByCategoryId(categoryId: Long): List<Item> =
+        queryItems("SELECT * FROM items WHERE category_id = ?") { it.setLong(1, categoryId) }
 
-    fun deleteById(id: Long): Boolean {
-        return executeUpdateAndReturnCount("DELETE FROM items WHERE id = ?") {
-            it.setLong(1, id)
-        } > 0
-    }
+    fun deleteById(id: Long): Boolean =
+        executeUpdateAndReturnCount("DELETE FROM items WHERE id = ?") { it.setLong(1, id) } > 0
 
-    fun getAll(): List<Item> {
-        return queryItems("SELECT * FROM items")
-    }
+    fun getAll(): List<Item> =
+        queryItems("SELECT * FROM items")
 
     fun deleteAll() {
         executeUpdateAndReturnCount("DELETE FROM items")
     }
-class ItemRepository (
-    private val dataSource: DataSource,
-) {
 
     fun findRecommendedItems(userId: Int): List<ItemCard> {
         val sql = """
-            SELECT
-                i.id,
-                i.title,
-                i.price,
-                pc.municipality,
-                ii.image_data,
-                ii.file_type
-            FROM
-                items i
-            JOIN
-                postal_codes pc ON i.postal_code = pc.postal_code
-            LEFT JOIN
-                item_images ii ON ii.id = i.primary_image_id
-            ORDER BY
-                RAND() -- Change to a more sophisticated recommendation algorithm
-            LIMIT 10; -- Limit the number of items
-        """
+            SELECT i.id, i.title, i.price, pc.municipality, ii.image_data, ii.file_type
+            FROM items i
+            JOIN postal_codes pc ON i.postal_code = pc.postal_code
+            LEFT JOIN item_images ii ON ii.id = i.primary_image_id
+            ORDER BY RAND()
+            LIMIT 10
+        """.trimIndent()
 
-    private fun mapRowToItem(rs: java.sql.ResultSet): Item{
-        // Temporary fix for location, doesn't handle Pair
-        val location: Pair<Double, Double>? = null
-        val items = mutableListOf<ItemCard>()
+        val cards = mutableListOf<ItemCard>()
+        dataSource.connection.use { conn ->
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.executeQuery().use { rs ->
+                    while (rs.next()) {
+                        cards.add(mapRowToItemCard(rs))
+                    }
+                }
+            }
+        }
+        return cards
+    }
 
+    private fun mapRowToItem(rs: ResultSet): Item {
+        val location: Pair<Double, Double>? = null // TODO: parse location from geometry if needed
         return Item(
             id = rs.getLong("id"),
             sellerId = rs.getLong("seller_id"),
@@ -118,31 +106,6 @@ class ItemRepository (
         )
     }
 
-    private fun queryItems(sql: String, setParams: (java.sql.PreparedStatement) -> Unit = {}): List<Item> {
-        val items = mutableListOf<Item>()
-        dataSource.connection.use { conn ->
-            conn.prepareStatement(sql).use { stmt ->
-                setParams(stmt)
-                stmt.executeQuery().use { rs ->
-                    while (rs.next()) {
-                        items.add(mapRowToItem(rs))
-                        items.add(mapRowToItemCard(rs))
-                    }
-                }
-            }
-        }
-
-        return items
-    }
-
-    private fun executeUpdateAndReturnCount(sql: String, setParams: (java.sql.PreparedStatement) -> Unit = {}
-    ): Int {
-        dataSource.connection.use { conn ->
-            conn.prepareStatement(sql).use { stmt ->
-                setParams(stmt)
-                return stmt.executeUpdate()
-            }
-        }
     private fun mapRowToItemCard(rs: ResultSet): ItemCard {
         return ItemCard(
             itemId = rs.getInt("id"),
@@ -151,5 +114,35 @@ class ItemRepository (
             municipality = rs.getString("municipality"),
             imageBase64 = rs.getImageDataUrl()
         )
+    }
+
+    private fun queryItems(
+        sql: String,
+        setParams: (java.sql.PreparedStatement) -> Unit = {}
+    ): List<Item> {
+        val items = mutableListOf<Item>()
+        dataSource.connection.use { conn ->
+            conn.prepareStatement(sql).use { stmt ->
+                setParams(stmt)
+                stmt.executeQuery().use { rs ->
+                    while (rs.next()) {
+                        items.add(mapRowToItem(rs))
+                    }
+                }
+            }
+        }
+        return items
+    }
+
+    private fun executeUpdateAndReturnCount(
+        sql: String,
+        setParams: (java.sql.PreparedStatement) -> Unit = {}
+    ): Int {
+        dataSource.connection.use { conn ->
+            conn.prepareStatement(sql).use { stmt ->
+                setParams(stmt)
+                return stmt.executeUpdate()
+            }
+        }
     }
 }
