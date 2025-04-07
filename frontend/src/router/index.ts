@@ -1,11 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import NewProductView from '@/views/NewProductView.vue'
-import MessagesView from '@/views/MessagesView.vue'
+import MessagesView from '@/views/ChatView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import LogInView from '@/views/LogInView.vue'
 import SignUpView from '@/views/SignUpView.vue'
 import { useSessionStore } from '@/stores/session'
+import ChatView from '@/views/ChatView.vue'
+import ProductView from '@/views/ProductView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -29,19 +31,29 @@ const router = createRouter({
       path: '/new',
       name: 'new',
       component: NewProductView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: false },
     },
     {
-      path: '/messages',
-      name: 'messages',
-      component: MessagesView,
-      meta: { requiresAuth: true },
+      path: '/chat/:id',
+      name: 'Chat',
+      component: ChatView,
+      meta: { requiresAuth: false },
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/chat/1',
     },
     {
       path: '/profile',
       name: 'profile',
       component: ProfileView,
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/product/:id',
+      name: 'product',
+      component: ProductView,
+      meta: { requiresAuth: false },
     },
   ],
 })
