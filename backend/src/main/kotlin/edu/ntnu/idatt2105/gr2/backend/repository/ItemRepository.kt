@@ -1,6 +1,5 @@
 package edu.ntnu.idatt2105.gr2.backend.repository
 
-import edu.ntnu.idatt2105.gr2.backend.dto.ItemCard
 import edu.ntnu.idatt2105.gr2.backend.dto.SearchItemRequest
 import edu.ntnu.idatt2105.gr2.backend.model.*
 import org.springframework.stereotype.Repository
@@ -28,7 +27,7 @@ class ItemRepository(private val dataSource: DataSource) {
                 stmt.setObject(8, item.buyerId)
                 stmt.setString(9, item.location?.let { "POINT(${it.latitude} ${it.longitude})" })
                 stmt.setBoolean(10, item.allowVippsBuy)
-                stmt.setString(12, item.status.toString())
+                stmt.setString(11, item.status.toString())
 
                 val affectedRows = stmt.executeUpdate()
                 if (affectedRows == 0) throw RuntimeException("Creating item failed, no rows affected.")
@@ -58,43 +57,8 @@ class ItemRepository(private val dataSource: DataSource) {
     }
 
     fun getItemById(id: Int): Item? {
-        val sql = """
-            SELECT i.id, i.seller_id, i.category_id, i.postal_code, i.title, i.description, i.price, i.purchase_price, 
-                   i.buyer_id, ST_X(i.location) AS longitude, ST_Y(i.location) AS latitude, i.allow_vipps_buy, 
-                   i.primary_image_id, i.status, i.created_at, i.updated_at, pc.municipality,
-                   ii.id AS image_id, ii.image_data, ii.file_type, ii.id = i.primary_image_id AS is_primary
-            FROM items i
-            JOIN postal_codes pc ON i.postal_code = pc.postal_code
-            LEFT JOIN item_images ii ON ii.item_id = i.id
-            WHERE i.id = ?
-        """.trimIndent()
-
-        return dataSource.connection.use { conn ->
-            conn.prepareStatement(sql).use { stmt ->
-                stmt.setInt(1, id)
-                stmt.executeQuery().use { rs ->
-                    if (!rs.next()) return@use null
-
-                    val item = mapRowToItem(rs)
-                    val images = mutableListOf<ItemImage>()
-                    
-                    // Add first image
-                    if (rs.getIntOrNull("image_id") != null) {
-                        images.add(mapRowToItemImage(rs))
-                    }
-
-                    // Get additional images if any
-                    while (rs.next()) {
-                        images.add(mapRowToItemImage(rs))
-                    }
-
-                    item.copy(
-                        municipality = rs.getString("municipality"),
-                        images = images
-                    )
-                }
-            }
-        }
+        return queryItemsWhere("id = ?") { it.setInt(1, id) }
+            .firstOrNull()
     }
 
     fun findAllBySellerId(sellerId: Int): List<Item> =
@@ -103,7 +67,7 @@ class ItemRepository(private val dataSource: DataSource) {
     fun deleteById(id: Int): Boolean =
         executeUpdateAndReturnCount("DELETE FROM items WHERE id = ?") { it.setInt(1, id) } > 0
 
-    fun findRecommendedItems(): List<ItemCard> {
+    fun findRecommendedItems(): List<Item> {
         val sql = """
             SELECT i.id, i.title, i.price, pc.municipality, ii.image_data, ii.file_type, ST_X(i.location) AS longitude, ST_Y(i.location) AS latitude, i.status, i.updated_at
             FROM items i
@@ -114,7 +78,7 @@ class ItemRepository(private val dataSource: DataSource) {
             LIMIT 10
         """.trimIndent()
 
-        val cards = mutableListOf<ItemCard>()
+        val cards = mutableListOf<Item>()
         dataSource.connection.use { conn ->
             conn.prepareStatement(sql).use { stmt ->
                 stmt.setString(1, ItemStatus.Available.toString())
@@ -128,7 +92,7 @@ class ItemRepository(private val dataSource: DataSource) {
         return cards
     }
 
-    fun searchItems(request: SearchItemRequest): List<ItemCard> {
+    fun searchItems(request: SearchItemRequest): List<Item> {
         val conditions = mutableListOf<String>()
         val params = mutableListOf<Any>()
         var paramIndex = 1
@@ -152,31 +116,9 @@ class ItemRepository(private val dataSource: DataSource) {
             conditions.joinToString(" AND ")
         }
 
-        val sql = """
-            SELECT i.id, i.title, i.price, pc.municipality, ii.image_data, ii.file_type, 
-                   ST_X(i.location) AS longitude, ST_Y(i.location) AS latitude, i.status, i.updated_at
-            FROM items i
-            JOIN postal_codes pc ON i.postal_code = pc.postal_code
-            LEFT JOIN item_images ii ON ii.id = i.primary_image_id
-            WHERE $whereClause
-        """.trimIndent()
-
-        return dataSource.connection.use { conn ->
-            conn.prepareStatement(sql).use { stmt ->
-                params.forEachIndexed { index, param ->
-                    when (param) {
-                        is String -> stmt.setString(index + 1, param)
-                        is Int -> stmt.setInt(index + 1, param)
-                        else -> throw IllegalArgumentException("Unsupported parameter type: ${param::class.java}")
-                    }
-                }
-                stmt.executeQuery().use { rs ->
-                    buildList {
-                        while (rs.next()) {
-                            add(mapRowToItemCard(rs))
-                        }
-                    }
-                }
+        return queryItemsWhere(whereClause) { stmt ->
+            for (i in params.indices) {
+                stmt.setObject(i + 1, params[i])
             }
         }
     }
@@ -217,32 +159,13 @@ class ItemRepository(private val dataSource: DataSource) {
             price = rs.getDouble("price"),
             purchasePrice = rs.getDoubleOrNull("purchase_price"),
             buyerId = rs.getIntOrNull("buyer_id"),
-            location = null, // To be implemented
+            location = rs.getLocation(),
             allowVippsBuy = rs.getBoolean("allow_vipps_buy"),
             primaryImageId = rs.getIntOrNull("primary_image_id"),
             status = rs.getItemStatus(),
             createdAt = rs.getTimestamp("created_at")?.toLocalDateTime(),
-            updatedAt = rs.getTimestamp("updated_at")?.toLocalDateTime()
-        )
-    }
-
-    private fun mapRowToItemImage(rs: ResultSet): ItemImage = ItemImage(
-        id = rs.getInt("image_id"),
-        data = rs.getString("image_data"),
-        fileType = rs.getString("file_type"),
-        isPrimary = rs.getBoolean("is_primary")
-    )
-
-    private fun mapRowToItemCard(rs: ResultSet): ItemCard {
-        return ItemCard(
-            id = rs.getInt("id"),
-            title = rs.getString("title"),
-            price = rs.getDouble("price"),
+            updatedAt = rs.getTimestamp("updated_at")?.toLocalDateTime(),
             municipality = rs.getString("municipality"),
-            imageBase64 = rs.getImageDataUrl(),
-            location = rs.getLocation(),
-            status = rs.getItemStatus(),
-            updatedAt = rs.getTimestamp("updated_at")?.toLocalDateTime()
         )
     }
 

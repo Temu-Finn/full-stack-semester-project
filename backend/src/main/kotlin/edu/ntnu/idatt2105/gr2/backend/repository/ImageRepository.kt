@@ -31,18 +31,6 @@ class ImageRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun setPrimaryImage(itemId: Int, imageId: Int) {
-        val sql = "UPDATE items SET primary_image_id = ? WHERE id = ?"
-
-        dataSource.connection.use { conn ->
-            conn.prepareStatement(sql).use { stmt ->
-                stmt.setInt(1, imageId)
-                stmt.setInt(2, itemId)
-                stmt.executeUpdate()
-            }
-        }
-    }
-
     fun getById(id: Int): Image? {
         val sql = "SELECT * FROM item_images WHERE id = ?"
 

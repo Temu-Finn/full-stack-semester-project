@@ -30,7 +30,7 @@ class ItemService(
             primaryImageId = images.first().id
             itemRepository.setPrimaryImage(item.id, primaryImageId)
         }
-        
+
         return ItemResponse(
             id = item.id,
             title = item.title,
@@ -77,12 +77,12 @@ class ItemService(
         return itemRepository.findAllBySellerId(userId)
     }
 
-    fun getRecommendedItems(): List<ItemCard> {
+    fun getRecommendedItems(): List<edu.ntnu.idatt2105.gr2.backend.dto.Item> {
         logger.info("Fetching recommended items")
         return itemRepository.findRecommendedItems()
     }
 
-    fun searchItems(request: SearchItemRequest): List<ItemCard> {
+    fun searchItems(request: SearchItemRequest): List<edu.ntnu.idatt2105.gr2.backend.dto.Item> {
         logger.info("Searching items with request: $request")
         return itemRepository.searchItems(request)
     }
