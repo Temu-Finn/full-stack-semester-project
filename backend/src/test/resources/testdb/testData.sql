@@ -1,6 +1,4 @@
 -- V1
--- items needs to be dropped first to avoid orphan records
-DROP TABLE IF EXISTS items;
 DROP TABLE IF EXISTS users;
 CREATE TABLE users
 (
@@ -16,9 +14,9 @@ CREATE TABLE users
 DROP TABLE IF EXISTS categories;
 CREATE TABLE categories
 (
-    category_id INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    name        VARCHAR(255) NOT NULL UNIQUE,
-    description TEXT         NOT NULL,
+    id          INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name        VARCHAR(30)  NOT NULL UNIQUE,
+    description VARCHAR(255) NOT NULL,
     created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

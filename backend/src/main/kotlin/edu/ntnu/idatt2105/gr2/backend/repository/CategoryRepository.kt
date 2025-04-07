@@ -19,7 +19,7 @@ class CategoryRepository (private val dataSource: DataSource) {
 
         dataSource.connection.use { conn ->
             val sql = "INSERT INTO categories (name, description) VALUES (?, ?)"
-            conn.prepareStatement(sql).use { stmt ->
+            conn.prepareStatement(sql,  java.sql.Statement.RETURN_GENERATED_KEYS).use { stmt ->
                 stmt.setString(1, name)
                 stmt.setString(2, description)
 
@@ -28,13 +28,20 @@ class CategoryRepository (private val dataSource: DataSource) {
                     throw RuntimeException("Creating category failed, no rows affected.")
                 }
 
-                return Category(name, description)
+                stmt.generatedKeys.use { keys ->
+                    if (keys.next()) {
+                        return Category(
+                            id = keys.getInt(1),
+                            name = name,
+                            description = description
+                        )
+                    } else {
+                        throw RuntimeException("Creating category failed," +
+                                " no ID could be obtained.")
+                    }
+                }
             }
         }
-    }
-
-    fun saveAll(categories: List<Category>) {
-        categories.forEach { save(it) }
     }
 
     fun deleteAll() {
@@ -54,7 +61,9 @@ class CategoryRepository (private val dataSource: DataSource) {
                 stmt.executeQuery().use { rows ->
                     val categories = mutableListOf<Category>()
                     while (rows.next()) {
-                        categories.add(Category(rows.getString("name"), rows.getString("description")))
+                        categories.add(Category(rows.getInt("id"),
+                            rows.getString("name"),
+                            rows.getString("description")))
                     }
                     return categories
                 }
@@ -63,19 +72,23 @@ class CategoryRepository (private val dataSource: DataSource) {
     }
 
     // Finds a category by name
-    fun findByName(name: String): Category {
+    fun findByName(name: String): Category? {
         dataSource.connection.use { conn ->
             val sql = "SELECT * FROM categories WHERE name = ?"
             conn.prepareStatement(sql).use { stmt ->
                 stmt.setString(1, name)
                 stmt.executeQuery().use { rows ->
                     if (rows.next()) {
-                        return Category(rows.getString("name"), rows.getString("description"))
+                        return Category(
+                            rows.getInt("id"),
+                            rows.getString("name"),
+                            rows.getString("description")
+                        )
                     }
                 }
             }
         }
-        throw RuntimeException("Category not found")
+        return null
     }
 
     // Deletes a category

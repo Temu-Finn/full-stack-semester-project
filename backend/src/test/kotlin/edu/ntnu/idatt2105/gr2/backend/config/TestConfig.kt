@@ -17,7 +17,6 @@ import javax.sql.DataSource
 
 @TestConfiguration
 class TestConfig {
-
     @Bean
     @Primary
     fun testUserContextService(): UserContextService {

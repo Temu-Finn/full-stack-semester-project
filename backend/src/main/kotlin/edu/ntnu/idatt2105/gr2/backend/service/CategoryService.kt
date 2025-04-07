@@ -10,7 +10,7 @@ class CategoryService (
 )  {
 
     fun createCategory(name: String, description: String): Category {
-        val category = Category(name, description)
+        val category = Category(name = name, description =  description)
         return categoryRepository.save(category)
     }
 
@@ -18,7 +18,7 @@ class CategoryService (
         return categoryRepository.findAll()
     }
 
-    fun getCategory(name: String): Category {
+    fun getCategory(name: String): Category? {
         if (name.isBlank()) {
             throw IllegalArgumentException("Name cannot be blank")
         }
