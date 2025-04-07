@@ -15,7 +15,7 @@ class ItemRepository(private val dataSource: DataSource) {
         dataSource.connection.use { conn ->
             val sql = """
                 INSERT INTO items (seller_id, category_id, postal_code, title, description, price, purchase_price, buyer_id, location, allow_vipps_buy, primary_image_id, status) 
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ST_SRID(?, 4326), ?, ?, ?)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ST_PointFromText(?, 4326), ?, ?, ?)
             """.trimIndent()
             conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS).use { stmt ->
                 stmt.setInt(1, item.sellerId)
@@ -26,7 +26,7 @@ class ItemRepository(private val dataSource: DataSource) {
                 stmt.setDouble(6, item.price)
                 stmt.setObject(7, item.purchasePrice)
                 stmt.setObject(8, item.buyerId)
-                stmt.setString(9, item.location?.let { "POINT(${it.first},${it.second})" } )
+                stmt.setString(9, item.location?.let { "POINT(${it.first} ${it.second})" } )
                 stmt.setBoolean(10, item.allowVippsBuy)
                 stmt.setObject(11, item.primaryImageId)
                 stmt.setString(12, item.status)

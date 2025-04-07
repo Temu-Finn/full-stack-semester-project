@@ -16,11 +16,7 @@ class ItemService(
     private val logger = LoggerFactory.getLogger(ItemService::class.java)
 
     fun createItem(item: CreateItemRequest): Item {
-        return try {
-            itemRepository.create(item.toItem(userContextService.getCurrentUserId()))
-        } catch (ex: Exception) {
-            throw IllegalStateException("Failed to create item", ex)
-        }
+        return itemRepository.create(item.toItem(userContextService.getCurrentUserId()))
     }
 
     fun getItemById(id: Int): Item? {
