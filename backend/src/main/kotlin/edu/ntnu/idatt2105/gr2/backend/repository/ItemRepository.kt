@@ -1,8 +1,7 @@
 package edu.ntnu.idatt2105.gr2.backend.repository
 
 import edu.ntnu.idatt2105.gr2.backend.dto.ItemCard
-import edu.ntnu.idatt2105.gr2.backend.model.Item
-import edu.ntnu.idatt2105.gr2.backend.model.ItemStatus
+import edu.ntnu.idatt2105.gr2.backend.model.*
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
 import java.sql.Statement

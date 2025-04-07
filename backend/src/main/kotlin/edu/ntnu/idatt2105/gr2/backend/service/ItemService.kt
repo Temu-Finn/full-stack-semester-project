@@ -57,9 +57,4 @@ class ItemService(
         logger.info("Fetching recommended items")
         return itemRepository.findRecommendedItems()
     }
-
-    fun findItemsNearby(latitude: Double, longitude: Double, maxDistance: Int): List<Item> {
-        logger.info("Finding items near coordinates: ($latitude, $longitude) within $maxDistance meters")
-        return itemRepository.findItemsNearby(latitude, longitude, maxDistance)
-    }
 }

@@ -35,7 +35,7 @@ class ItemController (
         ]
     )
     fun getItemById(@Parameter(description = "Item ID", required = true) @PathVariable id: Int): ResponseEntity<ItemResponse> {
-        val item = itemService.getItemById(id) ?: throw ItemNotFoundException("Item with ID $id not found")
+        val item = itemService.getItemById(id)
         return ResponseEntity.ok(item.toResponse())
     }
 
