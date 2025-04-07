@@ -23,7 +23,6 @@ data class Image(
 
         other as Image
 
-        if (id != other.id) return false
         if (!data.contentEquals(other.data)) return false
         if (fileType != other.fileType) return false
         if (altText != other.altText) return false
@@ -32,8 +31,7 @@ data class Image(
     }
 
     override fun hashCode(): Int {
-        var result = id
-        result = 31 * result + data.contentHashCode()
+        var result = data.contentHashCode()
         result = 31 * result + fileType.hashCode()
         result = 31 * result + (altText?.hashCode() ?: 0)
         return result

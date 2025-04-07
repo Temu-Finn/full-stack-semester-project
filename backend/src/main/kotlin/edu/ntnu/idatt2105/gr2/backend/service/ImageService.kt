@@ -12,7 +12,7 @@ class ImageService(
 ) {
     private val logger = LoggerFactory.getLogger(ImageService::class.java)
 
-    fun uploadImage(imageFile: MultipartFile, altText: String): Image {
+    fun uploadImage(imageFile: MultipartFile, altText: String?): ImageDTO {
         logger.info("Uploading image: ${imageFile.originalFilename}")
         val fileType = imageFile.contentType ?: "application/octet-stream"
         val imageData = imageFile.bytes
@@ -21,6 +21,6 @@ class ImageService(
             fileType = fileType,
             altText = altText
         )
-        return imageRepository.save()
+        return imageRepository.save(image)
     }
 }
