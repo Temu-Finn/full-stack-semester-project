@@ -19,7 +19,7 @@ class ItemController (
     private val logger = LoggerFactory.getLogger(AuthenticationController::class.java)
 
     @GetMapping("/recommended")
-    @Operation(summary = "Recommended items", description = "Uses user data to recommend items")
+    @Operation(summary = "Recommended items", description = "Utilizes user data to recommend items")
     fun recommendedItems(): ResponseEntity<RecommendedItemsResponse> {
         logger.info("Fetching recommended items")
         val items = itemService.getRecommendedItems()
