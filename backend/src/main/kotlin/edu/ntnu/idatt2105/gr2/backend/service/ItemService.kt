@@ -73,12 +73,6 @@ class ItemService(
         return itemRepository.deleteById(itemId)
     }
 
-    fun getAllByOwner(): List<ItemCard> {
-        val userId = userContextService.getCurrentUserId()
-        logger.info("Fetching all items owned by user $userId")
-        return itemRepository.findAllBySellerId(userId).map {  itemModelToCard(it) }
-    }
-
     private fun itemModelToCard(item: Item): ItemCard {
         return ItemCard(
             id = item.id,
@@ -105,7 +99,7 @@ class ItemService(
     fun getItemsOfUser(userId: Int): List<ItemCard> {
         val isOwnUser = userId == userContextService.getCurrentUserId()
         logger.info("Fetching items for user ID: $userId")
-        return itemRepository.findAllBySellerId(userId).map {  itemModelToCard(it) }
+        return itemRepository.findAllBySellerId(userId, isOwnUser).map {  itemModelToCard(it) }
     }
 }
 

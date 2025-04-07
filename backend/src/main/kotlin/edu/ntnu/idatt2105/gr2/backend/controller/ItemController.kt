@@ -13,9 +13,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/item")
@@ -87,7 +84,10 @@ class ItemController (
     }
 
     @GetMapping("/user/{userId}")
-    @Operation(summary = "Get items of user", description = "Returns all items of a specific user")
+    @Operation(
+        summary = "Get items of user",
+        description = "Returns all items of a specific user. If it is current user, it returns all items, including archived, sold, and reserved"
+    )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "Items retrieved successfully"),
