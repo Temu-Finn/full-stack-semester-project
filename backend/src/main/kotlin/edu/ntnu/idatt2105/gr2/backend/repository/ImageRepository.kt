@@ -29,4 +29,25 @@ class ImageRepository(private val dataSource: DataSource) {
             }
         }
     }
+
+    fun getById(id: Int): Image? {
+        val sql = "SELECT * FROM item_images WHERE id = ?"
+
+        dataSource.connection.use { conn ->
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setInt(1, id)
+                val rs = stmt.executeQuery()
+                return if (rs.next()) {
+                    Image(
+                        id = rs.getInt("id"),
+                        data = rs.getBytes("image_data"),
+                        fileType = rs.getString("file_type"),
+                        altText = rs.getString("alt_text")
+                    )
+                } else {
+                    null
+                }
+            }
+        }
+    }
 }
