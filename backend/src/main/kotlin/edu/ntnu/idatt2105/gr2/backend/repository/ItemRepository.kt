@@ -17,13 +17,16 @@ class ItemRepository (
                 i.title,
                 i.price,
                 pc.municipality,
-                (SELECT ii.image_blob FROM item_images ii WHERE ii.item_id = i.id) AS primary_image_blob
+                ii.image_data AS image_blob,
+                ii.file_type AS image_type
             FROM
                 items i
             JOIN
                 postal_codes pc ON i.postal_code = pc.postal_code
+            LEFT JOIN
+                item_images ii ON ii.id = i.primary_image_id
             ORDER BY
-                RAND() -- Or some other recommendation logic
+                RAND() -- Change to a more sophisticated recommendation algorithm
             LIMIT 10; -- Limit the number of items
         """
 
@@ -43,8 +46,10 @@ class ItemRepository (
     }
 
     private fun mapRowToItemCard(rs: ResultSet): ItemCard {
-        val imageBlobBytes = rs.getBytes("primary_image_blob")
+        val imageBlobBytes = rs.getBytes("image_blob")
+        val imageType = rs.getString("image_type")
         val imageBase64 = imageBlobBytes?.let { java.util.Base64.getEncoder().encodeToString(it) }
+            ?.let { "data:$imageType;base64,$it" } // Prepend the data URL scheme for images
 
         return ItemCard(
             itemId = rs.getInt("id"),
