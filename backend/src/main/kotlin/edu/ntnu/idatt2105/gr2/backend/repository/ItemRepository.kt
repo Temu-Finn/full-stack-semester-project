@@ -86,7 +86,7 @@ class ItemRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun findAllBySellerId(sellerId: Int): List<ItemCard> =
+    fun findAllBySellerId(sellerId: Int): List<Item> =
         queryItemsWhere("seller_id = ?") { it.setInt(1, sellerId) }
 
     fun deleteById(id: Int): Boolean =
