@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import api from '@/config/api'
+import { logger } from '@/utils/logger'
 
 // Zod schemas for type validation
 const ItemCardSchema = z.object({
@@ -7,7 +8,7 @@ const ItemCardSchema = z.object({
   title: z.string(),
   price: z.number(),
   municipality: z.string(),
-  imageBase64: z.string(),
+  imageBase64: z.string().nullish(),
 })
 
 const RecommendedItemsResponseSchema = z.object({
@@ -26,11 +27,14 @@ export type RecommendedItemsResponse = z.infer<typeof RecommendedItemsResponseSc
 export async function getRecommendedItems(): Promise<RecommendedItemsResponse> {
   try {
     const response = await api.get('/item/recommended')
+    logger.debug('Received recommended items response', response.data)
     return RecommendedItemsResponseSchema.parse(response.data)
   } catch (error) {
     if (error instanceof z.ZodError) {
+      logger.error('Invalid response format from server', { errors: error.errors })
       throw new Error('Invalid response format from server')
     }
+    logger.error('Failed to fetch recommended items', error)
     throw error
   }
 }
