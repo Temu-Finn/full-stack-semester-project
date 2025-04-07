@@ -1,8 +1,7 @@
 package edu.ntnu.idatt2105.gr2.backend.controller
 
-import edu.ntnu.idatt2105.gr2.backend.model.Item
-import edu.ntnu.idatt2105.gr2.backend.service.ItemService
 import edu.ntnu.idatt2105.gr2.backend.dto.*
+import edu.ntnu.idatt2105.gr2.backend.service.ItemService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -13,20 +12,20 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.time.LocalDateTime
 
 @RestController
 @RequestMapping("/api/items")
 @Tag(name = "Item", description = "Item management APIs")
 class ItemController(private val itemService: ItemService) {
-    private val logger = LoggerFactory.getLogger(AuthenticationController::class.java)
+
+    private val logger = LoggerFactory.getLogger(ItemController::class.java)
 
     @PostMapping
     @Operation(summary = "Create new item", description = "Creates a new item and returns it")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "201", description = "Item created"),
-            ApiResponse(responseCode = "400", description = "Item creation failed"),
+            ApiResponse(responseCode = "400", description = "Invalid input"),
             ApiResponse(responseCode = "500", description = "Internal server error")
         ]
     )
@@ -35,44 +34,46 @@ class ItemController(private val itemService: ItemService) {
         @RequestBody @Valid request: CreateItemRequest
     ): ResponseEntity<ItemResponse> {
         logger.info("Creating new item: ${request.title}")
-        val newItem = Item(
-            sellerId = request.sellerId,
-            categoryId = request.categoryId,
-            postalCode = request.postalCode,
-            title = request.title,
-            description = request.description,
-            price = request.price,
-            purchasePrice = request.purchasePrice,
-            buyerId = request.buyerId,
-            location = request.location,
-            allowVippsBuy = request.allowVippsBuy,
-            primaryImageId = request.primaryImageId,
-            status = request.status,
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
-        )
+        val savedItem = itemService.createItem(request.toItem())
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedItem.toResponse())
+    }
 
-        val saved = itemService.createItem(newItem)
+    @GetMapping("/category/{categoryId}")
+    @Operation(summary = "Get items by category ID", description = "Returns all items in a specific category")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Items retrieved successfully"),
+            ApiResponse(responseCode = "404", description = "No items found for category")
+        ]
+    )
+    fun getItemsByCategoryId(
+        @Parameter(description = "Category ID", required = true)
+        @PathVariable categoryId: Long
+    ): ResponseEntity<ItemsResponse> {
+        logger.info("Fetching items for category ID: $categoryId")
+        val items = itemService.getItemsByCategoryId(categoryId).map { it.toResponse() }
+        return ResponseEntity.ok(ItemsResponse(items))
+    }
 
-        // Manually map model to response DTO
-        val response = ItemResponse(
-            id = saved.id,
-            sellerId = saved.sellerId,
-            categoryId = saved.categoryId,
-            postalCode = saved.postalCode,
-            title = saved.title,
-            description = saved.description,
-            price = saved.price,
-            purchasePrice = saved.purchasePrice,
-            buyerId = saved.buyerId,
-            location = saved.location,
-            allowVippsBuy = saved.allowVippsBuy,
-            primaryImageId = saved.primaryImageId,
-            status = saved.status,
-            createdAt = saved.createdAt,
-            updatedAt = saved.updatedAt
-        )
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(response)
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Delete item by ID", description = "Deletes an item by its ID")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "204", description = "Item deleted successfully"),
+            ApiResponse(responseCode = "404", description = "Item not found")
+        ]
+    )
+    fun deleteItemById(
+        @Parameter(description = "Item ID to delete", required = true)
+        @PathVariable id: Long
+    ): ResponseEntity<Void> {
+        logger.info("Attempting to delete item with ID: $id")
+        return if (itemService.deleteItemById(id)) {
+            logger.info("Item with ID $id deleted")
+            ResponseEntity.noContent().build()
+        } else {
+            logger.warn("Item with ID $id not found")
+            ResponseEntity.notFound().build()
+        }
     }
 }
