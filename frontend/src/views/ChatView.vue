@@ -1,11 +1,11 @@
 <template>
   <div class="container">
-    <aside class="sidebar">
+    <aside :class="{ 'mobile-open': isSidebarOpen }" class="sidebar">
       <div
         v-for="contact in contacts"
         :key="contact.id"
         class="contact"
-        @click="selectConversation(contact.id)"
+        @click="handleContactClick(contact.id)"
       >
         <div class="avatar"></div>
         <div class="details">
@@ -15,7 +15,10 @@
       </div>
     </aside>
 
+    <div :class="isSidebarOpen ? 'overlay' : 'overlay hidden'" @click="closeSidebar"></div>
+
     <main v-if="currentConversation" class="chat-window">
+      <button class="open-sidebar-btn" @click="openSidebar">All conversations</button>
       <div class="chat-header">
         <div class="chat-avatar"></div>
         <div class="chat-info">
@@ -36,12 +39,15 @@
       </div>
 
       <div class="chat-footer">
-        <input
-          v-model="newMessage"
-          placeholder="Write a message..."
-          type="text"
-          @keyup.enter="sendMessage"
-        />
+        <div class="message-input-container">
+          <input
+            v-model="newMessage"
+            placeholder="Write a message..."
+            type="text"
+            @keyup.enter="sendMessage"
+          />
+          <button class="send-btn" @click="sendMessage">Send</button>
+        </div>
       </div>
     </main>
   </div>
@@ -57,6 +63,7 @@ export default {
         { id: 3, name: 'Charlie', lastMessage: 'Check out this link!' },
         { id: 4, name: 'Diana', lastMessage: 'Let me know your thoughts.' },
         { id: 5, name: 'Eve', lastMessage: 'Thanks for the update!' },
+        // ... potentially many more contacts
       ],
       conversations: {
         1: {
@@ -89,6 +96,7 @@ export default {
         },
       },
       newMessage: '',
+      isSidebarOpen: false,
     }
   },
   computed: {
@@ -97,6 +105,10 @@ export default {
     },
   },
   methods: {
+    handleContactClick(id) {
+      this.selectConversation(id)
+      this.closeSidebar()
+    },
     selectConversation(id) {
       this.$router.push({ name: 'Chat', params: { id } })
     },
@@ -109,6 +121,12 @@ export default {
         this.newMessage = ''
       }
     },
+    openSidebar() {
+      this.isSidebarOpen = true
+    },
+    closeSidebar() {
+      this.isSidebarOpen = false
+    },
   },
 }
 </script>
@@ -118,7 +136,6 @@ export default {
   display: flex;
   height: calc(100vh - 60px);
   width: 100%;
-  font-family: Arial, sans-serif;
 }
 
 .sidebar {
@@ -126,6 +143,7 @@ export default {
   padding-top: 15px;
   border-right: 1px solid #ddd;
   overflow-y: auto;
+  background-color: #fff;
 }
 
 .contact {
@@ -151,7 +169,6 @@ export default {
 
 .details {
   margin-left: 10px;
-  vertical-align: center;
 }
 
 .name {
@@ -167,7 +184,6 @@ export default {
 
 .chat-window {
   flex: 1;
-  width: 100%;
   display: flex;
   flex-direction: column;
   padding: 20px;
@@ -181,10 +197,6 @@ export default {
   border-bottom: 1px solid #ddd;
 }
 
-.chat-status {
-  color: #888;
-}
-
 .chat-avatar {
   width: 60px;
   height: 60px;
@@ -196,9 +208,14 @@ export default {
   margin-left: 15px;
 }
 
+.chat-status {
+  color: #888;
+}
+
 .chat-body {
   flex-grow: 1;
   margin-top: 20px;
+  overflow-y: auto;
 }
 
 .message {
@@ -221,12 +238,98 @@ export default {
   background-color: #fde7d3;
 }
 
-.chat-footer input {
-  width: 100%;
+.chat-footer {
+  margin-top: 15px;
+}
+
+.message-input-container {
+  display: flex;
+  align-items: center;
+}
+
+.message-input-container input {
+  flex: 1;
   padding: 14px;
   border-radius: 50px;
   border: 1px solid #ddd;
   outline: none;
   font-size: medium;
+}
+
+.send-btn {
+  margin-left: 10px;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 50px;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+  font-size: medium;
+}
+
+/* Sidebar overlay styles */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  transition: background-color 0.2s ease;
+  background-color: rgba(0, 0, 0, 0.5);
+  pointer-events: all;
+}
+
+.hidden {
+  background-color: rgba(0, 0, 0, 0);
+  pointer-events: none;
+}
+
+.open-sidebar-btn {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+    height: calc(100vh - 60px);
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    height: 100%;
+    width: 90%;
+    border-right: 1px solid #ddd;
+    z-index: 1001;
+    transition: left 0.3s ease;
+    padding-top: 15px;
+  }
+  .sidebar.mobile-open {
+    left: 0;
+  }
+
+  .chat-header {
+    padding: 15px 0;
+    border-top: 1px solid #ddd;
+  }
+
+  .chat-window {
+    width: 100%;
+    padding: 15px;
+  }
+
+  .open-sidebar-btn {
+    display: block;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    background-color: #d2efef;
+    border: none;
+    color: rgba(0, 0, 0, 0.7);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
 }
 </style>
