@@ -39,12 +39,15 @@
       </div>
 
       <div class="chat-footer">
-        <input
-          v-model="newMessage"
-          placeholder="Write a message..."
-          type="text"
-          @keyup.enter="sendMessage"
-        />
+        <div class="message-input-container">
+          <input
+            v-model="newMessage"
+            placeholder="Write a message..."
+            type="text"
+            @keyup.enter="sendMessage"
+          />
+          <button class="send-btn" @click="sendMessage">Send</button>
+        </div>
       </div>
     </main>
   </div>
@@ -235,13 +238,51 @@ export default {
   background-color: #fde7d3;
 }
 
-.chat-footer input {
-  width: 100%;
+.chat-footer {
+  margin-top: 15px;
+}
+
+.message-input-container {
+  display: flex;
+  align-items: center;
+}
+
+.message-input-container input {
+  flex: 1;
   padding: 14px;
   border-radius: 50px;
   border: 1px solid #ddd;
   outline: none;
   font-size: medium;
+}
+
+.send-btn {
+  margin-left: 10px;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 50px;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+  font-size: medium;
+}
+
+/* Sidebar overlay styles */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  transition: background-color 0.2s ease;
+  background-color: rgba(0, 0, 0, 0.5);
+  pointer-events: all;
+}
+
+.hidden {
+  background-color: rgba(0, 0, 0, 0);
+  pointer-events: none;
 }
 
 .open-sidebar-btn {
@@ -267,23 +308,6 @@ export default {
   }
   .sidebar.mobile-open {
     left: 0;
-  }
-
-  .overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1000;
-    transition: background-color 0.2s ease;
-    background-color: rgba(0, 0, 0, 0.5);
-    pointer-events: all;
-  }
-
-  .hidden {
-    background-color: rgba(0, 0, 0, 0);
-    pointer-events: none;
   }
 
   .chat-header {
