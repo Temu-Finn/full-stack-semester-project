@@ -1,8 +1,7 @@
 package edu.ntnu.idatt2105.gr2.backend.repository
 
-import edu.ntnu.idatt2105.gr2.backend.model.Item
 import edu.ntnu.idatt2105.gr2.backend.dto.ItemCard
-import edu.ntnu.idatt2105.gr2.backend.model.getImageDataUrl
+import edu.ntnu.idatt2105.gr2.backend.model.*
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
 import java.sql.Statement
@@ -47,16 +46,16 @@ class ItemRepository(private val dataSource: DataSource) {
     }
 
     fun getItemById(id: Int): Item? =
-        queryItems("SELECT * FROM items WHERE id = ?") { it.setInt(1, id) }.firstOrNull()
+        queryItemsWhere("id = ?") { it.setInt(1, id) }.firstOrNull()
 
     fun findAllByCategoryId(categoryId: Int): List<Item> =
-        queryItems("SELECT * FROM items WHERE category_id = ?") { it.setInt(1, categoryId) }
+        queryItemsWhere("category_id = ?") { it.setInt(1, categoryId) }
 
     fun deleteById(id: Int): Boolean =
         executeUpdateAndReturnCount("DELETE FROM items WHERE id = ?") { it.setInt(1, id) } > 0
 
     fun findAllByOwner(ownerId: Int): List<Item> {
-        return queryItems("SELECT * FROM items WHERE seller_id = ?") {
+        return queryItemsWhere("seller_id = ?") {
             it.setInt(1, ownerId)
         }
     }
@@ -67,7 +66,8 @@ class ItemRepository(private val dataSource: DataSource) {
 
     fun findRecommendedItems(userId: Int): List<ItemCard> {
         val sql = """
-            SELECT i.id, i.title, i.price, pc.municipality, ii.image_data, ii.file_type
+            SELECT i.id, i.title, i.price, pc.municipality, ii.image_data, ii.file_type,
+            ST_X(i.location) AS longitude, ST_Y(i.location) AS latitude
             FROM items i
             JOIN postal_codes pc ON i.postal_code = pc.postal_code
             LEFT JOIN item_images ii ON ii.id = i.primary_image_id
@@ -89,7 +89,6 @@ class ItemRepository(private val dataSource: DataSource) {
     }
 
     private fun mapRowToItem(rs: ResultSet): Item {
-        val location: Pair<Double, Double>? = null // TODO: parse location from geometry if needed
         return Item(
             id = rs.getInt("id"),
             sellerId = rs.getInt("seller_id"),
@@ -98,11 +97,11 @@ class ItemRepository(private val dataSource: DataSource) {
             title = rs.getString("title"),
             description = rs.getString("description"),
             price = rs.getDouble("price"),
-            purchasePrice = rs.getDouble("purchase_price"),
-            buyerId = rs.getInt("buyer_id"),
-            location = location,
+            purchasePrice = rs.getDoubleOrNull("purchase_price"),
+            buyerId = rs.getIntOrNull("buyer_id"),
+            location = rs.getLocation(),
             allowVippsBuy = rs.getBoolean("allow_vipps_buy"),
-            primaryImageId = rs.getInt("primary_image_id"),
+            primaryImageId = rs.getIntOrNull("primary_image_id"),
             status = rs.getString("status"),
             createdAt = rs.getTimestamp("created_at")?.toLocalDateTime(),
             updatedAt = rs.getTimestamp("updated_at")?.toLocalDateTime()
@@ -119,10 +118,15 @@ class ItemRepository(private val dataSource: DataSource) {
         )
     }
 
-    private fun queryItems(
-        sql: String,
+    private fun queryItemsWhere(
+        where: String,
         setParams: (java.sql.PreparedStatement) -> Unit = {}
     ): List<Item> {
+        val sql = """
+            SELECT id, seller_id, category_id, postal_code, title, description, price, purchase_price, buyer_id, ST_X(location) AS longitude, ST_Y(location) AS latitude, allow_vipps_buy, primary_image_id, status, created_at, updated_at
+            FROM items
+            WHERE $where
+        """.trimIndent()
         val items = mutableListOf<Item>()
         dataSource.connection.use { conn ->
             conn.prepareStatement(sql).use { stmt ->
