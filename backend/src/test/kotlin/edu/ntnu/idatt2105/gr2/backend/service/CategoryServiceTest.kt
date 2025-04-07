@@ -1,8 +1,5 @@
 package edu.ntnu.idatt2105.gr2.backend.service
-
 import edu.ntnu.idatt2105.gr2.backend.config.TestConfig
-import edu.ntnu.idatt2105.gr2.backend.repository.CategoryRepository
-import edu.ntnu.idatt2105.gr2.backend.model.Category
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -21,18 +18,18 @@ import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.jdbc.Sql
 import org.testcontainers.containers.MariaDBContainer
 import org.testcontainers.junit.jupiter.Testcontainers
+import java.sql.Connection
 
 
 @Testcontainers
 @SpringBootTest
 @Sql(scripts = ["classpath:testdb/testData.sql"])
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles("test")
 @Import(TestConfig::class)
+@ActiveProfiles("test")
 class CategoryServiceTest {
 
-    companion object {
-        private val db = MariaDBContainer<Nothing>("mariadb").apply {
+    companion object { private val db = MariaDBContainer<Nothing>("mariadb").apply {
             withDatabaseName("test")
             withUsername("mariadb")
             withPassword("mariadb")
@@ -76,6 +73,7 @@ class CategoryServiceTest {
     @DisplayName("Is dbContainer running")
     fun `is dbContainer running`() {
         assert(db.isRunning)
+
     }
 
     @Nested
@@ -103,8 +101,15 @@ class CategoryServiceTest {
                 { assertEquals(5, categories.size) },
                 { assertEquals("New Category", categories[4].name) }
             )
-
         }
+
+        @Test
+        @DisplayName("Create category assigns correct id")
+        fun `create category gives correct id`() {
+            val category = categoryService.createCategory("New Category", "A description of Category")
+            assertEquals(5, category.id)
+        }
+
         @Test
         @DisplayName("Test update description")
         fun `test update category`() {
