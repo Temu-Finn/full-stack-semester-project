@@ -11,7 +11,7 @@ class ItemService (
     private val itemRepository: ItemRepository,
     private val userContextService: UserContextService
 ) {
-    private val logger = LoggerFactory.getLogger(AuthenticationController::class.java)
+    private val logger = LoggerFactory.getLogger(ItemService::class.java)
 
     fun getRecommendedItems(): List<ItemCard> {
         val userId = userContextService.getCurrentUserId()

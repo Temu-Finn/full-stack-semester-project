@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 class ItemController (
     private val itemService: ItemService,
 ) {
-    private val logger = LoggerFactory.getLogger(AuthenticationController::class.java)
+    private val logger = LoggerFactory.getLogger(ItemController::class.java)
 
     @GetMapping("/recommended")
     @Operation(summary = "Recommended items", description = "Utilizes user data to recommend items")
