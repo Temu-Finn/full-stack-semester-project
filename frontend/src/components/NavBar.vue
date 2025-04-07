@@ -8,8 +8,7 @@ const authStore = useSessionStore()
   <nav class="nav-bar">
     <div class="nav-content">
       <a class="logo-section" href="/">
-        <img alt="logo" src="../assets/logo.svg" width="36" />
-        <p>Temu Finn</p>
+        <img alt="logo" src="/TemuFinn.png" width="96" />
       </a>
       <div class="items-section">
         <a href="/new">{{ $t('navbar.newProduct') }}</a>
