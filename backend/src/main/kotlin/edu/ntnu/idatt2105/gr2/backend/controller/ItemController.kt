@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/api/items")
+@RequestMapping("/api/item")
 @Tag(name = "Item", description = "Item management APIs")
 class ItemController (
     private val itemService: ItemService,
