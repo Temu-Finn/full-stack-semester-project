@@ -15,7 +15,12 @@ const authStore = useSessionStore()
         <a href="/chat">{{ $t('navbar.messages') }}</a>
       </div>
       <a class="profile-section" href="/profile">
-        <img alt="profile-icon" src="../assets/logo.svg" width="36" />
+        <img
+          :class="authStore.user ? '' : 'hidden'"
+          alt="profile-icon"
+          src="../assets/logo.svg"
+          width="36"
+        />
         <p>{{ authStore.user?.name ?? 'Log in' }}</p>
       </a>
     </div>
@@ -65,5 +70,8 @@ const authStore = useSessionStore()
   display: flex;
   gap: 1rem;
   align-items: center;
+}
+.hidden {
+  display: none;
 }
 </style>
