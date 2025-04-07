@@ -25,7 +25,7 @@ class ItemService(
         return itemRepository.getItemById(id)
     }
 
-    fun deleteItemByIdOwner(itemId: Long): Boolean {
+    fun deleteItemByIdOfOwner(itemId: Long): Boolean {
         val item = itemRepository.getItemById(itemId)
             ?: return false // 404 not found
 
@@ -47,8 +47,10 @@ class ItemService(
         return itemRepository.findAllByCategoryId(categoryId)
     }
 
-    fun getAllItems(): List<Item> {
-        return itemRepository.getAll()
+    fun getAllByOwner(): List<Item> {
+        val userId = userContextService.getCurrentUserId()
+        logger.info("Fetching all items owned by user $userId")
+        return itemRepository.findAllByOwner(userId.toLong())
     }
 
     fun deleteAllItems() {

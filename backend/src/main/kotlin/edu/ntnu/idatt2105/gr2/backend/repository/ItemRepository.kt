@@ -55,8 +55,11 @@ class ItemRepository(private val dataSource: DataSource) {
     fun deleteById(id: Long): Boolean =
         executeUpdateAndReturnCount("DELETE FROM items WHERE id = ?") { it.setLong(1, id) } > 0
 
-    fun getAll(): List<Item> =
-        queryItems("SELECT * FROM items")
+    fun findAllByOwner(ownerId: Long): List<Item> {
+        return queryItems("SELECT * FROM items WHERE seller_id = ?") {
+            it.setLong(1, ownerId)
+        }
+    }
 
     fun deleteAll() {
         executeUpdateAndReturnCount("DELETE FROM items")

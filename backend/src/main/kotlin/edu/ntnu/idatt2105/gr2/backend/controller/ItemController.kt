@@ -77,14 +77,14 @@ class ItemController (
             ApiResponse(responseCode = "404", description = "Item not found")
         ]
     )
-    fun deleteItemById(
+    fun deleteItemByIdOfOwner(
         @Parameter(description = "Item ID to delete", required = true)
         @PathVariable id: Long
     ): ResponseEntity<Void> {
         logger.info("Request to delete item ID: $id")
 
         return try {
-            val deleted = itemService.deleteItemByIdOwner(id)
+            val deleted = itemService.deleteItemByIdOfOwner(id)
             if (deleted) {
                 logger.info("Item with ID $id deleted")
                 ResponseEntity.noContent().build()
