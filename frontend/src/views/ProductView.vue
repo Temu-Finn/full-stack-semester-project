@@ -79,7 +79,7 @@ export default {
 .product-container {
   display: flex;
   gap: 20px;
-  max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   padding: 40px 20px;
   font-family: Arial, sans-serif;
@@ -120,7 +120,7 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  max-width: 400px;
+  width: 100%;
 }
 
 .product-title {
