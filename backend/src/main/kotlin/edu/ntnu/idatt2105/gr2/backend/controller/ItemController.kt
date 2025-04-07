@@ -51,27 +51,10 @@ class ItemController (
     fun createItem(
         @Parameter(description = "Item data to create", required = true)
         @RequestBody @Valid request: CreateItemRequest
-    ): ResponseEntity<ItemResponse> {
+    ): ResponseEntity<ItemCard> {
         logger.info("Creating new item: ${request.title}")
         val savedItem = itemService.createItem(request)
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedItem.toResponse())
-    }
-
-    @GetMapping("/category/{categoryId}")
-    @Operation(summary = "Get items by category ID", description = "Returns all items in a specific category")
-    @ApiResponses(
-        value = [
-            ApiResponse(responseCode = "200", description = "Items retrieved successfully"),
-            ApiResponse(responseCode = "404", description = "No items found for category")
-        ]
-    )
-    fun getItemsByCategoryId(
-        @Parameter(description = "Category ID", required = true)
-        @PathVariable categoryId: Int
-    ): ResponseEntity<ItemsResponse> {
-        logger.info("Fetching items for category ID: $categoryId")
-        val items = itemService.getItemsByCategoryId(categoryId).map { it.toResponse() }
-        return ResponseEntity.ok(ItemsResponse(items))
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedItem.toCard())
     }
 
     @GetMapping("/recommended")
@@ -81,6 +64,26 @@ class ItemController (
         val items = itemService.getRecommendedItems()
         logger.info("Successfully fetched recommended items")
         return ResponseEntity.ok(RecommendedItemsResponse(items))
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "Search items", description = "Search items with various filters")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Items retrieved successfully"),
+            ApiResponse(responseCode = "400", description = "Invalid input"),
+            ApiResponse(responseCode = "500", description = "Internal server error")
+        ]
+    )
+    fun searchItems(
+        @Parameter(description = "Search text to filter items")
+        @RequestParam(required = false) searchText: String?,
+        @Parameter(description = "Category ID to filter items")
+        @RequestParam(required = false) categoryId: Int?
+    ): ResponseEntity<ItemsResponse> {
+        logger.info("Searching items with text: $searchText, category: $categoryId")
+        val items = itemService.searchItems(SearchItemRequest(searchText = searchText, categoryId = categoryId))
+        return ResponseEntity.ok(ItemsResponse(items.map { it.toCard() }))
     }
 
     @DeleteMapping("/{id}")

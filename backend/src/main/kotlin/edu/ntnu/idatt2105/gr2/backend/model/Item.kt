@@ -55,4 +55,15 @@ data class Item(
             "Location coordinates must be valid (latitude: -90 to 90, longitude: -180 to 180)"
         }
     }
+
+    fun toCard(): ItemCard = ItemCard(
+        id = id,
+        title = title,
+        price = price,
+        municipality = "", // This will be populated by the repository layer
+        imageBase64 = "", // This will be populated by the repository layer
+        location = location,
+        status = status,
+        updatedAt = updatedAt
+    )
 }

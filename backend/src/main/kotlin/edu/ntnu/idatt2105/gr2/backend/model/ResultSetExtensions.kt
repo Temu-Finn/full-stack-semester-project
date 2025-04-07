@@ -1,5 +1,6 @@
 package edu.ntnu.idatt2105.gr2.backend.model
 
+import edu.ntnu.idatt2105.gr2.backend.dto.Location
 import java.sql.ResultSet
 
 fun ResultSet.getImageDataUrl(): String? {
@@ -19,8 +20,13 @@ fun ResultSet.getIntOrNull(columnLabel: String): Int? {
     return if (wasNull()) null else value
 }
 
-fun ResultSet.getLocation(): Pair<Double, Double>? {
+fun ResultSet.getLocation(): Location? {
     val latitude = getDouble("latitude")
     val longitude = getDouble("longitude")
-    return if (wasNull()) null else Pair(latitude, longitude)
+    return if (wasNull()) null else Location(latitude, longitude)
+}
+
+fun ResultSet.getItemStatus(): ItemStatus {
+    val status = getString("status")
+    return ItemStatus.fromString(status)
 }

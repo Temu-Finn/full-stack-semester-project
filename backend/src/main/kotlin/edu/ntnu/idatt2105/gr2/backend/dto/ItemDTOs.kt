@@ -4,19 +4,25 @@ import edu.ntnu.idatt2105.gr2.backend.model.ItemStatus
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.DecimalMax
 import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Positive
 import java.time.LocalDateTime
 
 data class ItemCard(
-    val itemId: Int,
+    val id: Int,
     val title: String,
     val price: Double,
     val municipality: String,
-    val imageBase64: String?
+    val imageBase64: String?,
+    val location: Location?,
+    val status: ItemStatus,
+    val updatedAt: LocalDateTime?
 )
 
 data class RecommendedItemsResponse(
+    val items: List<ItemCard>
+)
+
+data class SearchResult(
     val items: List<ItemCard>
 )
 

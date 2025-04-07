@@ -3,6 +3,7 @@ package edu.ntnu.idatt2105.gr2.backend.service
 import edu.ntnu.idatt2105.gr2.backend.dto.CreateItemRequest
 import edu.ntnu.idatt2105.gr2.backend.model.Item
 import edu.ntnu.idatt2105.gr2.backend.dto.ItemCard
+import edu.ntnu.idatt2105.gr2.backend.dto.SearchItemRequest
 import edu.ntnu.idatt2105.gr2.backend.dto.toItem
 import edu.ntnu.idatt2105.gr2.backend.repository.ItemRepository
 import edu.ntnu.idatt2105.gr2.backend.exception.ItemNotFoundException
@@ -42,11 +43,6 @@ class ItemService(
         return itemRepository.deleteById(itemId)
     }
 
-    fun getItemsByCategoryId(categoryId: Int): List<Item> {
-        logger.info("Fetching items for category ID: $categoryId")
-        return itemRepository.findAllByCategoryId(categoryId)
-    }
-
     fun getAllByOwner(): List<Item> {
         val userId = userContextService.getCurrentUserId()
         logger.info("Fetching all items owned by user $userId")
@@ -56,5 +52,10 @@ class ItemService(
     fun getRecommendedItems(): List<ItemCard> {
         logger.info("Fetching recommended items")
         return itemRepository.findRecommendedItems()
+    }
+
+    fun searchItems(request: SearchItemRequest): List<Item> {
+        logger.info("Searching items with request: $request")
+        return itemRepository.searchItems(request)
     }
 }
