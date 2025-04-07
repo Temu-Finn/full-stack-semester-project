@@ -78,12 +78,22 @@ data class CreateItemRequest(
     @field:DecimalMin("0.0", inclusive = true, message = "Price must be zero or positive")
     val price: Double,
 
+    @field:Positive(message = "Purchase price must be positive")
     val purchasePrice: Double? = null,
+
+    @field:Positive(message = "Buyer ID must be positive")
     val buyerId: Int? = null,
+
     val location: Location? = null,
+
+    @field:NotNull(message = "Allow Vipps Buy must be true or false")
     val allowVippsBuy: Boolean = false,
-    val primaryImageId: Int? = null,
-    val status: ItemStatus = ItemStatus.Available
+
+    @field:NotNull(message = "Status cannot be null")
+    val status: ItemStatus = ItemStatus.Available,
+
+    @field:NotNull(message = "Images cannot be null")
+    val images: List<MultipartFile>
 )
 
 data class Location(

@@ -20,6 +20,7 @@ class ItemService(
 
     @Transactional
     fun createItem(item: CreateItemRequest): Item {
+        
         logger.info("Creating new item: ${item.title}")
         return itemRepository.create(item.toItem(userContextService.getCurrentUserId()))
     }

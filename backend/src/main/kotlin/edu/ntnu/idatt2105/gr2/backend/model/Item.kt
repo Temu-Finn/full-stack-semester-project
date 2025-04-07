@@ -41,7 +41,7 @@ data class Item(
     val primaryImageId: Int?,
     val status: ItemStatus = ItemStatus.Available,
     val createdAt: LocalDateTime? = null,
-    val updatedAt: LocalDateTime? = null
+    val updatedAt: LocalDateTime? = null,
 ) {
     init {
         require(sellerId > 0) { "Item must be assigned a seller" }
@@ -55,43 +55,4 @@ data class Item(
             "Location coordinates must be valid (latitude: -90 to 90, longitude: -180 to 180)"
         }
     }
-
-    /**
-     * Converts the item to a basic card view
-     * Note: municipality and imageBase64 will be populated by the repository layer
-     */
-    fun toCard(): ItemCard = ItemCard(
-        id = id,
-        title = title,
-        price = price,
-        municipality = "", // Will be populated by repository
-        imageBase64 = "", // Will be populated by repository
-        location = location?.let { Location(it.first, it.second) },
-        status = status,
-        updatedAt = updatedAt
-    )
-
-    /**
-     * Converts the item to a detailed response
-     * Note: municipality and images will be populated by the repository layer
-     */
-    fun toResponse(): ItemResponse = ItemResponse(
-        id = id,
-        sellerId = sellerId,
-        categoryId = categoryId,
-        postalCode = postalCode,
-        title = title,
-        description = description,
-        price = price,
-        purchasePrice = purchasePrice,
-        buyerId = buyerId,
-        location = location?.let { Location(it.first, it.second) },
-        allowVippsBuy = allowVippsBuy,
-        primaryImageId = primaryImageId,
-        status = status,
-        createdAt = createdAt,
-        updatedAt = updatedAt,
-        municipality = "", // Will be populated by repository
-        images = emptyList() // Will be populated by repository
-    )
 }
