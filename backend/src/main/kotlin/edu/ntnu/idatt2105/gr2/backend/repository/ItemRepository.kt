@@ -11,7 +11,7 @@ class ItemRepository (
     private val dataSource: DataSource,
 ) {
 
-    fun findRecommendedItems(): List<ItemCard> {
+    fun findRecommendedItems(userId: Int): List<ItemCard> {
         val sql = """
             SELECT
                 i.id,
