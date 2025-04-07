@@ -1,8 +1,6 @@
 type LogLevel = 'error' | 'warn' | 'info' | 'debug'
 
 class Logger {
-  private isDevelopment = import.meta.env.DEV
-
   private formatMessage(level: LogLevel, message: string, data?: unknown): string {
     const timestamp = new Date().toISOString()
     const dataString = data ? `\nData: ${JSON.stringify(data, null, 2)}` : ''
@@ -22,8 +20,8 @@ class Logger {
   }
 
   debug(message: string, data?: unknown): void {
-    if (this.isDevelopment) {
-      console.debug(this.formatMessage('debug', message, data))
+    if (import.meta.env.DEV) {
+      console.log(this.formatMessage('debug', message, data))
     }
   }
 }
