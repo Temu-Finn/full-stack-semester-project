@@ -5,6 +5,16 @@ import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import java.util.*
 
+/**
+ * Service class for handling communication with the Vipps ePayment API.
+ *
+ * This service includes methods for:
+ * - Obtaining an access token
+ * - Initiating a payment
+ * - Retrieving the status/details of an existing payment
+ *
+ * All calls are directed towards the Vipps test environment.
+ */
 @Service
 class VippsService {
 
@@ -16,6 +26,13 @@ class VippsService {
 
     private val restTemplate = RestTemplate()
 
+    /**
+     * Retrieves an access token from the Vipps access token endpoint.
+     *
+     * This token is required to authenticate subsequent API calls to Vipps.
+     *
+     * @return The access token as a string, or `null` if the request failed.
+     */
     fun getAccessToken(): String? {
         val headers = HttpHeaders().apply {
             contentType = MediaType.APPLICATION_JSON
@@ -35,7 +52,16 @@ class VippsService {
         return response.body?.get("access_token") as? String
     }
 
-    fun initiatePayment(): Map<*, *>? {
+    /**
+     * Initiates a Vipps payment with the given price.
+     *
+     * This method builds and sends a `POST` request to the Vipps payment endpoint.
+     *
+     * @param price The total payment amount in øre (e.g., 49900 for 499 NOK).
+     * @return A map containing the response body from Vipps, such as redirect URL and pspReference.
+     * @throws RuntimeException if the access token cannot be retrieved.
+     */
+    fun initiatePayment(price: Double): Map<*, *>? {
         val accessToken = getAccessToken() ?: throw RuntimeException("Failed to get access token")
 
         val headers = HttpHeaders().apply {
@@ -52,7 +78,7 @@ class VippsService {
         val requestBody = mapOf(
             "amount" to mapOf(
                 "currency" to "NOK",
-                "value" to 1000
+                "value" to price
             ),
             "reference" to reference,
             "returnUrl" to "https://vg.no",
@@ -61,8 +87,6 @@ class VippsService {
                 "type" to "WALLET"
             )
         )
-
-
 
         val request = HttpEntity(requestBody, headers)
 
@@ -76,6 +100,15 @@ class VippsService {
         return response.body
     }
 
+    /**
+     * Retrieves the details of an existing Vipps payment by reference.
+     *
+     * Sends a `GET` request to the Vipps API to check the status and metadata of the payment.
+     *
+     * @param reference The unique reference identifier used to initiate the payment.
+     * @return A map containing the payment details returned from Vipps.
+     * @throws RuntimeException if the access token cannot be retrieved.
+     */
     fun getPayment(reference: String): Map<*, *>? {
         val accessToken = getAccessToken() ?: throw RuntimeException("Failed to get access token")
 
