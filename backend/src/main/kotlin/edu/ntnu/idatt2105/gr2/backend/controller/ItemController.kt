@@ -9,15 +9,20 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.PositiveOrZero
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/item")
 @Tag(name = "Item", description = "Item management APIs")
+@Validated // Enable validation for request parameters
 class ItemController (
     private val itemService: ItemService,
 ) {
@@ -86,12 +91,12 @@ class ItemController (
         @RequestParam(required = false) municipality: String?,
         @Parameter(description = "City to filter items")
         @RequestParam(required = false) city: String?,
-        @Parameter(description = "Latitude for distance search")
-        @RequestParam(required = false) latitude: Double?,
-        @Parameter(description = "Longitude for distance search")
-        @RequestParam(required = false) longitude: Double?,
-        @Parameter(description = "Maximum distance in kilometers")
-        @RequestParam(required = false) maxDistance: Double?
+        @Parameter(description = "Latitude for distance search (-90 to 90)")
+        @RequestParam(required = false) @Min(-90) @Max(90) latitude: Double?,
+        @Parameter(description = "Longitude for distance search (-180 to 180)")
+        @RequestParam(required = false) @Min(-180) @Max(180) longitude: Double?,
+        @Parameter(description = "Maximum distance in kilometers (must be zero or positive)")
+        @RequestParam(required = false) @PositiveOrZero maxDistance: Double?
         
     ): ResponseEntity<SearchResponse> {
         logger.info("Searching items with text: $searchText, category: $categoryId, county: $county, municipality: $municipality, city: $city, lat: $latitude, lon: $longitude, dist: $maxDistance")
