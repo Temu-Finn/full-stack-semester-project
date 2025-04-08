@@ -65,7 +65,13 @@
   "profile": {
     "title": "Profil",
     "language": "Språk",
-    "logout": "Logg ut"
+    "logout": "Logg ut",
+    "joinedOn": "Ble med",
+    "active": "Til salgs",
+    "reserved": "Reservert",
+    "sold": "Solgt",
+    "archived": "Arkivert",
+    "bought": "Kjøpt"
   },
   "validation": {
     "required": "{field} er påkrevd.",

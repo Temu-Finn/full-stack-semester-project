@@ -66,6 +66,12 @@
   "profile": {
     "title": "Profile",
     "language": "Language",
+    "joinedOn": "Joined on",
+    "active": "For sale",
+    "reserved": "Reserved",
+    "sold": "Sold",
+    "archived": "Archived",
+    "bought": "Bought",
     "logout": "Log out"
   },
   "validation": {
