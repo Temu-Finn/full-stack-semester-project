@@ -1,6 +1,7 @@
 <template>
   <div class="container">
     <aside :class="{ 'mobile-open': isSidebarOpen }" class="sidebar">
+      <button v-if="isSidebarOpen" class="close-sidebar" @click="closeSidebar">&times;</button v-if="isSidebarOpen">
       <div
         v-for="contact in contacts"
         :key="contact.id"
@@ -271,7 +272,6 @@ export default {
   font-size: medium;
 }
 
-/* Sidebar overlay styles */
 .overlay {
   position: fixed;
   top: 0;
@@ -304,7 +304,7 @@ export default {
     top: 0;
     left: -100%;
     height: 100%;
-    width: 90%;
+    width: 75%;
     border-right: 1px solid #ddd;
     z-index: 1001;
     transition: left 0.3s ease;
@@ -312,6 +312,16 @@ export default {
   }
   .sidebar.mobile-open {
     left: 0;
+  }
+
+  .close-sidebar {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    text-align: end;
+    padding: 0 1rem;
+    width: 100%;
   }
 
   .chat-header {
