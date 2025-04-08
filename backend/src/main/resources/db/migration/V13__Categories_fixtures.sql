@@ -1,10 +1,10 @@
 INSERT INTO categories (name, description)
 VALUES
-    ('Electronics & Appliances', 'Used phones, laptops, TVs, and household electronics.'),
-    ('Furniture & Interior', 'Chairs, tables, sofas, and interior decor.'),
-    ('Clothing, Cosmetics & Accessories', 'Apparel, beauty products, and personal accessories.'),
-    ('Sports & Outdoor', 'Equipment for sports, camping, and outdoor adventures.'),
-    ('Leisure, Hobby & Entertainment', 'Games, books, instruments, and other recreational items.'),
-    ('Parents & Children', 'Strollers, kids’ clothing, toys, and parenting essentials.'),
-    ('Vehicles & Equipment', 'Cars, boats, motorcycles, and related gear.'),
-    ('Garden, Renovation & House', 'Tools, garden furniture, and home improvement items.');
+    ('Electronics', 'Used phones, laptops, TVs, and household electronics.'),
+    ('Furniture', 'Chairs, tables, sofas, and interior decor.'),
+    ('Fashion', 'Apparel, beauty products, and personal accessories.'),
+    ('Sports', 'Equipment for sports, camping, and outdoor adventures.'),
+    ('Leisure', 'Games, books, instruments, and other recreational items.'),
+    ('Family', 'Strollers, kids’ clothing, toys, and parenting essentials.'),
+    ('Vehicles', 'Cars, boats, motorcycles, and related gear.'),
+    ('Home', 'Tools, garden furniture, and home improvement items.');
