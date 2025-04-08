@@ -12,7 +12,7 @@ class VippsService {
     private val clientId = "835cd6a8-33fa-4677-9796-fdf5898fdd7e"
     private val clientSecret = "r8i8Q~Lnf5K4tF.i9RHpJqR~BAYLr9IrXE3wya~-"
     private val subscriptionKey = "0e36824f633a4063a8525c3b476aa922"
-    private val merchantSerialNumber = ""
+    private val merchantSerialNumber = "367319"
 
     private val restTemplate = RestTemplate()
 
@@ -26,7 +26,7 @@ class VippsService {
         val request = HttpEntity(null, headers)
 
         val response = restTemplate.exchange(
-            "$baseUrl/access-token/get",
+            "$baseUrl/accesstoken/get",
             HttpMethod.POST,
             request,
             Map::class.java
@@ -36,29 +36,33 @@ class VippsService {
     }
 
     fun initiatePayment(): Map<*, *>? {
-        val accesToken = getAccessToken() ?: throw RuntimeException("Failed to get access token!!")
+        val accessToken = getAccessToken() ?: throw RuntimeException("Failed to get access token")
 
         val headers = HttpHeaders().apply {
             contentType = MediaType.APPLICATION_JSON
-            setBearerAuth(accesToken)
+            setBearerAuth(accessToken)
             set("Ocp-Apim-Subscription-Key", subscriptionKey)
-            set("X-Request-ID", UUID.randomUUID().toString())
+            set("X-Request-Id", UUID.randomUUID().toString())
+            set("Idempotency-Key", UUID.randomUUID().toString())
+            set("Merchant-Serial-Number", merchantSerialNumber)
         }
 
-        val orderId = UUID.randomUUID().toString()
+        val reference = UUID.randomUUID().toString()
+
         val requestBody = mapOf(
-            "merchantInfo" to mapOf(
-                "merchantSerialNumber" to merchantSerialNumber
+            "amount" to mapOf(
+                "currency" to "NOK",
+                "value" to 1000
             ),
-            "transaction" to mapOf(
-                "orderId" to orderId,
-                "amount" to mapOf(
-                    "currency" to "NOK",
-                    "value" to 1000 // 1000 øre = 10 NOK
-                ),
-                "transactionText" to "Testbetaling med RestTemplate"
+            "reference" to UUID.randomUUID().toString(),
+            "returnUrl" to "https://example.com/redirect",
+            "userFlow" to "WEB_REDIRECT",
+            "paymentMethod" to mapOf(
+                "type" to "WALLET"
             )
         )
+
+
 
         val request = HttpEntity(requestBody, headers)
 
@@ -71,4 +75,8 @@ class VippsService {
 
         return response.body
     }
+
+
+
+
 }
