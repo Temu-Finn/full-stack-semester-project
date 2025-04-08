@@ -131,10 +131,10 @@ class ItemRepository(private val dataSource: DataSource) {
         }
 
         // Distance filtering 📍
-        if (request.latitude != null && request.longitude != null && request.maxDistance != null && request.maxDistance > 0) {
+        if (request.latitude != null && request.longitude != null && request.maxDistanceKm != null && request.maxDistanceKm > 0) {
             conditions.add("i.location IS NOT NULL AND ST_Distance_Sphere(location, ST_PointFromText(?, 4326)) <= ?")
             params.add("POINT(${request.longitude} ${request.latitude})")
-            params.add(request.maxDistance * 1000) // Convert km to meters
+            params.add(request.maxDistanceKm * 1000) // Convert km to meters
         }
 
         val whereClause = conditions.joinToString(" AND ")

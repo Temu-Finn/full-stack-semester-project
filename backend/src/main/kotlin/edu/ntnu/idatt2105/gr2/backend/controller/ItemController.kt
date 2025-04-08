@@ -99,10 +99,10 @@ class ItemController (
         @Parameter(description = "Longitude for distance search (-180 to 180)")
         @RequestParam(required = false) @Min(-180) @Max(180) longitude: Double?,
         @Parameter(description = "Maximum distance in kilometers (must be zero or positive)")
-        @RequestParam(required = false) @PositiveOrZero maxDistance: Double?,
-        @Parameter(hidden = true) @PageableDefault(size = 20, sort = ["updated_at"]) pageable: Pageable
+        @RequestParam(required = false) @PositiveOrZero maxDistanceKm: Double?,
+        @Parameter(hidden = true) @PageableDefault(size = 20, sort = ["updatedAt"]) pageable: Pageable
     ): ResponseEntity<Page<ItemCard>> {
-        logger.info("Searching items with request params and pageable: $pageable")
+        logger.info("Searching items with text: $searchText, category: $categoryId, county: $county, municipality: $municipality, city: $city, lat: $latitude, lon: $longitude, distKm: $maxDistanceKm, pageable: $pageable")
         val searchRequest = SearchItemRequest(
             searchText = searchText,
             categoryId = categoryId,
@@ -111,7 +111,7 @@ class ItemController (
             city = city,
             latitude = latitude,
             longitude = longitude,
-            maxDistance = maxDistance
+            maxDistanceKm = maxDistanceKm
         )
         val itemsPage = itemService.searchItems(searchRequest, pageable)
         return ResponseEntity.ok(itemsPage)

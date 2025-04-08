@@ -8,5 +8,5 @@ data class SearchItemRequest(
     val city: String? = null,
     val latitude: Double? = null,
     val longitude: Double? = null,
-    val maxDistance: Double? = null // in kilometers
+    val maxDistanceKm: Double? = null // Maximum distance in kilometers
 ) 
