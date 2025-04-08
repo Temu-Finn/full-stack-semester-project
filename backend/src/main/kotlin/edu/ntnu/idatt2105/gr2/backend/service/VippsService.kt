@@ -78,7 +78,7 @@ class VippsService {
         val requestBody = mapOf(
             "amount" to mapOf(
                 "currency" to "NOK",
-                "value" to price
+                "value" to price * 100
             ),
             "reference" to reference,
             "returnUrl" to "https://vg.no",

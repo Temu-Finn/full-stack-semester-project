@@ -1,5 +1,6 @@
 package edu.ntnu.idatt2105.gr2.backend.controller
 
+import edu.ntnu.idatt2105.gr2.backend.dto.VippsPaymentRequest
 import edu.ntnu.idatt2105.gr2.backend.service.VippsService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -27,7 +28,7 @@ class VippsController(
 
 
     /**
-     * Initiates a Vipps payment with an amount
+     * Initiates a Vipps payment with an amount given from the frontend
      *
      * This endpoint sends a `POST` request to Vipps to start a new payment using
      * the test environment and returns the response with payment details including redirect URL.
@@ -45,9 +46,9 @@ class VippsController(
             ApiResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    fun initiatePayment(): ResponseEntity<Map<*, *>> {
+    fun initiatePayment(@RequestBody request: VippsPaymentRequest): ResponseEntity<Map<*, *>> {
         logger.info("Initiating Vipps test payment")
-        val response = vippsService.initiatePayment(1000.00)
+        val response = vippsService.initiatePayment(request.price)
         logger.info("Vipps test payment initiated: $response")
         return ResponseEntity.ok(response)
     }
