@@ -14,10 +14,11 @@ import org.springframework.security.crypto.password.PasswordEncoder
 @Configuration
 class TestDataLoader(private val passwordEncoder: PasswordEncoder) {
 
+    /*
     @Bean
     fun loadCategoryTestData(categoryRepository: CategoryRepository): CommandLineRunner {
         return CommandLineRunner {
-            val category1 = Category(name ="BOOKS",description = "Books and literature")
+            val category1 = Category(name = "BOOKS",description = "Books and literature")
             val category2 = Category(name = "ELECTRONICS",description = "Electronics and gadgets")
             val category3 = Category(name = "FURNITURE",description = "Furniture and home decor")
             val category4 = Category(name = "CLOTHING",description = "Clothing and fashion")
@@ -29,7 +30,6 @@ class TestDataLoader(private val passwordEncoder: PasswordEncoder) {
         }
     }
 
-    /*
     @Bean
     fun createAdminUser(userRepository: UserRepository): CommandLineRunner {
         return CommandLineRunner {
