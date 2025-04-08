@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/vipps")
 @Tag(name = "Vipps", description = "Vipps test payment API")
 class VippsController(
-    private val vippsTestService: VippsService
+    private val vippsService: VippsService
 ) {
 
     private val logger = LoggerFactory.getLogger(VippsController::class.java)
@@ -31,8 +31,15 @@ class VippsController(
     )
     fun initiateTestPayment(): ResponseEntity<Map<*, *>> {
         logger.info("Initiating Vipps test payment")
-        val response = vippsTestService.initiatePayment()
+        val response = vippsService.initiatePayment()
         logger.info("Vipps test payment initiated: $response")
         return ResponseEntity.ok(response)
     }
+
+    @GetMapping("/payment/{reference}")
+    fun getPayment(@PathVariable reference: String): ResponseEntity<Map<*, *>> {
+        val payment = vippsService.getPayment(reference)
+        return ResponseEntity.ok(payment)
+    }
+
 }

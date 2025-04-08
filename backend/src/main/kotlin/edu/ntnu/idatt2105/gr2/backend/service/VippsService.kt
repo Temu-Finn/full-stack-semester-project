@@ -54,8 +54,8 @@ class VippsService {
                 "currency" to "NOK",
                 "value" to 1000
             ),
-            "reference" to UUID.randomUUID().toString(),
-            "returnUrl" to "https://example.com/redirect",
+            "reference" to reference,
+            "returnUrl" to "https://vg.no",
             "userFlow" to "WEB_REDIRECT",
             "paymentMethod" to mapOf(
                 "type" to "WALLET"
@@ -72,6 +72,29 @@ class VippsService {
             request,
             Map::class.java
         )
+
+        return response.body
+    }
+
+    fun getPayment(reference: String): Map<*, *>? {
+        val accessToken = getAccessToken() ?: throw RuntimeException("Failed to get access token")
+
+        val headers = HttpHeaders().apply {
+            setBearerAuth(accessToken)
+            set("Ocp-Apim-Subscription-Key", subscriptionKey)
+            set("Merchant-Serial-Number", merchantSerialNumber)
+            set("X-Request-Id", UUID.randomUUID().toString())
+        }
+
+        val entity = HttpEntity<Void>(headers)
+
+        val response = restTemplate.exchange(
+            "$baseUrl/epayment/v1/payments/$reference",
+            HttpMethod.GET,
+            entity,
+            Map::class.java
+        )
+
 
         return response.body
     }
