@@ -97,32 +97,41 @@ class ItemRepository(private val dataSource: DataSource) {
     }
 
     fun searchItems(request: SearchItemRequest): List<Item> {
-        val conditions = mutableListOf<String>()
-        val params = mutableListOf<Any>()
-        var paramIndex = 1
+        val conditions = mutableListOf<String>("i.status = ?")
+        val params = mutableListOf<Any>(ItemStatus.Available.toString())
 
+        // Search text filtering 🔍
         if (!request.searchText.isNullOrBlank()) {
             conditions.add("(LOWER(i.title) LIKE LOWER(?) OR LOWER(i.description) LIKE LOWER(?))")
             params.add("%${request.searchText}%")
             params.add("%${request.searchText}%")
-            paramIndex += 2
         }
 
+        // Category filtering 📦
         if (request.categoryId != null) {
             conditions.add("i.category_id = ?")
             params.add(request.categoryId)
-            paramIndex++
         }
 
-        val whereClause = if (conditions.isEmpty()) {
-            "1=1" // Return all items if no conditions
-        } else {
-            conditions.joinToString(" AND ")
+        // Postal code based filtering (county, municipality, city) 🏠
+        if (!request.county.isNullOrBlank()) {
+            conditions.add("pc.county = ?")
+            params.add(request.county)
+            if (!request.municipality.isNullOrBlank()) {
+                conditions.add("pc.municipality = ?")
+                params.add(request.municipality)
+                if (!request.city.isNullOrBlank()) {
+                    conditions.add("pc.city = ?")
+                    params.add(request.city)
+                }
+            }
         }
+
+        val whereClause = conditions.joinToString(" AND ")
 
         return queryItemsWhere(whereClause) { stmt ->
-            for (i in params.indices) {
-                stmt.setObject(i + 1, params[i])
+            params.zip(1..params.size).forEach { (param, index) ->
+                stmt.setObject(index, param)
             }
         }
     }

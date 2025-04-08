@@ -79,10 +79,23 @@ class ItemController (
         @Parameter(description = "Search text to filter items")
         @RequestParam(required = false) searchText: String?,
         @Parameter(description = "Category ID to filter items")
-        @RequestParam(required = false) categoryId: Int?
+        @RequestParam(required = false) categoryId: Int?,
+        @Parameter(description = "County to filter items")
+        @RequestParam(required = false) county: String?,
+        @Parameter(description = "Municipality to filter items")
+        @RequestParam(required = false) municipality: String?,
+        @Parameter(description = "City to filter items")
+        @RequestParam(required = false) city: String?
+        
     ): ResponseEntity<SearchResponse> {
-        logger.info("Searching items with text: $searchText, category: $categoryId")
-        val items = itemService.searchItems(SearchItemRequest(searchText = searchText, categoryId = categoryId))
+        logger.info("Searching items with text: $searchText, category: $categoryId, county: $county, municipality: $municipality, city: $city")
+        val items = itemService.searchItems(SearchItemRequest(
+            searchText = searchText, 
+            categoryId = categoryId,
+            county = county,
+            municipality = municipality,
+            city = city
+        ))
         return ResponseEntity.ok(SearchResponse(items))
     }
 
