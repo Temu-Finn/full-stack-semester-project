@@ -31,7 +31,8 @@ class SecurityConfiguration(
                     "/swagger-ui/**",
                     "/v3/api-docs",
                     "/v3/api-docs/**",
-                    "/v3/api-docs.yaml"
+                    "/v3/api-docs.yaml",
+                    "ws/**"
                 ).permitAll()
                 authorize.anyRequest().authenticated()
             }
@@ -46,12 +47,14 @@ class SecurityConfiguration(
     fun corsConfigurationSource(): CorsConfigurationSource {
         val configuration = CorsConfiguration()
 
-        configuration.allowedOrigins = listOf("http://localhost:5173")
-        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE")
+        configuration.allowedOrigins = listOf(
+            "http://localhost:5173",
+            "http://localhost:63342")
+        configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
         configuration.allowedHeaders = listOf("Authorization", "Content-Type")
+        configuration.allowCredentials = true;
 
         val source = UrlBasedCorsConfigurationSource()
-
         source.registerCorsConfiguration("/**", configuration)
 
         return source
