@@ -135,8 +135,10 @@
           <!-- Logo and Text moved out -->
         </label>
         <!-- Logo and Text now outside the label -->
-        <img src="/Vipps.svg" alt="Vipps Logo" class="vipps-logo-inline" />
-        <span class="vipps-label-text">{{ $t('newProduct.vipps') }}</span>
+        <div class="vipps-logo-text">
+          <img src="/Vipps.svg" alt="Vipps Logo" class="vipps-logo-inline" />
+          <span class="vipps-label-text">{{ $t('newProduct.vipps') }}</span>
+        </div>
       </div>
 
       <!-- Submit Button -->
@@ -583,7 +585,7 @@ select:focus {
 .toggle-group {
   display: flex;
   align-items: center;
-  gap: 10px; /* Slightly increased gap */
+  gap: 6px; /* Slightly increased gap */
 }
 
 /* Hide the actual checkbox input */
@@ -600,7 +602,6 @@ select:focus {
   cursor: pointer;
   background-color: #e9ecef;
   border-radius: 15px;
-  padding: 2px;
   transition: background-color 0.2s ease;
   position: relative; /* Still needed for absolute switch */
   user-select: none;
@@ -608,6 +609,7 @@ select:focus {
   width: calc(24px * 2 + 2px * 2); /* Width = 2 * handle_width + 2 * padding */
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
   flex-shrink: 0; /* Prevent switch from shrinking */
+  margin-bottom: 0;
 }
 
 /* The sliding part of the switch */
@@ -627,7 +629,7 @@ select:focus {
 
 /* Style the Vipps logo (now outside the label) */
 .vipps-logo-inline {
-  height: 18px; /* Slightly increased height for better balance */
+  height: 24px;
   width: auto;
   vertical-align: middle; /* Keep this, helps baseline alignment */
   opacity: 1;
@@ -639,6 +641,12 @@ select:focus {
   font-weight: 500;
   font-size: 0.9rem;
   line-height: 1.2; /* Adjust line-height for better vertical centering */
+}
+
+.vipps-logo-text {
+  display: flex;
+  align-items: center;
+  gap: 0px;
 }
 
 /* --- Checked State Styles --- */
