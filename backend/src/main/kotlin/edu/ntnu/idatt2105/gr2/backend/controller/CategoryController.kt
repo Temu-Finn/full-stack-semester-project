@@ -7,6 +7,7 @@ import edu.ntnu.idatt2105.gr2.backend.dto.CreateCategoryRequest
 import edu.ntnu.idatt2105.gr2.backend.dto.DeleteCategoryRequest
 import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
 import edu.ntnu.idatt2105.gr2.backend.service.UserContextService
+import edu.ntnu.idatt2105.gr2.backend.service.toModel
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -47,17 +48,7 @@ class CategoryController(
         val categories = categoryService.getCategories()
 
         logger.info("Successfully fetched all categories")
-        return ResponseEntity.status(HttpStatus.OK).body(
-            CategoriesResponse(
-                categories.map { category ->
-                    CategoryResponse(
-                        category.id,
-                        category.name,
-                        category.description
-                    )
-                }
-            )
-        )
+        return ResponseEntity.status(HttpStatus.OK).body(CategoriesResponse(categories))
     }
 
     @GetMapping("/getCategoryByName/{name}")
@@ -85,13 +76,7 @@ class CategoryController(
         }
 
         logger.info("Successfully fetched category with name: $name")
-        return ResponseEntity.status(HttpStatus.OK).body(
-            CategoryResponse(
-                category.id,
-                category.name,
-                category.description
-            )
-        )
+        return ResponseEntity.status(HttpStatus.OK).body(category)
     }
 
     @PostMapping("/create")
@@ -118,16 +103,10 @@ class CategoryController(
         }
 
         logger.info("Creating new category with name: ${req.name}")
-        val category = categoryService.createCategory(req.name, req.description)
+        val category = categoryService.createCategory(req)
         logger.info("Successfully created category with name: ${req.name}")
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-            CategoryResponse(
-                category.id,
-                category.name,
-                category.description
-            )
-        )
+        return ResponseEntity.status(HttpStatus.CREATED).body(category)
     }
 
     @DeleteMapping("/delete")
