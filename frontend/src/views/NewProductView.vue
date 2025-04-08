@@ -2,26 +2,38 @@
   <div class="new-product-view">
     <h1>{{ $t('newProduct.title') }}</h1>
     <form @submit.prevent="handleSubmit">
+      <!-- Category ID -->
       <div class="form-group">
-        <label for="name">{{ $t('newProduct.productTitle') }}</label>
-        <input id="name" v-model="product.name" required type="text" />
+        <label for="categoryId">{{ $t('newProduct.category') }}</label>
+        <!-- TODO: Replace with a dropdown/select component fetching actual categories -->
+        <input id="categoryId" v-model.number="product.categoryId" required type="number" />
       </div>
 
+      <!-- Title -->
+      <div class="form-group">
+        <label for="name">{{ $t('newProduct.productTitle') }}</label>
+        <input id="name" v-model="product.title" required type="text" />
+      </div>
+
+      <!-- Description -->
       <div class="form-group">
         <label for="description">{{ $t('newProduct.description') }}</label>
         <textarea id="description" v-model="product.description" auto-resize required></textarea>
       </div>
 
+      <!-- Price -->
       <div class="form-group">
         <label for="price">{{ $t('newProduct.price') }}</label>
-        <input id="price" v-model="product.price" required type="number" />
+        <input id="price" v-model.number="product.price" required step="1" type="number" />
       </div>
 
+      <!-- Postal Code -->
       <div class="form-group">
-        <label for="location">{{ $t('newProduct.location') }}</label>
-        <input id="location" v-model="product.location" required type="text" />
+        <label for="postalCode">{{ $t('newProduct.postalCode') }}</label>
+        <input id="postalCode" v-model.number="product.postalCode" required type="number" />
       </div>
 
+      <!-- Image -->
       <div class="form-group">
         <label for="image">{{ $t('newProduct.image') }}</label>
         <input id="image" accept="image/*" type="file" @change="handleImageUpload" />
@@ -30,59 +42,94 @@
         </div>
       </div>
 
+      <!-- Allow Vipps -->
       <div class="form-group toggle-group">
-        <input id="vipps" v-model="product.acceptVipps" checked type="checkbox" />
+        <input id="vipps" v-model="product.allowVippsBuy" type="checkbox" />
         <label class="toggle-label" for="vipps">{{ $t('newProduct.vipps') }}</label>
       </div>
 
-      <button type="submit">Create Product</button>
+      <!-- Submit Button -->
+      <button :disabled="isLoading" type="submit">
+        {{ isLoading ? $t('newProduct.creating') : $t('newProduct.createButton') }}
+      </button>
+
+      <!-- Error Message -->
+      <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </form>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'NewProductView',
-  data() {
-    return {
-      product: {
-        name: '',
-        description: '',
-        price: null,
-        location: '',
-        image: null,
-        imageUrl: '',
-        acceptVipps: false,
-      },
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { createItem } from '@/service/itemService'
+import { logger } from '@/utils/logger'
+
+// Define reactive state
+const product = ref({
+  categoryId: null,
+  postalCode: null,
+  title: '',
+  description: '',
+  price: null,
+  allowVippsBuy: true, // Defaulting to true as checkbox is initially checked
+  imageFile: null, // Store the File object here
+  imageUrl: '', // For preview
+})
+
+const isLoading = ref(false)
+const errorMessage = ref('')
+const router = useRouter()
+
+// Handle image selection
+const handleImageUpload = (event) => {
+  const file = event.target.files[0]
+  if (file) {
+    product.value.imageFile = file
+    product.value.imageUrl = URL.createObjectURL(file)
+  } else {
+    product.value.imageFile = null
+    product.value.imageUrl = ''
+  }
+}
+
+// Handle form submission
+const handleSubmit = async () => {
+  isLoading.value = true
+  errorMessage.value = ''
+
+  try {
+    // Prepare data according to CreateItemRequest schema
+    const itemData = {
+      categoryId: product.value.categoryId,
+      postalCode: product.value.postalCode,
+      title: product.value.title,
+      description: product.value.description,
+      price: product.value.price,
+      allowVippsBuy: product.value.allowVippsBuy,
     }
-  },
-  methods: {
-    handleImageUpload(event) {
-      const file = event.target.files[0]
-      if (file) {
-        this.product.image = file
-        this.product.imageUrl = URL.createObjectURL(file)
-      }
-    },
-    handleSubmit() {
-      const formData = new FormData()
-      formData.append('name', this.product.name)
-      formData.append('description', this.product.description)
-      formData.append('price', this.product.price)
-      formData.append('location', this.product.location)
-      formData.append('acceptVipps', this.product.acceptVipps)
-      if (this.product.image) {
-        formData.append('image', this.product.image)
-      }
 
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value)
-      }
+    // Prepare image array
+    const images = product.value.imageFile ? [product.value.imageFile] : []
 
-      // TODO: Replace with your API call (e.g., using fetch or axios)
-      alert('Product created! (See console for submitted data)')
-    },
-  },
+    logger.debug('Submitting new product:', { itemData, hasImage: images.length > 0 })
+
+    // Call the service function
+    const createdItem = await createItem(itemData, images)
+
+    logger.info('Product created successfully:', createdItem)
+    // TODO: Add a success message/toast notification
+
+    // Navigate to the new item's detail page (assuming route name 'ItemDetail')
+    // You might need to adjust the route name and parameter based on your router setup
+    router.push({ name: 'ItemDetail', params: { id: createdItem.id } })
+  } catch (error) {
+    logger.error('Failed to create product:', error)
+    errorMessage.value = error.message || 'An unexpected error occurred. Please try again.'
+    // TODO: Provide more specific error messages based on error type/response
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
@@ -143,8 +190,10 @@ input[type='file']:focus {
 }
 
 .image-preview {
-  width: 100%;
-  border: 1px solid black;
+  width: 100%; /* Limit preview width */
+  max-height: 300px; /* Limit preview height */
+  object-fit: contain; /* Maintain aspect ratio */
+  border: 1px solid lightgray;
   border-radius: 6px;
 }
 
@@ -160,13 +209,14 @@ input[type='file']:focus {
   cursor: pointer;
 }
 .toggle-group label {
-  margin: 4px 0;
+  margin: 4px 0; /* Align label vertically */
 }
 
 button {
   width: 100%;
   padding: 12px;
   color: #fff;
+  background-color: #007bff; /* Example primary color */
   border: none;
   border-radius: 6px;
   font-size: 16px;
@@ -177,11 +227,29 @@ button {
   margin-top: 10px;
 }
 
-textarea {
-  resize: vertical;
+button:hover:not(:disabled) {
+  background-color: #0056b3; /* Darker shade on hover */
 }
 
-button:hover {
-  background-color: gray;
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px; /* Provide a minimum height */
+}
+
+.error-message {
+  color: #dc3545; /* Standard error color */
+  margin-top: 15px;
+  text-align: center;
+}
+
+/* Optional: Add styles for focusing on invalid fields if needed */
+input:invalid,
+textarea:invalid {
+  border-color: #dc3545;
 }
 </style>
