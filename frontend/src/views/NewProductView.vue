@@ -122,8 +122,21 @@
 
       <!-- Allow Vipps -->
       <div class="form-group toggle-group">
-        <input id="vipps" v-model="product.allowVippsBuy" type="checkbox" />
-        <label class="toggle-label" for="vipps">{{ $t('newProduct.vipps') }}</label>
+        <input
+          id="vipps"
+          v-model="product.allowVippsBuy"
+          type="checkbox"
+          class="vipps-checkbox-hidden"
+        />
+        <!-- The visual switch part -->
+        <label for="vipps" class="vipps-toggle-label">
+          <span class="vipps-toggle-switch"></span>
+          <!-- The sliding part -->
+          <!-- Logo and Text moved out -->
+        </label>
+        <!-- Logo and Text now outside the label -->
+        <img src="/Vipps.svg" alt="Vipps Logo" class="vipps-logo-inline" />
+        <span class="vipps-label-text">{{ $t('newProduct.vipps') }}</span>
       </div>
 
       <!-- Submit Button -->
@@ -408,12 +421,9 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-h1 {
-  font-weight: bold;
-}
-
 .new-product-view {
-  max-width: 600px;
+  max-width: 500px;
+  min-width: 500px;
   margin: 40px auto;
   padding: 30px;
   background-color: #ffffff; /* Explicit white background */
@@ -425,6 +435,7 @@ h1 {
   text-align: center;
   margin-bottom: 35px; /* Slightly more space */
   color: #333; /* Darker text */
+  font-weight: bold;
 }
 
 .form-group {
@@ -572,22 +583,77 @@ select:focus {
 .toggle-group {
   display: flex;
   align-items: center;
-  gap: 12px; /* Slightly more gap */
+  gap: 10px; /* Slightly increased gap */
 }
 
-.toggle-group input[type='checkbox'] {
-  /* Consider using a custom toggle switch component/style here for better UX */
-  /* Basic styling for now */
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  accent-color: #007bff; /* Use primary color */
+/* Hide the actual checkbox input */
+.vipps-checkbox-hidden {
+  opacity: 0;
+  position: absolute;
+  width: 0;
+  height: 0;
 }
-.toggle-group label {
-  margin: 0; /* Remove default margin */
-  user-select: none; /* Prevent text selection */
+
+/* Style the label to act ONLY as the toggle switch track */
+.vipps-toggle-label {
+  display: inline-block; /* No longer flex container */
   cursor: pointer;
+  background-color: #e9ecef;
+  border-radius: 15px;
+  padding: 2px;
+  transition: background-color 0.2s ease;
+  position: relative; /* Still needed for absolute switch */
+  user-select: none;
+  height: 28px;
+  width: calc(24px * 2 + 2px * 2); /* Width = 2 * handle_width + 2 * padding */
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0; /* Prevent switch from shrinking */
 }
+
+/* The sliding part of the switch */
+.vipps-toggle-switch {
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-color: white;
+  border-radius: 50%;
+  transition: left 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  z-index: 1;
+}
+
+/* Style the Vipps logo (now outside the label) */
+.vipps-logo-inline {
+  height: 18px; /* Slightly increased height for better balance */
+  width: auto;
+  vertical-align: middle; /* Keep this, helps baseline alignment */
+  opacity: 1;
+}
+
+/* Style the text label (now outside the switch label) */
+.vipps-label-text {
+  color: #333;
+  font-weight: 500;
+  font-size: 0.9rem;
+  line-height: 1.2; /* Adjust line-height for better vertical centering */
+}
+
+/* --- Checked State Styles --- */
+
+/* Change background color of the switch track */
+.vipps-checkbox-hidden:checked + .vipps-toggle-label {
+  background-color: #ff5b24; /* Vipps Orange */
+}
+
+/* Move the switch handle */
+.vipps-checkbox-hidden:checked + .vipps-toggle-label .vipps-toggle-switch {
+  left: calc(100% - 24px - 2px);
+}
+
+/* REMOVED Styles affecting text/logo based on checked state */
 
 /* Button styling */
 button[type='submit'] {
