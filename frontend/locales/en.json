@@ -57,6 +57,12 @@
   "profile": {
     "title": "Profile",
     "language": "Language",
-    "logout": "Log out"
+    "logout": "Log out",
+    "joinedOn": "Joined on",
+    "active": "For sale",
+    "reserved": "Reserved",
+    "sold": "Sold",
+    "archived": "Archived",
+    "bought": "Bought"
   }
 }
