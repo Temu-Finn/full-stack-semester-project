@@ -1,10 +1,6 @@
 <template>
   <a class="product-card" href="">
-    <img
-      :alt="product.title"
-      :src="'data:image/png;base64,' + product.imageBase64"
-      class="product-image"
-    />
+    <img :alt="product.title" :src="product.image?.dataURL" class="product-image" />
     <div class="product-info">
       <h3 class="product-name">{{ product.title }}</h3>
       <div class="product-meta">

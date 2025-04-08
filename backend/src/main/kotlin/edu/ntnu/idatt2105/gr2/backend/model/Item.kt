@@ -41,8 +41,8 @@ data class Item(
     val allowVippsBuy: Boolean = false,
     val primaryImageId: Int?,
     val status: ItemStatus = ItemStatus.Available,
-    val createdAt: LocalDateTime? = null,
-    val updatedAt: LocalDateTime? = null,
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
     val municipality: String = "Unknown",
 ) {
     init {

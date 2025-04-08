@@ -14,7 +14,7 @@ getRecommendedItems().then((items) => {
   <div class="container">
     <h3 class="title">Recommended for you</h3>
     <div class="product-grid">
-      <Product v-for="product in products" :key="product.itemId" :product="product" />
+      <Product v-for="product in products" :key="product.id" :product="product" />
     </div>
   </div>
 </template>

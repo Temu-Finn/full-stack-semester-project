@@ -15,7 +15,7 @@ data class ItemCard(
     val image: ImageResponse?,
     val location: Location?,
     val status: String,
-    val updatedAt: LocalDateTime?
+    val updatedAt: LocalDateTime
 )
 
 /**

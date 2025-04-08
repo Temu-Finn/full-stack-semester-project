@@ -4,11 +4,24 @@ import { logger } from '@/utils/logger'
 
 // Zod schemas for type validation
 const ItemCardSchema = z.object({
-  itemId: z.number(),
+  id: z.number(),
   title: z.string(),
   price: z.number(),
   municipality: z.string(),
-  imageBase64: z.string().nullish(),
+  image: z
+    .object({
+      id: z.number(),
+      dataURL: z.string(),
+    })
+    .nullish(),
+  location: z
+    .object({
+      latitude: z.number(),
+      longitude: z.number(),
+    })
+    .nullish(),
+  status: z.string(),
+  updatedAt: z.string(),
 })
 
 const RecommendedItemsResponseSchema = z.object({
