@@ -178,6 +178,8 @@ const selectStatus = (status: 'active' | 'reserved' | 'sold' | 'archived' | 'bou
 .listings-menu {
   display: flex;
   margin-bottom: 1rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .listings-menu button {
@@ -205,5 +207,16 @@ const selectStatus = (status: 'active' | 'reserved' | 'sold' | 'archived' | 'bou
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1rem;
+}
+
+@media (max-width: 496px) {
+  .header {
+    flex-direction: column;
+    flex-flow: column-reverse;
+  }
+  .header-actions {
+    flex-direction: row;
+    flex-flow: row-reverse;
+  }
 }
 </style>
