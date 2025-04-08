@@ -66,22 +66,16 @@ data class CreateItemRequest(
     @field:DecimalMin("0.0", inclusive = true, message = "Price must be zero or positive")
     val price: Double,
 
-    @field:Positive(message = "Purchase price must be positive")
-    val purchasePrice: Double? = null,
-
-    @field:Positive(message = "Buyer ID must be positive")
-    val buyerId: Int? = null,
-
     val location: Location? = null,
 
     @field:NotNull(message = "Allow Vipps Buy must be true or false")
     val allowVippsBuy: Boolean = false,
 
-    @field:Pattern(regexp = "evailable|reserved|sold|archived", message = "Status must be one of: available, reserved, sold, archived")
+    @field:Pattern(regexp = "available|reserved|sold|archived", message = "Status must be one of: available, reserved, sold, archived")
     val status: String = ItemStatus.Available.toString(),
 
     @field:NotNull(message = "Images cannot be null")
-    val images: List<CreateImageRequest>
+    val images: List<CreateImageRequest> = emptyList(),
 )
 
 data class Location(

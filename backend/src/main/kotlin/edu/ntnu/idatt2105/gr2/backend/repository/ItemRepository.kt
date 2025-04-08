@@ -13,8 +13,8 @@ class ItemRepository(private val dataSource: DataSource) {
     fun create(item: Item): Item {
         dataSource.connection.use { conn ->
             val sql = """
-                INSERT INTO items (seller_id, category_id, postal_code, title, description, price, purchase_price, buyer_id, location, allow_vipps_buy, status) 
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ST_PointFromText(?, 4326), ?, ?, ?)
+                INSERT INTO items (seller_id, category_id, postal_code, title, description, price, location, allow_vipps_buy, status) 
+                VALUES(?, ?, ?, ?, ?, ?, ST_PointFromText(?, 4326), ?, ?)
             """.trimIndent()
             conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS).use { stmt ->
                 stmt.setInt(1, item.sellerId)
@@ -23,11 +23,9 @@ class ItemRepository(private val dataSource: DataSource) {
                 stmt.setString(4, item.title)
                 stmt.setString(5, item.description)
                 stmt.setDouble(6, item.price)
-                stmt.setObject(7, item.purchasePrice)
-                stmt.setObject(8, item.buyerId)
-                stmt.setString(9, item.location?.let { "POINT(${it.latitude} ${it.longitude})" })
-                stmt.setBoolean(10, item.allowVippsBuy)
-                stmt.setString(11, item.status.toString())
+                stmt.setString(7, item.location?.let { "POINT(${it.longitude} ${it.latitude})" })
+                stmt.setBoolean(8, item.allowVippsBuy)
+                stmt.setString(9, item.status.toString())
 
                 val affectedRows = stmt.executeUpdate()
                 if (affectedRows == 0) throw RuntimeException("Creating item failed, no rows affected.")

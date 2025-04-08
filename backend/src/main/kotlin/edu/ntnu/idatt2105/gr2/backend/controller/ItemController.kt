@@ -47,23 +47,10 @@ class ItemController (
         ]
     )
     fun createItem(
-        @RequestPart("categoryId") categoryId: Int,
-        @RequestPart("postalCode") postalCode: String,
-        @RequestPart("title") title: String,
-        @RequestPart("description") description: String,
-        @RequestPart("price") price: Double,
-        @RequestPart("allowVippsBuy") allowVippsBuy: Boolean,
-        @RequestPart("images") images: List<CreateImageRequest>
+        @RequestPart("item") @Valid itemRequest: CreateItemRequest,
+        @RequestPart("image") image: MultipartFile,
     ): ResponseEntity<CompleteItem> {
-        val request = CreateItemRequest(
-            categoryId = categoryId,
-            postalCode = postalCode,
-            title = title,
-            description = description,
-            price = price,
-            allowVippsBuy = allowVippsBuy,
-            images = images
-        );
+        val request = itemRequest.copy(images = listOf(CreateImageRequest(imageFile = image)))
         logger.info("Creating new item: ${request.title}")
         val savedItem = itemService.createItem(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(savedItem)

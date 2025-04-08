@@ -18,8 +18,7 @@ class ImageService(
         val altText = imageRequest.altText
 
         logger.info("Uploading image: ${imageFile.originalFilename}")
-//        val fileType = imageFile.contentType ?: "application/octet-stream"
-        val fileType = imageFile.contentType ?: "image/jpeg"
+        val fileType = imageFile.contentType ?: "application/octet-stream"
         val imageData = imageFile.bytes
         val image = Image(
             itemId = itemId,
@@ -28,13 +27,11 @@ class ImageService(
             altText = altText
         )
 
-        if (imageRepository.save(image) != image) {
-            throw IllegalStateException("Image upload failed")
-        }
+        val uploadedImage = imageRepository.save(image)
 
         return ImageResponse(
-            id = image.id,
-            dataURL = image.base64()
+            id = uploadedImage.id,
+            dataURL = uploadedImage.base64()
         )
     }
 

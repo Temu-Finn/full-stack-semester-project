@@ -10,7 +10,6 @@ class ImageRepository(private val dataSource: DataSource) {
         val sql = """
             INSERT INTO item_images (item_id, image_data, file_type, alt_text)
             VALUES (?, ?, ?, ?)
-            RETURNING id
         """.trimIndent()
 
         dataSource.connection.use { conn ->
@@ -20,9 +19,12 @@ class ImageRepository(private val dataSource: DataSource) {
                 stmt.setString(3, image.fileType)
                 stmt.setString(4, image.altText)
 
-                val rs = stmt.executeQuery()
+                stmt.executeUpdate()
+                
+                // Get the last inserted ID
+                val rs = conn.prepareStatement("SELECT LAST_INSERT_ID()").executeQuery()
                 if (rs.next()) {
-                    val id = rs.getInt("id")
+                    val id = rs.getInt(1)
                     return image.copy(id = id)
                 } else {
                     throw RuntimeException("Failed to save image, no ID obtained.")
