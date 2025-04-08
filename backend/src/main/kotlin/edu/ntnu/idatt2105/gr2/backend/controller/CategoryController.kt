@@ -138,4 +138,34 @@ class CategoryController(
 
         return ResponseEntity.status(HttpStatus.OK).body(null)
     }
+
+    @PutMapping("/update")
+    @Operation(
+        summary = "Update a category",
+        description = "Updates a category by its name"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Category updated successfully"),
+            ApiResponse(responseCode = "404", description = "Category not found"),
+            ApiResponse(responseCode = "403", description = "User not authorized to update category"),
+            ApiResponse(responseCode = "500", description = "Internal server error")
+        ]
+    )
+    fun updateCategory(
+        @Parameter(description = "Name of the category to update", required = true)
+        @RequestBody @Valid request: UpdateCategoryRequest
+    ): ResponseEntity<CategoryResponse> {
+        val isAuthorized = userRepository.isAdmin(userContextService.getCurrentUserId())
+        if (!isAuthorized) {
+            logger.error("User not authorized to update category")
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null)
+        }
+
+        logger.info("Updating category with name: ${request.name}") 
+        val category = categoryService.updateCategory(request)
+        logger.info("Successfully updated category with name: ${request.name}")
+
+        return ResponseEntity.status(HttpStatus.OK).body(category)
+    }
 }
