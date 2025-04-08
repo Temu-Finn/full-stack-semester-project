@@ -83,15 +83,8 @@
       <div class="form-group">
         <label for="images">{{ $t('newProduct.images') }}</label>
         <input id="images" accept="image/*" multiple type="file" @change="handleImageUpload" />
-        <!-- Styled label acts as the file input trigger and drop zone -->
-        <label
-          for="images"
-          class="file-input-label"
-          :class="{ dragover: isDraggingOver }"
-          @dragover.prevent="handleDragOver"
-          @dragleave.prevent="handleDragLeave"
-          @drop.prevent="handleDropUpload"
-        >
+        <!-- Styled label acts as the file input trigger -->
+        <label for="images" class="file-input-label">
           {{
             product.imageUrls.length > 0
               ? $t('newProduct.changeImages')
@@ -176,7 +169,6 @@ const errors = ref({
   postalCode: '',
 })
 
-const isDraggingOver = ref(false) // Track drag state for the LABEL drop zone
 const isWindowDragging = ref(false) // Track drag state for the WINDOW
 const draggedIndex = ref(null)
 const dropIndex = ref(null)
@@ -204,11 +196,14 @@ const windowDragOver = (event) => {
 }
 
 const windowDragLeave = (event) => {
-  // Check if the mouse truly left the window (relatedTarget is null)
+  // Check if the mouse truly left the window or entered a child that prevents drop
   if (
     event.relatedTarget === null ||
-    event.target === document.body ||
-    event.target === document.documentElement
+    event.target === document.documentElement ||
+    event.clientY <= 0 ||
+    event.clientX <= 0 ||
+    event.clientX >= window.innerWidth ||
+    event.clientY >= window.innerHeight
   ) {
     isWindowDragging.value = false
   }
@@ -251,11 +246,11 @@ onUnmounted(() => {
   logger.debug('Window drag/drop listeners removed')
 })
 
-// Handle image selection for multiple files
-const handleImageUpload = (event) => {
-  const files = event.target.files
+// Shared function to process files (from input or drag/drop)
+const processFiles = (files) => {
   if (!files) return
 
+  // Revoke old URLs before adding new ones
   product.value.imageUrls.forEach(URL.revokeObjectURL)
   product.value.imageFiles = []
   product.value.imageUrls = []
@@ -266,8 +261,16 @@ const handleImageUpload = (event) => {
       const url = URL.createObjectURL(file)
       product.value.imageUrls.push(url)
       logger.debug(`Created object URL: ${url} for file: ${file.name}`)
+    } else {
+      logger.warn(`Skipped non-image file: ${file.name}`)
+      // Optionally show a user message about skipped files
     }
   }
+}
+
+// Handle image selection via file input click
+const handleImageUpload = (event) => {
+  processFiles(event.target.files)
   // Reset the file input value so the change event fires even if the same files are selected again
   event.target.value = ''
 }
@@ -321,37 +324,6 @@ const handleImageDragEnd = () => {
   dropIndex.value = null
 }
 // --- End Drag and Drop for Reordering Images ---
-
-// --- Drop Zone (Label) Handlers ---
-// Handle file drag over the label drop zone
-const handleDragOver = (event) => {
-  event.preventDefault() // Necessary to allow drop
-  event.stopPropagation() // Prevent triggering windowDragOver when over the label
-  isDraggingOver.value = true
-  isWindowDragging.value = true // Also indicate window is being dragged over
-}
-
-// Handle file drag leaving the label drop zone
-const handleDragLeave = (event) => {
-  event.preventDefault()
-  // Don't set isDraggingOver false here directly, rely on windowDragLeave
-  // isDraggingOver.value = false // Keep visual cue if still over window
-}
-
-// Handle file drop onto the label drop zone
-const handleDropUpload = (event) => {
-  event.preventDefault()
-  event.stopPropagation() // Prevent triggering windowDrop
-  isDraggingOver.value = false
-  isWindowDragging.value = false
-  const files = event.dataTransfer?.files
-  if (files) {
-    logger.debug('Files dropped on label', files)
-    processFiles(files)
-  } else {
-    logger.debug('Label drop event without files.')
-  }
-}
 
 // Validate the form before submission
 const validateForm = () => {
@@ -518,11 +490,10 @@ select:focus {
     background-color 0.2s ease;
 }
 
-.file-input-label:hover,
-.file-input-label.dragover {
-  /* Add style for dragover state */
+.file-input-label:hover {
+  /* Keep hover style */
   border-color: #007bff;
-  background-color: #f0f8ff; /* Light blue tint on hover/dragover */
+  background-color: #f0f8ff;
 }
 
 /* Hide the actual file input */
