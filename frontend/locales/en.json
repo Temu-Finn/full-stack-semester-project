@@ -17,6 +17,9 @@
     "price": "Price (NOK)",
     "location": "Location",
     "images": "Images",
+    "selectImages": "Select or Drag Images Here",
+    "changeImages": "Change Selected Images",
+    "primaryIndicator": "Primary",
     "vipps": "Vipps payment",
     "postalCode": "Postal Code",
     "creating": "Creating...",
@@ -68,6 +71,7 @@
   "validation": {
     "required": "{field} is required.",
     "positiveNumber": "{field} must be a positive number.",
-    "postalCode": "{field} must be 4 digits."
+    "postalCode": "{field} must be 4 digits.",
+    "invalid": "Above field(s) are invalid."
   }
 }

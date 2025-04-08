@@ -17,6 +17,9 @@
     "price": "Pris (NOK)",
     "location": "Posisjon",
     "images": "Bilder",
+    "selectImages": "Velg eller dra bilder hit",
+    "changeImages": "Endre valgte bilder",
+    "primaryIndicator": "Primær",
     "vipps": "Vipps betaling",
     "postalCode": "Postnummer",
     "creating": "Oppretter...",
@@ -67,6 +70,7 @@
   "validation": {
     "required": "{field} er påkrevd.",
     "positiveNumber": "{field} må være et positivt tall.",
-    "postalCode": "{field} må være 4 siffer."
+    "postalCode": "{field} må være 4 siffer.",
+    "invalid": "Felt ovenfor er ugyldig."
   }
 }
