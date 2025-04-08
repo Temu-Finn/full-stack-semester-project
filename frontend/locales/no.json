@@ -16,8 +16,11 @@
     "description": "Beskrivelse",
     "price": "Pris (NOK)",
     "location": "Posisjon",
-    "image": "Legg til bilder",
-    "vipps": "Aksepter Vipps betaling"
+    "images": "Bilder",
+    "vipps": "Vipps betaling",
+    "postalCode": "Postnummer",
+    "creating": "Oppretter...",
+    "createButton": "Opprett produkt"
   },
   "chat": {
     "online": "På nett",
@@ -60,5 +63,9 @@
     "title": "Profil",
     "language": "Språk",
     "logout": "Logg ut"
+  },
+  "validation": {
+    "required": "{field} er påkrevd",
+    "positiveNumber": "{field} må være et positivt tall"
   }
 }

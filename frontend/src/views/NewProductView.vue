@@ -1,49 +1,64 @@
 <template>
   <div class="new-product-view">
     <h1>{{ $t('newProduct.title') }}</h1>
-    <form @submit.prevent="handleSubmit">
+    <form @submit.prevent="handleSubmit" novalidate>
+      <!-- Add novalidate to prevent default browser validation -->
       <!-- Category Select -->
       <div class="form-group">
         <label for="categoryId">{{ $t('newProduct.category') }}</label>
         <select id="categoryId" v-model.number="product.categoryId" required>
           <option :value="null" disabled>{{ $t('newProduct.selectCategory') }}</option>
           <option v-for="category in categories" :key="category.id" :value="category.id">
-            {{ category.name }}
+            {{ category.icon + ' ' + category.name }}
           </option>
         </select>
         <p v-if="categoryError" class="error-message">{{ categoryError }}</p>
+        <p v-if="errors.categoryId" class="field-error-message">{{ errors.categoryId }}</p>
       </div>
 
       <!-- Title -->
       <div class="form-group">
         <label for="name">{{ $t('newProduct.productTitle') }}</label>
-        <input id="name" v-model="product.title" required type="text" />
+        <input id="name" v-model.trim="product.title" required type="text" />
+        <p v-if="errors.title" class="field-error-message">{{ errors.title }}</p>
       </div>
 
       <!-- Description -->
       <div class="form-group">
         <label for="description">{{ $t('newProduct.description') }}</label>
-        <textarea id="description" v-model="product.description" auto-resize required></textarea>
+        <textarea
+          id="description"
+          v-model.trim="product.description"
+          auto-resize
+          required
+        ></textarea>
+        <p v-if="errors.description" class="field-error-message">{{ errors.description }}</p>
       </div>
 
       <!-- Price -->
       <div class="form-group">
         <label for="price">{{ $t('newProduct.price') }}</label>
         <input id="price" v-model.number="product.price" required step="1" type="number" />
+        <p v-if="errors.price" class="field-error-message">{{ errors.price }}</p>
       </div>
 
       <!-- Postal Code -->
       <div class="form-group">
         <label for="postalCode">{{ $t('newProduct.postalCode') }}</label>
         <input id="postalCode" v-model.number="product.postalCode" required type="number" />
+        <p v-if="errors.postalCode" class="field-error-message">{{ errors.postalCode }}</p>
       </div>
 
-      <!-- Image -->
+      <!-- Images -->
       <div class="form-group">
-        <label for="image">{{ $t('newProduct.image') }}</label>
-        <input id="image" accept="image/*" type="file" @change="handleImageUpload" />
-        <div v-if="product.imageUrl" class="image-preview-container">
-          <img :src="product.imageUrl" alt="Product Preview" class="image-preview" />
+        <label for="images">{{ $t('newProduct.images') }}</label>
+        <input id="images" accept="image/*" multiple type="file" @change="handleImageUpload" />
+        <!-- Preview area for multiple images -->
+        <div v-if="product.imageUrls.length > 0" class="image-preview-grid">
+          <div v-for="(url, index) in product.imageUrls" :key="index" class="image-preview-item">
+            <img :src="url" alt="Product Preview" class="image-preview" />
+            <button class="remove-image-btn" type="button" @click="removeImage(index)">×</button>
+          </div>
         </div>
       </div>
 
@@ -58,18 +73,19 @@
         {{ isLoading ? $t('newProduct.creating') : $t('newProduct.createButton') }}
       </button>
 
-      <!-- Error Message -->
+      <!-- General Error Message (for API errors) -->
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </form>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { createItem } from '@/service/itemService'
 import { getCategories } from '@/service/categoryService'
 import { logger } from '@/utils/logger'
+import { useI18n } from 'vue-i18n' // Import useI18n for translations
 
 // Define reactive state
 const product = ref({
@@ -78,16 +94,43 @@ const product = ref({
   title: '',
   description: '',
   price: null,
-  allowVippsBuy: true, // Defaulting to true as checkbox is initially checked
-  imageFile: null, // Store the File object here
-  imageUrl: '', // For preview
+  allowVippsBuy: true,
+  imageFiles: [], // Store File objects here
+  imageUrls: [], // Store preview URLs here
 })
 
 const isLoading = ref(false)
-const errorMessage = ref('')
+const errorMessage = ref('') // For general/API errors
 const categories = ref([])
 const categoryError = ref('')
 const router = useRouter()
+const { t } = useI18n() // Get the translation function
+
+// Ref for field-specific validation errors
+const errors = ref({
+  categoryId: '',
+  title: '',
+  description: '',
+  price: '',
+  postalCode: '',
+})
+
+// Cleanup object URLs on component unmount or when urls change
+watch(
+  () => [...product.value.imageUrls], // Watch a copy to detect changes
+  (newUrls, oldUrls) => {
+    if (oldUrls) {
+      oldUrls.forEach((url) => {
+        if (!newUrls.includes(url)) {
+          // Only revoke if it's truly removed, not just reordered/replaced
+          URL.revokeObjectURL(url)
+          logger.debug(`Revoked object URL: ${url}`)
+        }
+      })
+    }
+  },
+  { deep: true }, // Necessary if watching nested properties, though array copy works here
+)
 
 // Fetch categories on component mount
 onMounted(async () => {
@@ -100,38 +143,104 @@ onMounted(async () => {
   }
 })
 
-// Handle image selection
+// Handle image selection for multiple files
 const handleImageUpload = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    product.value.imageFile = file
-    product.value.imageUrl = URL.createObjectURL(file)
-  } else {
-    product.value.imageFile = null
-    product.value.imageUrl = ''
+  const files = event.target.files
+  if (!files) return
+
+  // Clear previous selections and revoke old URLs
+  product.value.imageUrls.forEach(URL.revokeObjectURL)
+  product.value.imageFiles = []
+  product.value.imageUrls = []
+
+  for (const file of files) {
+    if (file.type.startsWith('image/')) {
+      product.value.imageFiles.push(file)
+      const url = URL.createObjectURL(file)
+      product.value.imageUrls.push(url)
+      logger.debug(`Created object URL: ${url} for file: ${file.name}`)
+    }
   }
+  // Reset the file input value so the change event fires even if the same files are selected again
+  event.target.value = ''
+}
+
+// Remove an image by index
+const removeImage = (index) => {
+  if (index >= 0 && index < product.value.imageUrls.length) {
+    const urlToRemove = product.value.imageUrls[index]
+    product.value.imageFiles.splice(index, 1)
+    product.value.imageUrls.splice(index, 1)
+    // No need to revoke here, the watch effect handles it
+  }
+}
+
+// Validate the form before submission
+const validateForm = () => {
+  // Clear previous errors
+  errors.value = {
+    categoryId: '',
+    title: '',
+    description: '',
+    price: '',
+    postalCode: '',
+  }
+
+  let isValid = true
+
+  if (!product.value.categoryId) {
+    errors.value.categoryId = t('validation.required', { field: t('newProduct.category') })
+    isValid = false
+  }
+  if (!product.value.title) {
+    errors.value.title = t('validation.required', { field: t('newProduct.productTitle') })
+    isValid = false
+  }
+  if (!product.value.description) {
+    errors.value.description = t('validation.required', { field: t('newProduct.description') })
+    isValid = false
+  }
+  if (product.value.price === null || product.value.price <= 0) {
+    errors.value.price = t('validation.positiveNumber', { field: t('newProduct.price') })
+    isValid = false
+  }
+  if (product.value.postalCode === null) {
+    // Basic check for non-null postal code
+    errors.value.postalCode = t('validation.required', { field: t('newProduct.postalCode') })
+    isValid = false
+  }
+  // TODO: Add more specific postal code validation if needed (e.g., length, format)
+
+  return isValid
 }
 
 // Handle form submission
 const handleSubmit = async () => {
+  errorMessage.value = '' // Clear general errors
+
+  if (!validateForm()) {
+    logger.warn('Form validation failed', errors.value)
+    return // Stop submission if validation fails
+  }
+
   isLoading.value = true
-  errorMessage.value = ''
 
   try {
     // Prepare data according to CreateItemRequest schema
+    // Convert postalCode to string as expected by API
     const itemData = {
       categoryId: product.value.categoryId,
-      postalCode: product.value.postalCode,
+      postalCode: String(product.value.postalCode), // Convert to string
       title: product.value.title,
       description: product.value.description,
       price: product.value.price,
       allowVippsBuy: product.value.allowVippsBuy,
     }
 
-    // Prepare image array
-    const images = product.value.imageFile ? [product.value.imageFile] : []
+    // Use the imageFiles array
+    const images = product.value.imageFiles
 
-    logger.debug('Submitting new product:', { itemData, hasImage: images.length > 0 })
+    logger.debug('Submitting new product:', { itemData, imageCount: images.length })
 
     // Call the service function
     const createdItem = await createItem(itemData, images)
@@ -141,7 +250,7 @@ const handleSubmit = async () => {
 
     // Navigate to the new item's detail page (assuming route name 'ItemDetail')
     // You might need to adjust the route name and parameter based on your router setup
-    router.push({ name: 'ItemDetail', params: { id: createdItem.id } })
+    router.push({ name: 'product', params: { id: createdItem.id } })
   } catch (error) {
     logger.error('Failed to create product:', error)
     errorMessage.value = error.message || 'An unexpected error occurred. Please try again.'
@@ -208,12 +317,46 @@ input[type='file']:focus {
   margin-top: 10px;
 }
 
-.image-preview {
-  width: 100%; /* Limit preview width */
-  max-height: 300px; /* Limit preview height */
-  object-fit: contain; /* Maintain aspect ratio */
+.image-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.image-preview-item {
+  position: relative;
   border: 1px solid lightgray;
   border-radius: 6px;
+  overflow: hidden; /* Ensure button stays within bounds */
+}
+
+.image-preview {
+  display: block; /* Remove extra space below image */
+  width: 100%;
+  height: 100px; /* Fixed height for grid items */
+  object-fit: cover; /* Cover the area, cropping if needed */
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  line-height: 18px; /* Center the 'x' */
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.remove-image-btn:hover {
+  background-color: rgba(255, 0, 0, 0.8);
 }
 
 .toggle-group {
@@ -271,5 +414,29 @@ input:invalid,
 textarea:invalid,
 select:invalid {
   border-color: #dc3545;
+}
+
+.field-error-message {
+  color: #dc3545;
+  font-size: 0.875em;
+  margin-top: 4px;
+}
+
+/* Add red border to invalid fields *after* submission attempt */
+input:invalid,
+textarea:invalid,
+select:invalid {
+  /* Remove default browser invalid styling if needed */
+}
+
+input.invalid, /* Custom class for fields with errors */
+textarea.invalid,
+select.invalid {
+  border-color: #dc3545;
+}
+
+/* Style adjustments for spacing */
+.form-group p {
+  min-height: 1.2em; /* Reserve space for error messages to prevent layout shifts */
 }
 </style>

@@ -47,8 +47,8 @@ const CompleteItemSchema = z.object({
   allowVippsBuy: z.boolean(),
   primaryImageId: z.number().nullable(),
   status: z.string(),
-  createdAt: z.string().datetime(), // Validate as ISO date string
-  updatedAt: z.string().datetime(), // Validate as ISO date string
+  createdAt: z.string(), // Accept as string, bypass strict datetime validation
+  updatedAt: z.string(), // Accept as string, bypass strict datetime validation
   municipality: z.string(),
   images: z.array(ImageSchema).optional(), // Images array might be optional or empty
 })

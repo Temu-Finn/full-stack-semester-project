@@ -15,9 +15,6 @@ export const API_CONFIG = {
 const api = axios.create({
   baseURL: API_CONFIG.API_BASE_URL,
   timeout: API_CONFIG.TIMEOUT,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 })
 
 api.interceptors.request.use(
