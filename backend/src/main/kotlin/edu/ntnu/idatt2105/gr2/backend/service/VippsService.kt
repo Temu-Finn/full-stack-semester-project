@@ -4,6 +4,7 @@ import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import java.util.*
+import io.github.cdimascio.dotenv.Dotenv
 
 /**
  * Service class for handling communication with the Vipps ePayment API.
@@ -18,11 +19,13 @@ import java.util.*
 @Service
 class VippsService {
 
+    private val dotenv = Dotenv.load()
+
     private val baseUrl = "https://apitest.vipps.no"
-    private val clientId = "835cd6a8-33fa-4677-9796-fdf5898fdd7e"
-    private val clientSecret = "r8i8Q~Lnf5K4tF.i9RHpJqR~BAYLr9IrXE3wya~-"
-    private val subscriptionKey = "0e36824f633a4063a8525c3b476aa922"
-    private val merchantSerialNumber = "367319"
+    private val clientId = dotenv["VIPPS_CLIENT_ID"]
+    private val clientSecret = dotenv["VIPPS_CLIENT_SECRET"]
+    private val subscriptionKey = dotenv["VIPPS_SUBSCRIPTION_KEY"]
+    private val merchantSerialNumber = dotenv["VIPPS_MERCHANT_SERIAL_NUMBER"]
 
     private val restTemplate = RestTemplate()
 
