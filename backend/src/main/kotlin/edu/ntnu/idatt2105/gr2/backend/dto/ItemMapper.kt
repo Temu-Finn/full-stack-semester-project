@@ -18,7 +18,7 @@ internal fun CreateItemRequest.toItem(userId: Int): Item {
         location = this.location,
         allowVippsBuy = this.allowVippsBuy,
         primaryImageId = -1,
-        status = ItemStatus.fromString(this.status),
+        status = ItemStatus.Available,
         createdAt = LocalDateTime.now(),
         updatedAt = LocalDateTime.now()
     )
