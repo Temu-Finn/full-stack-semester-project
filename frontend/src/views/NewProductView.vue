@@ -2,7 +2,6 @@
   <div class="new-product-view">
     <h1>{{ $t('newProduct.title') }}</h1>
     <form @submit.prevent="handleSubmit" novalidate>
-      <!-- Add novalidate to prevent default browser validation -->
       <!-- Category Select -->
       <div class="form-group">
         <label for="categoryId">{{ $t('newProduct.category') }}</label>
@@ -45,7 +44,17 @@
       <!-- Postal Code -->
       <div class="form-group">
         <label for="postalCode">{{ $t('newProduct.postalCode') }}</label>
-        <input id="postalCode" v-model.number="product.postalCode" required type="number" />
+        <input
+          id="postalCode"
+          v-model="product.postalCode"
+          required
+          type="text"
+          pattern="[0-9]{4}"
+          minlength="4"
+          maxlength="4"
+          placeholder="7032"
+          @input="formatPostalCode"
+        />
         <p v-if="errors.postalCode" class="field-error-message">{{ errors.postalCode }}</p>
       </div>
 
@@ -205,11 +214,13 @@ const validateForm = () => {
     isValid = false
   }
   if (product.value.postalCode === null) {
-    // Basic check for non-null postal code
     errors.value.postalCode = t('validation.required', { field: t('newProduct.postalCode') })
     isValid = false
   }
-  // TODO: Add more specific postal code validation if needed (e.g., length, format)
+  if (product.value.postalCode.length !== 4) {
+    errors.value.postalCode = t('validation.postalCode', { field: t('newProduct.postalCode') })
+    isValid = false
+  }
 
   return isValid
 }

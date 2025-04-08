@@ -65,7 +65,8 @@
     "logout": "Logg ut"
   },
   "validation": {
-    "required": "{field} er påkrevd",
-    "positiveNumber": "{field} må være et positivt tall"
+    "required": "{field} er påkrevd.",
+    "positiveNumber": "{field} må være et positivt tall.",
+    "postalCode": "{field} må være 4 siffer."
   }
 }
