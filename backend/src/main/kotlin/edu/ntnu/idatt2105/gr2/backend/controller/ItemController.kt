@@ -13,6 +13,9 @@ import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.PositiveOrZero
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
@@ -72,7 +75,7 @@ class ItemController (
     }
 
     @GetMapping("/search")
-    @Operation(summary = "Search items", description = "Search items with various filters")
+    @Operation(summary = "Search items with pagination", description = "Search items with various filters, returns results page by page.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "Items retrieved successfully"),
@@ -96,12 +99,12 @@ class ItemController (
         @Parameter(description = "Longitude for distance search (-180 to 180)")
         @RequestParam(required = false) @Min(-180) @Max(180) longitude: Double?,
         @Parameter(description = "Maximum distance in kilometers (must be zero or positive)")
-        @RequestParam(required = false) @PositiveOrZero maxDistance: Double?
-        
-    ): ResponseEntity<SearchResponse> {
-        logger.info("Searching items with text: $searchText, category: $categoryId, county: $county, municipality: $municipality, city: $city, lat: $latitude, lon: $longitude, dist: $maxDistance")
-        val items = itemService.searchItems(SearchItemRequest(
-            searchText = searchText, 
+        @RequestParam(required = false) @PositiveOrZero maxDistance: Double?,
+        @Parameter(hidden = true) @PageableDefault(size = 20, sort = ["updatedAt"]) pageable: Pageable
+    ): ResponseEntity<Page<ItemCard>> {
+        logger.info("Searching items with request params and pageable: $pageable")
+        val searchRequest = SearchItemRequest(
+            searchText = searchText,
             categoryId = categoryId,
             county = county,
             municipality = municipality,
@@ -109,8 +112,9 @@ class ItemController (
             latitude = latitude,
             longitude = longitude,
             maxDistance = maxDistance
-        ))
-        return ResponseEntity.ok(SearchResponse(items))
+        )
+        val itemsPage = itemService.searchItems(searchRequest, pageable)
+        return ResponseEntity.ok(itemsPage)
     }
 
     @GetMapping("/user/{userId}")
