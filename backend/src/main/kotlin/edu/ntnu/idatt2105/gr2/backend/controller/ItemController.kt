@@ -48,9 +48,9 @@ class ItemController (
     )
     fun createItem(
         @RequestPart("item") @Valid itemRequest: CreateItemRequest,
-        @RequestPart("image") image: MultipartFile,
+        @RequestPart("image") images: List<MultipartFile>,
     ): ResponseEntity<CompleteItem> {
-        val request = itemRequest.copy(images = listOf(CreateImageRequest(imageFile = image)))
+        val request = itemRequest.copy(images = images.map { CreateImageRequest(imageFile = it) })
         logger.info("Creating new item: ${request.title}")
         val savedItem = itemService.createItem(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(savedItem)
