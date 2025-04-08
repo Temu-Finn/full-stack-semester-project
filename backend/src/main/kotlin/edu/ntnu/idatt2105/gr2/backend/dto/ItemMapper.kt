@@ -13,33 +13,13 @@ internal fun CreateItemRequest.toItem(userId: Int): Item {
         title = this.title,
         description = this.description,
         price = this.price,
-        purchasePrice = this.purchasePrice,
-        buyerId = this.buyerId,
-        location = this.location?.let { Pair(it.latitude, it.longitude) },
+        purchasePrice = null,
+        buyerId = null,
+        location = this.location,
         allowVippsBuy = this.allowVippsBuy,
-        primaryImageId = this.primaryImageId,
-        status = this.status,
+        primaryImageId = -1,
+        status = ItemStatus.fromString(this.status),
         createdAt = LocalDateTime.now(),
         updatedAt = LocalDateTime.now()
-    )
-}
-
-internal fun Item.toResponse(): ItemResponse {
-    return ItemResponse(
-        id = this.id,
-        sellerId = this.sellerId,
-        categoryId = this.categoryId,
-        postalCode = this.postalCode,
-        title = this.title,
-        description = this.description,
-        price = this.price,
-        purchasePrice = this.purchasePrice,
-        buyerId = this.buyerId,
-        location = this.location?.let { Location(it.first, it.second) },
-        allowVippsBuy = this.allowVippsBuy,
-        primaryImageId = this.primaryImageId,
-        status = this.status,
-        createdAt = this.createdAt,
-        updatedAt = this.updatedAt
     )
 }

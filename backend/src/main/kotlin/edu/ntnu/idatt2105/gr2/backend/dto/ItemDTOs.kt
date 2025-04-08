@@ -1,26 +1,27 @@
 package edu.ntnu.idatt2105.gr2.backend.dto
 
 import edu.ntnu.idatt2105.gr2.backend.model.ItemStatus
-import jakarta.validation.constraints.DecimalMin
-import jakarta.validation.constraints.DecimalMax
-import jakarta.validation.constraints.NotBlank
-import jakarta.validation.constraints.Pattern
-import jakarta.validation.constraints.Positive
+import jakarta.validation.constraints.*
 import java.time.LocalDateTime
 
+/**
+ * Basic item information used in list views and search results
+ */
 data class ItemCard(
-    val itemId: Int,
+    val id: Int,
     val title: String,
     val price: Double,
     val municipality: String,
-    val imageBase64: String?
+    val image: ImageResponse?,
+    val location: Location?,
+    val status: String,
+    val updatedAt: LocalDateTime
 )
 
-data class RecommendedItemsResponse(
-    val items: List<ItemCard>
-)
-
-data class ItemResponse(
+/**
+ * Detailed item information used in product detail pages
+ */
+data class CompleteItem(
     val id: Int,
     val sellerId: Int,
     val categoryId: Int,
@@ -33,12 +34,21 @@ data class ItemResponse(
     val location: Location?,
     val allowVippsBuy: Boolean,
     val primaryImageId: Int?,
-    val status: ItemStatus,
+    val status: String,
     val createdAt: LocalDateTime?,
-    val updatedAt: LocalDateTime?
+    val updatedAt: LocalDateTime?,
+    val municipality: String,
+    val images: List<ImageResponse>
 )
 
-data class ItemsResponse(val items: List<ItemResponse>)
+
+data class RecommendedItemsResponse(
+    val items: List<ItemCard>
+)
+
+data class SearchResponse(
+    val items: List<ItemCard>
+)
 
 data class CreateItemRequest(
     @field:Positive(message = "Category ID must be positive")
@@ -56,12 +66,16 @@ data class CreateItemRequest(
     @field:DecimalMin("0.0", inclusive = true, message = "Price must be zero or positive")
     val price: Double,
 
-    val purchasePrice: Double? = null,
-    val buyerId: Int? = null,
     val location: Location? = null,
+
+    @field:NotNull(message = "Allow Vipps Buy must be true or false")
     val allowVippsBuy: Boolean = false,
-    val primaryImageId: Int? = null,
-    val status: ItemStatus = ItemStatus.Available
+
+    @field:Pattern(regexp = "available|reserved|sold|archived", message = "Status must be one of: available, reserved, sold, archived")
+    val status: String = ItemStatus.Available.toString(),
+
+    @field:NotNull(message = "Images cannot be null")
+    val images: List<CreateImageRequest> = emptyList(),
 )
 
 data class Location(

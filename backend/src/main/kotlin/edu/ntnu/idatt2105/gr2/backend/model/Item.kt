@@ -1,5 +1,6 @@
 package edu.ntnu.idatt2105.gr2.backend.model
 
+import edu.ntnu.idatt2105.gr2.backend.dto.Location
 import java.time.LocalDateTime
 
 sealed class ItemStatus {
@@ -36,12 +37,13 @@ data class Item(
     val price: Double,
     val purchasePrice: Double?,
     val buyerId: Int?,
-    val location: Pair<Double, Double>?, // Latitude, Longitude
+    val location: Location?, // Latitude, Longitude
     val allowVippsBuy: Boolean = false,
     val primaryImageId: Int?,
     val status: ItemStatus = ItemStatus.Available,
-    val createdAt: LocalDateTime? = null,
-    val updatedAt: LocalDateTime? = null
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
+    val municipality: String = "Unknown",
 ) {
     init {
         require(sellerId > 0) { "Item must be assigned a seller" }
@@ -51,7 +53,7 @@ data class Item(
         require(description.isNotBlank()) { "Description must be specified" }
         require(price >= 0) { "Price must be zero or positive" }
         require(purchasePrice == null || purchasePrice >= 0) { "Purchase price must be zero or positive" }
-        require(location == null || (location.first in -90.0..90.0 && location.second in -180.0..180.0)) {
+        require(location == null || (location.latitude in -90.0..90.0 && location.longitude in -180.0..180.0)) {
             "Location coordinates must be valid (latitude: -90 to 90, longitude: -180 to 180)"
         }
     }
