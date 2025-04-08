@@ -9,7 +9,6 @@
         @click.prevent
       >
         <span class="category-icon">{{ category.icon }}</span>
-        <!-- To be replaced with category.icon -->
         <span class="category-name">{{ category.name }}</span>
       </a>
     </div>
@@ -19,17 +18,11 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getCategories } from '@/service/categoryService'
-import { logger } from '@/utils/logger'
 
 const categories = ref([])
 
 onMounted(async () => {
-  try {
-    const response = await getCategories()
-    categories.value = response.categories
-  } catch (error) {
-    logger.error('Error fetching categories:', error)
-  }
+  categories.value = await getCategories()
 })
 </script>
 

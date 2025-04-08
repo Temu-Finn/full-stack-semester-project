@@ -11,6 +11,7 @@
   "newProduct": {
     "title": "Create New Product",
     "category": "Category",
+    "selectCategory": "Select Category",
     "productTitle": "Title",
     "description": "Description",
     "price": "Price (NOK)",

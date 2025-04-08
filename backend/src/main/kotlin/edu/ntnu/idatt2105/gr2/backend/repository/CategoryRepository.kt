@@ -124,7 +124,7 @@ class CategoryRepository (private val dataSource: DataSource) {
                 if (affectedRows == 0) {
                     throw RuntimeException("Updating category failed, no rows affected.")
                 }
-                
+
                 return category
             }
         }

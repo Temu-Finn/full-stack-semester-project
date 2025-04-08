@@ -2,11 +2,16 @@
   <div class="new-product-view">
     <h1>{{ $t('newProduct.title') }}</h1>
     <form @submit.prevent="handleSubmit">
-      <!-- Category ID -->
+      <!-- Category Select -->
       <div class="form-group">
         <label for="categoryId">{{ $t('newProduct.category') }}</label>
-        <!-- TODO: Replace with a dropdown/select component fetching actual categories -->
-        <input id="categoryId" v-model.number="product.categoryId" required type="number" />
+        <select id="categoryId" v-model.number="product.categoryId" required>
+          <option :value="null" disabled>{{ $t('newProduct.selectCategory') }}</option>
+          <option v-for="category in categories" :key="category.id" :value="category.id">
+            {{ category.name }}
+          </option>
+        </select>
+        <p v-if="categoryError" class="error-message">{{ categoryError }}</p>
       </div>
 
       <!-- Title -->
@@ -60,9 +65,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { createItem } from '@/service/itemService'
+import { getCategories } from '@/service/categoryService'
 import { logger } from '@/utils/logger'
 
 // Define reactive state
@@ -79,7 +85,20 @@ const product = ref({
 
 const isLoading = ref(false)
 const errorMessage = ref('')
+const categories = ref([])
+const categoryError = ref('')
 const router = useRouter()
+
+// Fetch categories on component mount
+onMounted(async () => {
+  try {
+    categories.value = await getCategories()
+    logger.info('Categories loaded successfully')
+  } catch (error) {
+    logger.error('Failed to load categories in component:', error)
+    categoryError.value = error.message || 'Could not load categories.'
+  }
+})
 
 // Handle image selection
 const handleImageUpload = (event) => {
@@ -132,8 +151,6 @@ const handleSubmit = async () => {
   }
 }
 </script>
-
-const 
 
 <style scoped>
 .new-product-view {
@@ -251,7 +268,8 @@ textarea {
 
 /* Optional: Add styles for focusing on invalid fields if needed */
 input:invalid,
-textarea:invalid {
+textarea:invalid,
+select:invalid {
   border-color: #dc3545;
 }
 </style>

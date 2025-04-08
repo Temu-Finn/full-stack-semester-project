@@ -11,6 +11,7 @@
   "newProduct": {
     "title": "Legg ut nytt produkt",
     "category": "Kategori",
+    "selectCategory": "Velg kategori",
     "productTitle": "Tittel",
     "description": "Beskrivelse",
     "price": "Pris (NOK)",
