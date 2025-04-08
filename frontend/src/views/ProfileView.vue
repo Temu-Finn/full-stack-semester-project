@@ -7,7 +7,7 @@ const authStore = useSessionStore()
 
 <template>
   <main>
-    <button @click="authStore.logout">Logout</button>
+    <button @click="authStore.logout">{{ $t('profile.logout') }}</button>
     <h1>{{ $t('profile.title') }}</h1>
     <LanguageSelector />
   </main>

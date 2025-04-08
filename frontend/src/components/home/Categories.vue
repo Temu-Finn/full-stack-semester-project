@@ -30,8 +30,6 @@ const categories = ref(
 
 <style scoped>
 .category-grid-container {
-  padding: 20px;
-  margin: 20px auto;
 }
 
 .category-grid-container h2 {
@@ -44,11 +42,11 @@ const categories = ref(
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   justify-items: center;
-  gap: 16px;
+  gap: 24px;
 }
 
 .category-card {
-  width: 6rem;
+  width: 8rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -76,7 +74,7 @@ const categories = ref(
 }
 
 .category-name {
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 500;
   text-align: center;
   line-height: 1.2;

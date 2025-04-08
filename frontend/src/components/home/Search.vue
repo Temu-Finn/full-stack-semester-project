@@ -8,16 +8,21 @@
           stroke="currentColor"
           stroke-linecap="round"
           stroke-linejoin="round"
-          stroke-width="2"
-          viewBox="0 0 24 16"
-          width="18"
+          stroke-width="3"
+          viewBox="0 0 36 24"
+          width="27"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" x2="16.65" y1="21" y2="16.65"></line>
+          <circle cx="14" cy="15" r="9"></circle>
+          <line x1="25" x2="21.65" y1="26" y2="22.65"></line>
         </svg>
       </span>
-      <input aria-label="Search" class="search-input" placeholder="Search..." type="search" />
+      <input
+        :placeholder="$t('home.search')"
+        aria-label="Search"
+        class="search-input"
+        type="search"
+      />
     </div>
   </div>
 </template>
@@ -37,7 +42,7 @@
   width: 100%;
   border: 1px solid #ccc;
   border-radius: 50px;
-  padding: 5px 10px;
+  padding: 10px 20px;
   box-sizing: border-box;
   transition:
     box-shadow 0.1s ease-in-out,
@@ -69,7 +74,7 @@
   border: none;
   outline: none;
   background-color: transparent;
-  font-size: 16px;
+  font-size: 1.4rem;
   color: #333;
   border-radius: inherit;
 }

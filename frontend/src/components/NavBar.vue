@@ -8,15 +8,19 @@ const authStore = useSessionStore()
   <nav class="nav-bar">
     <div class="nav-content">
       <a class="logo-section" href="/">
-        <img alt="logo" src="../assets/logo.svg" width="36" />
-        <p>Temu Finn</p>
+        <img alt="logo" src="/TemuFinn.png" width="96" />
       </a>
       <div class="items-section">
         <a href="/new">{{ $t('navbar.newProduct') }}</a>
-        <a href="/messages">{{ $t('navbar.messages') }}</a>
+        <a href="/chat">{{ $t('navbar.messages') }}</a>
       </div>
       <a class="profile-section" href="/profile">
-        <img alt="profile-icon" src="../assets/logo.svg" width="36" />
+        <img
+          :class="authStore.user ? '' : 'hidden'"
+          alt="profile-icon"
+          src="../assets/logo.svg"
+          width="36"
+        />
         <p>{{ authStore.user?.name ?? 'Log in' }}</p>
       </a>
     </div>
@@ -36,6 +40,7 @@ const authStore = useSessionStore()
   box-shadow: rgba(0, 0, 0, 0.1) 0 0 8px;
   z-index: 10;
   font-size: 15px;
+  height: 60px;
 }
 .nav-content {
   padding: 0.8rem;
@@ -65,5 +70,8 @@ const authStore = useSessionStore()
   display: flex;
   gap: 1rem;
   align-items: center;
+}
+.hidden {
+  display: none;
 }
 </style>
