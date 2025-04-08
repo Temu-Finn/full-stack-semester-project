@@ -5,6 +5,7 @@ import { logger } from '@/utils/logger'
 const CategorySchema = z.object({
   id: z.number(),
   name: z.string(),
+  icon: z.string(),
   description: z.string(),
 })
 

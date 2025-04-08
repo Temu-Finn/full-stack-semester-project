@@ -8,7 +8,7 @@
         class="category-card"
         @click.prevent
       >
-        <span class="category-icon">🔥</span>
+        <span class="category-icon">{{ category.icon }}</span>
         <!-- To be replaced with category.icon -->
         <span class="category-name">{{ category.name }}</span>
       </a>
