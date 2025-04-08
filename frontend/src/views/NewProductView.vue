@@ -99,7 +99,7 @@ import { useI18n } from 'vue-i18n' // Import useI18n for translations
 // Define reactive state
 const product = ref({
   categoryId: null,
-  postalCode: null,
+  postalCode: '',
   title: '',
   description: '',
   price: null,
@@ -213,7 +213,7 @@ const validateForm = () => {
     errors.value.price = t('validation.positiveNumber', { field: t('newProduct.price') })
     isValid = false
   }
-  if (product.value.postalCode === null) {
+  if (product.value.postalCode === '') {
     errors.value.postalCode = t('validation.required', { field: t('newProduct.postalCode') })
     isValid = false
   }
@@ -237,11 +237,9 @@ const handleSubmit = async () => {
   isLoading.value = true
 
   try {
-    // Prepare data according to CreateItemRequest schema
-    // Convert postalCode to string as expected by API
     const itemData = {
       categoryId: product.value.categoryId,
-      postalCode: String(product.value.postalCode), // Convert to string
+      postalCode: product.value.postalCode,
       title: product.value.title,
       description: product.value.description,
       price: product.value.price,
