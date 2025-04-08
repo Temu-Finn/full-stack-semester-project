@@ -91,7 +91,7 @@
         >
           {{
             product.imageUrls.length > 0
-              ? $t('newProduct.changeImages')
+              ? $t('newProduct.addImages')
               : $t('newProduct.selectImages')
           }}
         </label>
@@ -254,22 +254,20 @@ onUnmounted(() => {
 const processFiles = (files) => {
   if (!files) return
 
-  // Revoke old URLs before adding new ones
-  product.value.imageUrls.forEach(URL.revokeObjectURL)
-  product.value.imageFiles = []
-  product.value.imageUrls = []
-
+  let addedCount = 0
   for (const file of files) {
     if (file.type.startsWith('image/')) {
       product.value.imageFiles.push(file)
       const url = URL.createObjectURL(file)
       product.value.imageUrls.push(url)
       logger.debug(`Created object URL: ${url} for file: ${file.name}`)
+      addedCount++
     } else {
       logger.warn(`Skipped non-image file: ${file.name}`)
       // Optionally show a user message about skipped files
     }
   }
+  logger.debug(`${addedCount} image(s) added.`)
 }
 
 // Handle image selection via file input click
@@ -410,6 +408,10 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
+h1 {
+  font-weight: bold;
+}
+
 .new-product-view {
   max-width: 600px;
   margin: 40px auto;
@@ -661,6 +663,10 @@ select.is-invalid {
 .image-preview-item.primary-image {
   border-color: #007bff; /* Highlight primary image border */
   box-shadow: 0 0 8px rgba(0, 123, 255, 0.4); /* Add a subtle glow */
+}
+
+.image-preview-item.primary-image .primary-indicator {
+  font-weight: bold;
 }
 
 /* Style for the item being dragged */
