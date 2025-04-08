@@ -8,6 +8,9 @@ import edu.ntnu.idatt2105.gr2.backend.exception.ItemNotFoundException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 
 @Service
 class ItemService(
@@ -91,9 +94,11 @@ class ItemService(
         return itemRepository.findRecommendedItems().map { itemModelToCard(it) }
     }
 
-    fun searchItems(request: SearchItemRequest): List<ItemCard> {
-        logger.info("Searching items with request: $request")
-        return itemRepository.searchItems(request).map {  itemModelToCard(it) }
+    fun searchItems(request: SearchItemRequest, pageable: Pageable): Page<ItemCard> {
+        logger.info("Searching items with request: $request and pageable: $pageable")
+        val itemPage = itemRepository.searchItems(request, pageable)
+        val itemCards = itemPage.content.map { itemModelToCard(it) }
+        return PageImpl(itemCards, pageable, itemPage.totalElements)
     }
 
     fun getItemsOfUser(userId: Int): List<ItemCard> {

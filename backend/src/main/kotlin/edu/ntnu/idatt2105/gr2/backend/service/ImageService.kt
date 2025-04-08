@@ -27,12 +27,7 @@ class ImageService(
             altText = altText
         )
 
-        val uploadedImage = imageRepository.save(image)
-
-        return ImageResponse(
-            id = uploadedImage.id,
-            dataURL = uploadedImage.base64()
-        )
+        return imageRepository.save(image).toResponse()
     }
 
     fun getImagesByItemId(itemId: Int): List<ImageResponse> {
