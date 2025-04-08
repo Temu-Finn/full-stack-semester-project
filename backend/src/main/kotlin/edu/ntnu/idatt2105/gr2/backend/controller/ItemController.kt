@@ -46,7 +46,7 @@ class ItemController (
     }
 
     @PostMapping
-    @Operation(summary = "Create new item", description = "Creates a new item and returns it. This endpoint uses" +
+    @Operation(summary = "Create new item", description = "Creates a new item and returns it. This endpoint uses " +
             "form-data to support uploading images. The first image provided will be set as the primary image.")
     @ApiResponses(
         value = [
