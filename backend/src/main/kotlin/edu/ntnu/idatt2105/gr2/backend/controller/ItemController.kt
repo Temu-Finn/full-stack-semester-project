@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/item")
@@ -46,9 +47,23 @@ class ItemController (
         ]
     )
     fun createItem(
-        @Parameter(description = "Item data to create", required = true)
-        @RequestBody @Valid request: CreateItemRequest
+        @RequestPart("categoryId") categoryId: Int,
+        @RequestPart("postalCode") postalCode: String,
+        @RequestPart("title") title: String,
+        @RequestPart("description") description: String,
+        @RequestPart("price") price: Double,
+        @RequestPart("allowVippsBuy") allowVippsBuy: Boolean,
+        @RequestPart("images") images: List<CreateImageRequest>
     ): ResponseEntity<CompleteItem> {
+        val request = CreateItemRequest(
+            categoryId = categoryId,
+            postalCode = postalCode,
+            title = title,
+            description = description,
+            price = price,
+            allowVippsBuy = allowVippsBuy,
+            images = images
+        );
         logger.info("Creating new item: ${request.title}")
         val savedItem = itemService.createItem(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(savedItem)

@@ -18,7 +18,8 @@ class ImageService(
         val altText = imageRequest.altText
 
         logger.info("Uploading image: ${imageFile.originalFilename}")
-        val fileType = imageFile.contentType ?: "application/octet-stream"
+//        val fileType = imageFile.contentType ?: "application/octet-stream"
+        val fileType = imageFile.contentType ?: "image/jpeg"
         val imageData = imageFile.bytes
         val image = Image(
             itemId = itemId,
