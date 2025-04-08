@@ -1,11 +1,7 @@
 <template>
   <div class="container">
     <aside :class="{ 'mobile-open': isSidebarOpen }" class="sidebar">
-      <<<<<<< Updated upstream
-      <button v-if="isSidebarOpen" class="close-sidebar" @click="closeSidebar">&times;</button v-if="isSidebarOpen">
-      =======
       <button v-if="isSidebarOpen" class="close-sidebar" @click="closeSidebar">&times;</button>
-      >>>>>>> Stashed changes
       <div
         v-for="contact in contacts"
         :key="contact.id"
