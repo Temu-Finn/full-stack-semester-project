@@ -9,15 +9,23 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.PositiveOrZero
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/item")
 @Tag(name = "Item", description = "Item management APIs")
+@Validated // Enable validation for request parameters
 class ItemController (
     private val itemService: ItemService,
 ) {
@@ -67,7 +75,7 @@ class ItemController (
     }
 
     @GetMapping("/search")
-    @Operation(summary = "Search items", description = "Search items with various filters")
+    @Operation(summary = "Search items with pagination", description = "Search items with various filters, returns results page by page.")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "Items retrieved successfully"),
@@ -79,11 +87,34 @@ class ItemController (
         @Parameter(description = "Search text to filter items")
         @RequestParam(required = false) searchText: String?,
         @Parameter(description = "Category ID to filter items")
-        @RequestParam(required = false) categoryId: Int?
-    ): ResponseEntity<SearchResponse> {
-        logger.info("Searching items with text: $searchText, category: $categoryId")
-        val items = itemService.searchItems(SearchItemRequest(searchText = searchText, categoryId = categoryId))
-        return ResponseEntity.ok(SearchResponse(items))
+        @RequestParam(required = false) categoryId: Int?,
+        @Parameter(description = "County to filter items")
+        @RequestParam(required = false) county: String?,
+        @Parameter(description = "Municipality to filter items")
+        @RequestParam(required = false) municipality: String?,
+        @Parameter(description = "City to filter items")
+        @RequestParam(required = false) city: String?,
+        @Parameter(description = "Latitude for distance search (-90 to 90)")
+        @RequestParam(required = false) @Min(-90) @Max(90) latitude: Double?,
+        @Parameter(description = "Longitude for distance search (-180 to 180)")
+        @RequestParam(required = false) @Min(-180) @Max(180) longitude: Double?,
+        @Parameter(description = "Maximum distance in kilometers (must be zero or positive)")
+        @RequestParam(required = false) @PositiveOrZero maxDistanceKm: Double?,
+        @Parameter(hidden = true) @PageableDefault(size = 20, sort = ["updatedAt"]) pageable: Pageable
+    ): ResponseEntity<Page<ItemCard>> {
+        logger.info("Searching items with text: $searchText, category: $categoryId, county: $county, municipality: $municipality, city: $city, lat: $latitude, lon: $longitude, distKm: $maxDistanceKm, pageable: $pageable")
+        val searchRequest = SearchItemRequest(
+            searchText = searchText,
+            categoryId = categoryId,
+            county = county,
+            municipality = municipality,
+            city = city,
+            latitude = latitude,
+            longitude = longitude,
+            maxDistanceKm = maxDistanceKm
+        )
+        val itemsPage = itemService.searchItems(searchRequest, pageable)
+        return ResponseEntity.ok(itemsPage)
     }
 
     @GetMapping("/user/{userId}")

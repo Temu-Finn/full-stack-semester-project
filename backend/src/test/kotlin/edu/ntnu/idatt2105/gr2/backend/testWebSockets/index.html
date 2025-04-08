@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<h2>WebSocket Test</h2>
+<button onclick="connect()">Connect</button>
+<button onclick="sendMessage()">Send Message</button>
+<script>
+    let stompClient;
+
+    function connect() {
+        const token = "eyJhbGciOiJIUzUxMiJ9.eyJlbWFpbCI6InVzZXJzc0BleGFtZGRzbW1zcGxlLmNvbSIsInN1YiI6IjEiLCJpYXQiOjE3NDQxMTEwMTksImV4cCI6MTc0NDExMTMxOX0.Xl9pUCvZI9qAtrJ3t9qnwQhAla5IGdtlM0ymutVtswVwBTHQ3Ae74EllKmzuM2z1RmRsll1axNZfC8iEThvlHg";
+        const socket = new SockJS(`http://localhost:8080/ws?token=${token}`);
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+
+            stompClient.subscribe('/topic/conversation', function (message) {
+                console.log('Received:', message.body);
+            });
+
+            stompClient.subscribe('/topic/test', function (message) {
+                console.log('Received from /topic/test:', message.body);
+            });
+            stompClient.send('/app/getTest', {}, {});
+        }, function (error) {
+            console.error('Connection error:', error);
+        });
+    }
+
+    function sendMessage() {
+        stompClient.send("/app/chat", {}, "Hello from test page");
+    }
+</script>
+</body>
+</html>
