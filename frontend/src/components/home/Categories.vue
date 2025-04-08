@@ -4,7 +4,7 @@
       <a
         v-for="category in categories"
         :key="category.id"
-        :href="category.link"
+        :href="`/item/search?category=${category.id}`"
         class="category-card"
         @click.prevent
       >
@@ -16,16 +16,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { getCategories } from '@/service/categoryService'
 
-const categories = ref(
-  Array.from({ length: 12 }, (_, i) => ({
-    id: i + 1,
-    name: 'Electronics',
-    icon: '💻', // Example Icon
-    link: '#/category/electronics', // Mock link
-  })),
-)
+const categories = ref([])
+
+onMounted(async () => {
+  categories.value = await getCategories()
+})
 </script>
 
 <style scoped>

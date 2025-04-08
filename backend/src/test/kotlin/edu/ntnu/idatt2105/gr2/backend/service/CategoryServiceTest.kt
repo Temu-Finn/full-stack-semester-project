@@ -113,7 +113,7 @@ class CategoryServiceTest {
         @Test
         @DisplayName("Test update description")
         fun `test update category`() {
-            categoryService.updateDescription("ELECTRONICS", "A brand new Description")
+            categoryService.updateCategory("ELECTRONICS", "A brand new Description")
             val category = categoryService.getCategory("ELECTRONICS")
             assertEquals("A brand new Description", category?.description)
         }
@@ -149,7 +149,7 @@ class CategoryServiceTest {
         @DisplayName("Test update description")
         fun `test update category`() {
             val exception = org.junit.jupiter.api.assertThrows<IllegalArgumentException> {
-                categoryService.updateDescription("ELECTRONICS", "")
+                categoryService.updateCategory("ELECTRONICS", "")
             }
             assertEquals("Name cannot be blank", exception.message)
         }

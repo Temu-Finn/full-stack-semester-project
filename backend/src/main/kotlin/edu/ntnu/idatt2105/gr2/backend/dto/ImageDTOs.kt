@@ -8,6 +8,7 @@ import org.springframework.web.multipart.MultipartFile
 data class ImageResponse(
     val id: Int,
     val dataURL: String, // base64 encoded image
+    val altText: String? = null,
 )
 
 data class CreateImageRequest(

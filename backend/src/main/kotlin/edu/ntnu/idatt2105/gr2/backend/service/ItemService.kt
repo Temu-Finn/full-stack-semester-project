@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 class ItemService(
@@ -21,16 +22,16 @@ class ItemService(
     private val logger = LoggerFactory.getLogger(ItemService::class.java)
 
     @Transactional
-    fun createItem(itemRequest: CreateItemRequest): CompleteItem {
+    fun createItem(itemRequest: CreateItemRequest, images: List<MultipartFile>): CompleteItem {
         logger.info("Creating new item: ${itemRequest.title}")
         val item = itemRepository.create(itemRequest.toItem(userContextService.getCurrentUserId()))
-        val images = itemRequest.images.map { image ->
-            imageService.upload(item.id, image)
+        val imagesResponse = images.map { image ->
+            imageService.upload(item.id, CreateImageRequest(image))
         }
 
         var primaryImageId: Int? = null
-        if (images.isNotEmpty()) {
-            primaryImageId = images.first().id
+        if (imagesResponse.isNotEmpty()) {
+            primaryImageId = imagesResponse.first().id
             itemRepository.setPrimaryImage(item.id, primaryImageId)
         }
 
@@ -41,7 +42,7 @@ class ItemService(
             price = item.price,
             purchasePrice = item.purchasePrice,
             location = item.location,
-            images = images,
+            images = imagesResponse,
             status = item.status.toString(),
             sellerId = item.sellerId,
             categoryId = item.categoryId,

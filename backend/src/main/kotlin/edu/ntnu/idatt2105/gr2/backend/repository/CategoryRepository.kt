@@ -11,6 +11,7 @@ class CategoryRepository (private val dataSource: DataSource) {
     // Saves a category
     fun save(category: Category) : Category {
         val name = category.name
+        val icon = category.icon
         val description = category.description
 
         if (existsByName(name)) {
@@ -18,10 +19,11 @@ class CategoryRepository (private val dataSource: DataSource) {
         }
 
         dataSource.connection.use { conn ->
-            val sql = "INSERT INTO categories (name, description) VALUES (?, ?)"
+            val sql = "INSERT INTO categories (name, icon, description) VALUES (?, ?, ?)"
             conn.prepareStatement(sql,  java.sql.Statement.RETURN_GENERATED_KEYS).use { stmt ->
                 stmt.setString(1, name)
-                stmt.setString(2, description)
+                stmt.setString(2, icon)
+                stmt.setString(3, description)
 
                 val affectedRows = stmt.executeUpdate()
                 if (affectedRows == 0) {
@@ -30,11 +32,7 @@ class CategoryRepository (private val dataSource: DataSource) {
 
                 stmt.generatedKeys.use { keys ->
                     if (keys.next()) {
-                        return Category(
-                            id = keys.getInt(1),
-                            name = name,
-                            description = description
-                        )
+                        return category.copy(id = keys.getInt(1))
                     } else {
                         throw RuntimeException("Creating category failed," +
                                 " no ID could be obtained.")
@@ -63,6 +61,7 @@ class CategoryRepository (private val dataSource: DataSource) {
                     while (rows.next()) {
                         categories.add(Category(rows.getInt("id"),
                             rows.getString("name"),
+                            rows.getString("icon"),
                             rows.getString("description")))
                     }
                     return categories
@@ -82,6 +81,7 @@ class CategoryRepository (private val dataSource: DataSource) {
                         return Category(
                             rows.getInt("id"),
                             rows.getString("name"),
+                            rows.getString("icon"),
                             rows.getString("description")
                         )
                     }
@@ -109,19 +109,23 @@ class CategoryRepository (private val dataSource: DataSource) {
     }
 
     // Updates the description of a category
-    fun updateDescription(name: String, description: String) {
-        if (!existsByName(name)) {
-            throw IllegalArgumentException("Category with name $name does not exist")
+    fun updateCategory(category: Category): Category {
+        if (!existsByName(category.name)) {
+            throw IllegalArgumentException("Category with name $category.name does not exist")
         }
         dataSource.connection.use { conn ->
-            val sql = "UPDATE categories SET description = ? WHERE name = ?"
+            val sql = "UPDATE categories SET name = ?, description = ?, icon = ? WHERE id = ?"
             conn.prepareStatement(sql).use { stmt ->
-                stmt.setString(1, description)
-                stmt.setString(2, name)
+                stmt.setString(1, category.name)
+                stmt.setString(2, category.description)
+                stmt.setString(3, category.icon)
+                stmt.setInt(4, category.id)
                 val affectedRows = stmt.executeUpdate()
                 if (affectedRows == 0) {
                     throw RuntimeException("Updating category failed, no rows affected.")
                 }
+
+                return category
             }
         }
     }

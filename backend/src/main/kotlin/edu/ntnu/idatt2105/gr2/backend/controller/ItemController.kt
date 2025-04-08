@@ -46,7 +46,7 @@ class ItemController (
     }
 
     @PostMapping
-    @Operation(summary = "Create new item", description = "Creates a new item and returns it. This endpoint uses" +
+    @Operation(summary = "Create new item", description = "Creates a new item and returns it. This endpoint uses " +
             "form-data to support uploading images. The first image provided will be set as the primary image.")
     @ApiResponses(
         value = [
@@ -57,11 +57,10 @@ class ItemController (
     )
     fun createItem(
         @RequestPart("item") @Valid itemRequest: CreateItemRequest,
-        @RequestPart("image") images: List<MultipartFile>,
+        @RequestPart("image", required = false) images: List<MultipartFile> = emptyList(),
     ): ResponseEntity<CompleteItem> {
-        val request = itemRequest.copy(images = images.map { CreateImageRequest(imageFile = it) })
-        logger.info("Creating new item: ${request.title}")
-        val savedItem = itemService.createItem(request)
+        logger.info("Creating new item: ${itemRequest.title}")
+        val savedItem = itemService.createItem(itemRequest, images)
         return ResponseEntity.status(HttpStatus.CREATED).body(savedItem)
     }
 

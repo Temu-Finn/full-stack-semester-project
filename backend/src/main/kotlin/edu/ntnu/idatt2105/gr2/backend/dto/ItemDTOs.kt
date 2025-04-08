@@ -35,8 +35,8 @@ data class CompleteItem(
     val allowVippsBuy: Boolean,
     val primaryImageId: Int?,
     val status: String,
-    val createdAt: LocalDateTime?,
-    val updatedAt: LocalDateTime?,
+    val createdAt: LocalDateTime,
+    val updatedAt: LocalDateTime,
     val municipality: String,
     val images: List<ImageResponse>
 )
@@ -70,12 +70,6 @@ data class CreateItemRequest(
 
     @field:NotNull(message = "Allow Vipps Buy must be true or false")
     val allowVippsBuy: Boolean = false,
-
-    @field:Pattern(regexp = "available|reserved|sold|archived", message = "Status must be one of: available, reserved, sold, archived")
-    val status: String = ItemStatus.Available.toString(),
-
-    @field:NotNull(message = "Images cannot be null")
-    val images: List<CreateImageRequest> = emptyList(),
 )
 
 data class Location(
