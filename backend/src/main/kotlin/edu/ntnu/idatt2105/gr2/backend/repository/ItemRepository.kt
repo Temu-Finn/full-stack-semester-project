@@ -127,6 +127,13 @@ class ItemRepository(private val dataSource: DataSource) {
             }
         }
 
+        // Distance filtering 📍
+        if (request.latitude != null && request.longitude != null && request.maxDistance != null && request.maxDistance > 0) {
+            conditions.add("ST_Distance_Sphere(location, ST_PointFromText(?, 4326)) <= ?")
+            params.add("POINT(${request.longitude} ${request.latitude})")
+            params.add(request.maxDistance * 1000) // Convert km to meters
+        }
+
         val whereClause = conditions.joinToString(" AND ")
 
         return queryItemsWhere(whereClause) { stmt ->

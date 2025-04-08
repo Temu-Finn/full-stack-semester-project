@@ -85,16 +85,25 @@ class ItemController (
         @Parameter(description = "Municipality to filter items")
         @RequestParam(required = false) municipality: String?,
         @Parameter(description = "City to filter items")
-        @RequestParam(required = false) city: String?
+        @RequestParam(required = false) city: String?,
+        @Parameter(description = "Latitude for distance search")
+        @RequestParam(required = false) latitude: Double?,
+        @Parameter(description = "Longitude for distance search")
+        @RequestParam(required = false) longitude: Double?,
+        @Parameter(description = "Maximum distance in kilometers")
+        @RequestParam(required = false) maxDistance: Double?
         
     ): ResponseEntity<SearchResponse> {
-        logger.info("Searching items with text: $searchText, category: $categoryId, county: $county, municipality: $municipality, city: $city")
+        logger.info("Searching items with text: $searchText, category: $categoryId, county: $county, municipality: $municipality, city: $city, lat: $latitude, lon: $longitude, dist: $maxDistance")
         val items = itemService.searchItems(SearchItemRequest(
             searchText = searchText, 
             categoryId = categoryId,
             county = county,
             municipality = municipality,
-            city = city
+            city = city,
+            latitude = latitude,
+            longitude = longitude,
+            maxDistance = maxDistance
         ))
         return ResponseEntity.ok(SearchResponse(items))
     }
