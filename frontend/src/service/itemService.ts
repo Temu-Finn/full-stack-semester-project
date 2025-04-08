@@ -32,32 +32,30 @@ const CreateItemRequestSchema = z.object({
   allowVippsBuy: z.boolean(),
 })
 
-// Updated schema for the complete item details returned after creation
 const CompleteItemSchema = z.object({
   id: z.number(),
   sellerId: z.number(),
   categoryId: z.number(),
-  postalCode: z.string(), // API returns postalCode as a string
+  postalCode: z.string(),
   title: z.string(),
   description: z.string(),
   price: z.number(),
   purchasePrice: z.number().nullable(),
   buyerId: z.number().nullable(),
-  location: LocationSchema.nullable(), // Use reusable LocationSchema
+  location: LocationSchema.nullable(),
   allowVippsBuy: z.boolean(),
   primaryImageId: z.number().nullable(),
   status: z.string(),
-  createdAt: z.string(), // Accept as string, bypass strict datetime validation
-  updatedAt: z.string(), // Accept as string, bypass strict datetime validation
+  createdAt: z.string(),
+  updatedAt: z.string(),
   municipality: z.string(),
-  images: z.array(ImageSchema).optional(), // Images array might be optional or empty
+  images: z.array(ImageSchema).optional(),
 })
 
 const RecommendedItemsResponseSchema = z.object({
   items: z.array(ItemCardSchema),
 })
 
-// Schema for Search Query Parameters
 const SearchItemParamsSchema = z
   .object({
     searchText: z.string().optional(),
@@ -70,7 +68,6 @@ const SearchItemParamsSchema = z
     maxDistanceKm: z.number().min(0).optional(),
     page: z.number().int().min(0).optional(),
     size: z.number().int().positive().optional(),
-    // Allow an array of sort strings like ["price,asc", "updatedAt,desc"]
     sort: z
       .string()
       .regex(/^[a-zA-Z]+,(asc|desc)$/)
@@ -82,13 +79,10 @@ const SearchItemParamsSchema = z
       const hasLat = data.latitude !== undefined
       const hasLon = data.longitude !== undefined
       const hasDist = data.maxDistanceKm !== undefined
-      // If any distance param is present, all must be present
       return !(hasLat || hasLon || hasDist) || (hasLat && hasLon && hasDist)
     },
     {
       message: 'If using distance search, latitude, longitude, and maxDistanceKm are all required.',
-      // Optional: Specify path for better error association, though maybe less critical here
-      // path: ["latitude", "longitude", "maxDistanceKm"],
     },
   )
 
@@ -104,7 +98,6 @@ const SearchItemsResponseSchema = z.object({
   page: PageMetadataSchema,
 })
 
-// Type exports for use in components
 export type ItemCard = z.infer<typeof ItemCardSchema>
 export type RecommendedItemsResponse = z.infer<typeof RecommendedItemsResponseSchema>
 
@@ -148,7 +141,6 @@ export async function searchItems(params: SearchItemParams): Promise<SearchItems
       logger.error('Invalid search parameters provided', { errors: error.errors })
       throw new Error(`Invalid search parameters: ${error.errors.map((e) => e.message).join(', ')}`)
     }
-    // Unexpected error during validation
     throw error
   }
 
@@ -156,7 +148,6 @@ export async function searchItems(params: SearchItemParams): Promise<SearchItems
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined) {
       if (key === 'sort' && Array.isArray(value)) {
-        // Append each sort criterion individually
         value.forEach((sortValue) => queryParams.append(key, sortValue))
       } else {
         queryParams.append(key, String(value))
@@ -177,7 +168,6 @@ export async function searchItems(params: SearchItemParams): Promise<SearchItems
       logger.error('Invalid search response format from server', { errors: error.errors })
       throw new Error('Invalid search response format from server')
     }
-    // Log other errors (e.g., network errors, 500 errors from backend)
     logger.error('Failed to fetch search results', error)
     throw error
   }
@@ -206,7 +196,6 @@ export async function createItem(
 
   const formData = new FormData()
 
-  // Append item data as a JSON string blob under the key 'item'
   formData.append(
     'item',
     new Blob([JSON.stringify(itemData)], {
@@ -214,7 +203,6 @@ export async function createItem(
     }),
   )
 
-  // Append each image file under the key 'image'
   images.forEach((file) => {
     formData.append('image', file)
   })
@@ -222,8 +210,6 @@ export async function createItem(
   logger.debug('Creating new item with data:', { itemData, imageCount: images.length })
 
   try {
-    // Make the POST request with FormData
-    // Axios automatically sets 'Content-Type': 'multipart/form-data' for FormData
     const response = await api.post('/item', formData)
     logger.debug('Received create item response:', response.data)
 
