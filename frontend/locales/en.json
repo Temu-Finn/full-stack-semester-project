@@ -3,6 +3,27 @@
     "newProduct": "New product",
     "messages": "Messages"
   },
+  "home": {
+    "heroTitle": "Find Your Next Favourite Item",
+    "search": "Search",
+    "recommended": "Recommended for you"
+  },
+  "newProduct": {
+    "title": "Create New Product",
+    "productTitle": "Product Title",
+    "description": "Description",
+    "price": "Price (NOK)",
+    "location": "Location",
+    "image": "Add Images",
+    "vipps": "Accept Vipps payment"
+  },
+  "chat": {
+    "online": "Online",
+    "offline": "Offline",
+    "writeMessage": "Write a message...",
+    "send": "Send",
+    "allConversations": "All conversations"
+  },
   "login": {
     "title": "Log In",
     "emailLabel": "Email",
@@ -35,6 +56,7 @@
   },
   "profile": {
     "title": "Profile",
-    "language": "Language"
+    "language": "Language",
+    "logout": "Log out"
   }
 }

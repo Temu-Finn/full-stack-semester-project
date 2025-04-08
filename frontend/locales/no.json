@@ -3,6 +3,27 @@
     "newProduct": "Nytt produkt",
     "messages": "Meldinger"
   },
+  "home": {
+    "heroTitle": "Finn din neste favorittgjenstand",
+    "search": "Søk",
+    "recommended": "Anbefalt for deg"
+  },
+  "newProduct": {
+    "title": "Legg ut nytt produkt",
+    "productTitle": "Produkt tittel",
+    "description": "Beskrivelse",
+    "price": "Pris (NOK)",
+    "location": "Posisjon",
+    "image": "Legg til bilder",
+    "vipps": "Aksepter Vipps betaling"
+  },
+  "chat": {
+    "online": "På nett",
+    "offline": "Ikke på nett",
+    "writeMessage": "Skriv en melding...",
+    "send": "Send",
+    "allConversations": "Alle samtaler"
+  },
   "login": {
     "title": "Logg inn",
     "emailLabel": "E-post",
@@ -35,6 +56,7 @@
   },
   "profile": {
     "title": "Profil",
-    "language": "Språk"
+    "language": "Språk",
+    "logout": "Logg ut"
   }
 }

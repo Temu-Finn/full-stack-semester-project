@@ -18,12 +18,16 @@
     <div :class="isSidebarOpen ? 'overlay' : 'overlay hidden'" @click="closeSidebar"></div>
 
     <main v-if="currentConversation" class="chat-window">
-      <button class="open-sidebar-btn" @click="openSidebar">All conversations</button>
+      <button class="open-sidebar-btn" @click="openSidebar">
+        {{ $t('chat.allConversations') }}
+      </button>
       <div class="chat-header">
         <div class="chat-avatar"></div>
         <div class="chat-info">
           <div class="chat-name name">{{ currentConversation.name }}</div>
-          <div class="chat-status">{{ currentConversation.online ? 'Online' : 'Offline' }}</div>
+          <div class="chat-status">
+            {{ currentConversation.online ? $t('chat.online') : $t('chat.offline') }}
+          </div>
         </div>
       </div>
 
@@ -42,11 +46,11 @@
         <div class="message-input-container">
           <input
             v-model="newMessage"
-            placeholder="Write a message..."
+            :placeholder="$t('chat.writeMessage')"
             type="text"
             @keyup.enter="sendMessage"
           />
-          <button class="send-btn" @click="sendMessage">Send</button>
+          <button class="send-btn" @click="sendMessage">{{ $t('chat.send') }}</button>
         </div>
       </div>
     </main>

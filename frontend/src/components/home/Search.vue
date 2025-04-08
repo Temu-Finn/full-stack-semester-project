@@ -17,7 +17,12 @@
           <line x1="25" x2="21.65" y1="26" y2="22.65"></line>
         </svg>
       </span>
-      <input aria-label="Search" class="search-input" placeholder="Search..." type="search" />
+      <input
+        :placeholder="$t('home.search')"
+        aria-label="Search"
+        class="search-input"
+        type="search"
+      />
     </div>
   </div>
 </template>
