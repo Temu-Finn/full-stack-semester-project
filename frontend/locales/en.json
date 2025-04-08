@@ -10,7 +10,8 @@
   },
   "newProduct": {
     "title": "Create New Product",
-    "productTitle": "Product Title",
+    "category": "Category",
+    "productTitle": "Title",
     "description": "Description",
     "price": "Price (NOK)",
     "location": "Location",

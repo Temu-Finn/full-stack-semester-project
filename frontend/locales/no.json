@@ -10,7 +10,8 @@
   },
   "newProduct": {
     "title": "Legg ut nytt produkt",
-    "productTitle": "Produkt tittel",
+    "category": "Kategori",
+    "productTitle": "Tittel",
     "description": "Beskrivelse",
     "price": "Pris (NOK)",
     "location": "Posisjon",
