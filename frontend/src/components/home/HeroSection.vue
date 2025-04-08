@@ -5,7 +5,7 @@ import Categories from '@/components/home/Categories.vue'
 
 <template>
   <div class="hero">
-    <h1 class="title">Find Your Next Favourite Item</h1>
+    <h1 class="title">{{ $t('home.heroTitle') }}</h1>
     <Search />
     <span class="space"></span>
     <Categories />

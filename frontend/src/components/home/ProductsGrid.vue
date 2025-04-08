@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ref } from 'vue'
 import Product from './Product.vue'
 import { getRecommendedItems, type ItemCard } from '@/service/itemService'
@@ -12,7 +12,7 @@ getRecommendedItems().then((items) => {
 
 <template>
   <div class="container">
-    <h3 class="title">Recommended for you</h3>
+    <h3 class="title">{{ $t('home.recommended') }}</h3>
     <div class="product-grid">
       <Product v-for="product in products" :key="product.itemId" :product="product" />
     </div>

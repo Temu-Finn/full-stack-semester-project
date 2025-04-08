@@ -1,29 +1,29 @@
 <template>
   <div class="new-product-view">
-    <h1>Create New Product</h1>
+    <h1>{{ $t('newProduct.title') }}</h1>
     <form @submit.prevent="handleSubmit">
       <div class="form-group">
-        <label for="name">Product Name</label>
+        <label for="name">{{ $t('newProduct.productTitle') }}</label>
         <input id="name" v-model="product.name" required type="text" />
       </div>
 
       <div class="form-group">
-        <label for="description">Description</label>
+        <label for="description">{{ $t('newProduct.description') }}</label>
         <textarea id="description" v-model="product.description" auto-resize required></textarea>
       </div>
 
       <div class="form-group">
-        <label for="price">Price (NOK)</label>
+        <label for="price">{{ $t('newProduct.price') }}</label>
         <input id="price" v-model="product.price" required type="number" />
       </div>
 
       <div class="form-group">
-        <label for="location">Location</label>
+        <label for="location">{{ $t('newProduct.location') }}</label>
         <input id="location" v-model="product.location" required type="text" />
       </div>
 
       <div class="form-group">
-        <label for="image">Product Image</label>
+        <label for="image">{{ $t('newProduct.image') }}</label>
         <input id="image" accept="image/*" type="file" @change="handleImageUpload" />
         <div v-if="product.imageUrl" class="image-preview-container">
           <img :src="product.imageUrl" alt="Product Preview" class="image-preview" />
@@ -31,8 +31,8 @@
       </div>
 
       <div class="form-group toggle-group">
-        <input id="vipps" v-model="product.acceptVipps" type="checkbox" />
-        <label class="toggle-label" for="vipps">Accept Vipps Payment</label>
+        <input id="vipps" v-model="product.acceptVipps" checked type="checkbox" />
+        <label class="toggle-label" for="vipps">{{ $t('newProduct.vipps') }}</label>
       </div>
 
       <button type="submit">Create Product</button>
@@ -158,6 +158,9 @@ input[type='file']:focus {
   width: 18px;
   height: 18px;
   cursor: pointer;
+}
+.toggle-group label {
+  margin: 4px 0;
 }
 
 button {
