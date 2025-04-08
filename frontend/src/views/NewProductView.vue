@@ -1,5 +1,5 @@
 <template>
-  <div class="new-product-view" :class="{ 'window-dragging': isWindowDragging }">
+  <div class="new-product-view">
     <h1>{{ $t('newProduct.title') }}</h1>
     <form @submit.prevent="handleSubmit" novalidate>
       <!-- Category Select -->
@@ -84,7 +84,11 @@
         <label for="images">{{ $t('newProduct.images') }}</label>
         <input id="images" accept="image/*" multiple type="file" @change="handleImageUpload" />
         <!-- Styled label acts as the file input trigger -->
-        <label for="images" class="file-input-label">
+        <label
+          for="images"
+          class="file-input-label"
+          :class="{ 'window-dragging': isWindowDragging }"
+        >
           {{
             product.imageUrls.length > 0
               ? $t('newProduct.changeImages')
@@ -496,6 +500,14 @@ select:focus {
   background-color: #f0f8ff;
 }
 
+/* Style the label when dragging files over the window */
+.file-input-label.window-dragging {
+  border-color: #007bff; /* Dashed blue border on the label */
+  border-style: dashed;
+  background-color: #e6f2ff; /* Slightly stronger blue background */
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.3); /* Add a glow */
+}
+
 /* Hide the actual file input */
 #images {
   display: none;
@@ -678,12 +690,6 @@ select.is-invalid {
   border-bottom-left-radius: 6px; /* Match item border radius */
   border-bottom-right-radius: 6px;
   user-select: none;
-}
-
-/* Style when dragging files over the entire window */
-.new-product-view.window-dragging {
-  border: 2px dashed #007bff; /* Dashed blue border on the main container */
-  box-shadow: 0 0 15px rgba(0, 123, 255, 0.3); /* More prominent glow */
 }
 
 /* We might need to adjust pointer-events if the overlay blocks interaction */
