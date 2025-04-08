@@ -133,6 +133,8 @@ const handleSubmit = async () => {
 }
 </script>
 
+const 
+
 <style scoped>
 .new-product-view {
   max-width: 600px;

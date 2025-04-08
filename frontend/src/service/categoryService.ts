@@ -17,7 +17,7 @@ export type CategoryResponse = z.infer<typeof CategoryResponseSchema>
 
 export async function getCategories(): Promise<CategoryResponse> {
   try {
-    const response = await api.get('/categories')
+    const response = await api.get('/categories/getAll')
     return CategoryResponseSchema.parse(response.data)
   } catch (error) {
     if (error instanceof z.ZodError) {

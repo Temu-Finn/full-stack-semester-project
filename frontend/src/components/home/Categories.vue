@@ -4,11 +4,12 @@
       <a
         v-for="category in categories"
         :key="category.id"
-        :href="category.link"
+        :href="`/item/search?category=${category.id}`"
         class="category-card"
         @click.prevent
       >
-        <span class="category-icon">{{ category.icon }}</span>
+        <span class="category-icon">🔥</span>
+        <!-- To be replaced with category.icon -->
         <span class="category-name">{{ category.name }}</span>
       </a>
     </div>
@@ -16,16 +17,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { getCategories } from '@/service/categoryService'
+import { logger } from '@/utils/logger'
 
-const categories = ref(
-  Array.from({ length: 12 }, (_, i) => ({
-    id: i + 1,
-    name: 'Electronics',
-    icon: '💻', // Example Icon
-    link: '#/category/electronics', // Mock link
-  })),
-)
+const categories = ref([])
+
+onMounted(async () => {
+  try {
+    const response = await getCategories()
+    categories.value = response.categories
+  } catch (error) {
+    logger.error('Error fetching categories:', error)
+  }
+})
 </script>
 
 <style scoped>

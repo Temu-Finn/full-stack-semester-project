@@ -21,7 +21,6 @@ const ItemCardSchema = z.object({
   location: LocationSchema.nullish(),
   status: z.enum(['available', 'reserved', 'sold', 'archived']),
   updatedAt: z.string(),
-  allowVippsBuy: z.boolean(),
 })
 
 const CreateItemRequestSchema = z.object({
