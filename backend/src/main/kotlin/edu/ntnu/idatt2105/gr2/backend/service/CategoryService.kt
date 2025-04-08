@@ -38,8 +38,8 @@ class CategoryService (
         categoryRepository.deleteAll()
     }
 
-    fun updateCategory(updateCategoryRequest: UpdateCategoryRequest) {
-        categoryRepository.updateCategory(updateCategoryRequest.toModel())
+    fun updateCategory(updateCategoryRequest: UpdateCategoryRequest): CategoryResponse {
+        return categoryRepository.updateCategory(updateCategoryRequest.toModel()).toResponse()
     }
 }
 

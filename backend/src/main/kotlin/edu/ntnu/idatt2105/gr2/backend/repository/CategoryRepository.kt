@@ -109,7 +109,7 @@ class CategoryRepository (private val dataSource: DataSource) {
     }
 
     // Updates the description of a category
-    fun updateCategory(category: Category) {
+    fun updateCategory(category: Category): Category {
         if (!existsByName(category.name)) {
             throw IllegalArgumentException("Category with name $category.name does not exist")
         }
@@ -124,6 +124,8 @@ class CategoryRepository (private val dataSource: DataSource) {
                 if (affectedRows == 0) {
                     throw RuntimeException("Updating category failed, no rows affected.")
                 }
+                
+                return category
             }
         }
     }

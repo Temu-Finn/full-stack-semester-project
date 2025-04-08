@@ -1,10 +1,7 @@
 package edu.ntnu.idatt2105.gr2.backend.controller
 
+import edu.ntnu.idatt2105.gr2.backend.dto.*
 import edu.ntnu.idatt2105.gr2.backend.service.CategoryService
-import edu.ntnu.idatt2105.gr2.backend.dto.CategoriesResponse
-import edu.ntnu.idatt2105.gr2.backend.dto.CategoryResponse
-import edu.ntnu.idatt2105.gr2.backend.dto.CreateCategoryRequest
-import edu.ntnu.idatt2105.gr2.backend.dto.DeleteCategoryRequest
 import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
 import edu.ntnu.idatt2105.gr2.backend.service.UserContextService
 import edu.ntnu.idatt2105.gr2.backend.service.toModel
