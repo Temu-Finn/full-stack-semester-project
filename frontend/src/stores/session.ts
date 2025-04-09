@@ -3,10 +3,11 @@ import { ref, computed } from 'vue'
 import api from '@/config/api'
 import router from '@/router'
 
-interface User {
+export interface User {
   id: string
   email: string
   name: string
+  joinedAt: string
 }
 
 export const useSessionStore = defineStore('session', () => {
@@ -37,6 +38,7 @@ export const useSessionStore = defineStore('session', () => {
         id: response.data.userId,
         email: response.data.email,
         name: response.data.name,
+        joinedAt: response.data.joinedAt,
       }
       setToken(response.data.token, userData)
       return true
@@ -57,6 +59,7 @@ export const useSessionStore = defineStore('session', () => {
         id: response.data.userId,
         email: response.data.email,
         name: response.data.name,
+        joinedAt: response.data.joinedAt,
       }
       setToken(response.data.token, userData)
       return true

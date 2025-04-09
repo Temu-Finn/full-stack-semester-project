@@ -52,21 +52,6 @@ class UserRepository(private val dataSource: DataSource) {
         return null
     }
 
-    fun findById(id: Int): User? {
-        dataSource.connection.use { conn ->
-            val sql = "SELECT * FROM users WHERE id = ?"
-            conn.prepareStatement(sql).use { stmt ->
-                stmt.setInt(1, id)
-                stmt.executeQuery().use { rows ->
-                    if (rows.next()) {
-                        return mapRowToUser(rows)
-                    }
-                }
-            }
-        }
-        return null
-    }
-
     fun mapRowToUser(rs: ResultSet): User {
         return User(
             id = rs.getInt("id"),

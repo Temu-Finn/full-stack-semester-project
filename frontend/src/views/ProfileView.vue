@@ -1,23 +1,22 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getRecommendedItems, type ItemCard } from '@/service/itemService'
 import LanguageSelector from '@/components/LanguageSelector.vue'
-import { useSessionStore } from '@/stores/session'
+import { useSessionStore, type User } from '@/stores/session'
 
 const authStore = useSessionStore()
 
 const { t } = useI18n()
 
-const user = ref({
-  name: 'User Name',
-  location: 'Location',
-  joinDate: '2023-01-15',
-})
+const user = ref<User>()
 
-const listings = ref<ListingItem[]>([])
-getRecommendedItems().then((response) => {
-  listings.value = response.listings
+const listings = ref<ItemCard[]>([])
+onMounted(() => {
+  getRecommendedItems().then((response) => {
+    listings.value = response.items
+  })
+  user.value = authStore.user
 })
 
 const selectedStatus = ref<'active' | 'reserved' | 'sold' | 'archived' | 'bought'>('active')
