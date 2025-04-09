@@ -8,6 +8,17 @@
     "search": "Søk",
     "recommended": "Anbefalt for deg"
   },
+  "search": {
+    "sortBy": "Sorter",
+    "lowestPrice": "Laveste pris",
+    "highestPrice": "Høyeste pris",
+    "newest": "Nyeste",
+    "oldest": "Eldste",
+    "closest": "Nærmeste",
+    "showOnMap": "Vis på kart",
+    "hitsFor": "resultater for",
+    "acceptsVipps": "Aksepterer Vipps-betaling"
+  },
   "newProduct": {
     "title": "Legg ut nytt produkt",
     "category": "Kategori",
