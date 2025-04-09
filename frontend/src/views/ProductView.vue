@@ -118,6 +118,7 @@ onMounted(async () => {
   max-width: 600px;
   border-radius: 8px;
   object-fit: cover;
+  height: 500px;
 }
 
 .thumbnails {
