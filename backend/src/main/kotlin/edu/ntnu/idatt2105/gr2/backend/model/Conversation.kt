@@ -9,3 +9,11 @@ data class Conversation(
     val createdAt: Timestamp,
     val updatedAt: Timestamp
 )
+{
+    init {
+        require(itemId >= 0) { "Item ID must be non-negative" }
+        require(buyerId >= 0) { "Buyer ID must be non-negative" }
+        require(createdAt.time > 0) { "Created time must be a valid timestamp" }
+        require(updatedAt.time > 0) { "Updated time must be a valid timestamp" }
+    }
+}
