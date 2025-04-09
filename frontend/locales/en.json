@@ -10,15 +10,17 @@
     "noItemsFound": "No items found. Try searching!"
   },
   "search": {
+    "searchButton": "Search",
     "sortBy": "Sort by",
-    "lowestPrice": "Lowest price",
-    "highestPrice": "Highest price",
-    "newest": "Newest",
-    "oldest": "Oldest",
+    "priceAsc": "Lowest price",
+    "priceDesc": "Highest price",
+    "updatedAtDesc": "Newest",
+    "updatedAtAsc": "Oldest",
     "closest": "Closest",
     "showOnMap": "Show on map",
     "hitsFor": "results for",
-    "acceptsVipps": "Accepts Vipps payment"
+    "acceptsVipps": "Accepts Vipps payment",
+    "loading": "Loading"
   },
   "newProduct": {
     "title": "Create New Product",
