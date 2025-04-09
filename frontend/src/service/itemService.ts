@@ -19,6 +19,8 @@ const LocationSchema = z.object({
   longitude: z.number(),
 })
 
+const ItemStatusSchema = z.enum(['available', 'reserved', 'sold', 'archived', 'bought'])
+
 const ItemCardSchema = z.object({
   id: z.number(),
   title: z.string(),
@@ -26,7 +28,7 @@ const ItemCardSchema = z.object({
   municipality: z.string(),
   image: ImageSchema.nullish(),
   location: LocationSchema.nullish(),
-  status: z.enum(['available', 'reserved', 'sold', 'archived']),
+  status: ItemStatusSchema,
   updatedAt: z.string().datetime(),
 })
 
@@ -52,7 +54,7 @@ const CompleteItemSchema = z.object({
   location: LocationSchema.nullable(),
   allowVippsBuy: z.boolean(),
   primaryImageId: z.number().nullable(),
-  status: z.string(),
+  status: ItemStatusSchema,
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   municipality: z.string(),
@@ -130,7 +132,7 @@ export type SearchItemsResponse = z.infer<typeof SearchItemsResponseSchema>
 export type CreateItemRequest = z.infer<typeof CreateItemRequestSchema>
 export type CompleteItem = z.infer<typeof CompleteItemSchema>
 export type Location = z.infer<typeof LocationSchema>
-
+export type ItemStatus = z.infer<typeof ItemStatusSchema>
 export async function getItem(id: number): Promise<CompleteItem> {
   try {
     const response = await api.get(`/item/${id}`)

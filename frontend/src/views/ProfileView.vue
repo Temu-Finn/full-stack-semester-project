@@ -23,7 +23,7 @@ onMounted(async () => {
 type ItemStatus = 'active' | 'reserved' | 'sold' | 'archived' | 'bought'
 const selectedStatus = ref<ItemStatus>('active')
 
-const itemMatchesStatus = (item: ItemCard, status: ItemStatus) => {
+const statusMatches = (item: ItemCard, status: ItemStatus) => {
   switch (status) {
     case 'active':
       return item.status === 'available'
@@ -34,12 +34,12 @@ const itemMatchesStatus = (item: ItemCard, status: ItemStatus) => {
     case 'archived':
       return item.status === 'archived'
     case 'bought':
-      return false // TODO: Implement bought items
+      return item.status === 'bought'
   }
 }
 
 const filteredItems = computed(() => {
-  return items.value.filter((item) => itemMatchesStatus(item, selectedStatus.value))
+  return items.value.filter((item) => statusMatches(item, selectedStatus.value))
 })
 
 const selectStatus = (status: ItemStatus) => {

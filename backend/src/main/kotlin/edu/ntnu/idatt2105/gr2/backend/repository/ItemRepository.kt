@@ -199,4 +199,8 @@ class ItemRepository(private val dataSource: DataSource) {
             }
         }
     }
+
+    fun findAllBought(userId: Int): List<Item> {
+        return queryItemsWhere("buyer_id = ?") { it.setInt(1, userId) }
+    }
 }

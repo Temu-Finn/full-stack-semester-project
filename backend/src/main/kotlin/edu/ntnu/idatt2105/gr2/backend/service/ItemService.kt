@@ -101,7 +101,14 @@ class ItemService(
     fun getItemsOfUser(userId: Int): List<ItemCard> {
         val isOwnUser = userId == userContextService.getCurrentUserId()
         logger.info("Fetching items for user ID: $userId")
-        return itemRepository.findAllBySellerId(userId, isOwnUser).map {  it.toCard() }
+        val items = itemRepository.findAllBySellerId(userId, isOwnUser).map {  it.toCard() }
+        if (!isOwnUser) {
+            return items
+        }
+
+        val boughtItems = itemRepository.findAllBought(userId).map { it.toCard().copy(status = "bought") }
+
+        return items.plus(boughtItems)
     }
 
     fun Item.toResponse(): CompleteItem {
