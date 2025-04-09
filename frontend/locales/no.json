@@ -18,7 +18,8 @@
     "updatedAtAsc": "Eldste",
     "closest": "Nærmeste",
     "showOnMap": "Vis på kart",
-    "hitsFor": "resultater for",
+    "results": "resultater",
+    "for": "for",
     "acceptsVipps": "Aksepterer Vipps-betaling",
     "loading": "Laster"
   },

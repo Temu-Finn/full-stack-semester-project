@@ -38,6 +38,10 @@ const sortOptions = [
 const sortQuery = computed(() => route.query.sort ?? sortOptions[0].value)
 const selectedSort = ref(sortQuery.value)
 
+const currentPage = computed(() => (route.query.page ? Number(route.query.page) : 1))
+watch(currentPage, () => {
+  fetchItems()
+})
 watch(sortQuery, () => {
   selectedSort.value = sortQuery.value
   fetchItems()
@@ -52,13 +56,14 @@ watch(selectedCategory, () => {
 
 async function fetchItems() {
   isLoading.value = true
-  console.log('LOLOLOLOLOLOLOLOLOL')
   try {
     console.log('Selected sort:' + selectedSort.value)
     searchResponse.value = await searchItems({
       searchText: searchQuery.value,
       categoryId: selectedCategory.value ? Number(selectedCategory.value) : undefined,
       sort: [selectedSort.value],
+      page: currentPage.value - 1,
+      size: 9,
     })
     console.log('Total elements: ' + searchResponse.value.result.page.totalElements)
   } catch (error) {
@@ -106,6 +111,27 @@ function clearCategory() {
     query: {
       ...route.query,
       category: null,
+    },
+  })
+}
+
+const totalPagesRange = computed(() => {
+  if (
+    searchResponse.value &&
+    searchResponse.value.result &&
+    searchResponse.value.result.page.totalPages
+  ) {
+    const total = searchResponse.value.result.page.totalPages
+    return Array.from({ length: total }, (_, i) => i + 1)
+  }
+  return []
+})
+
+function handlePageClick(newPage: number) {
+  router.push({
+    query: {
+      ...route.query,
+      page: newPage,
     },
   })
 }
@@ -192,11 +218,38 @@ onMounted(async () => {
         <div v-if="isLoading" class="loading-spinner">{{ t('search.loading') }}...</div>
         <div v-else>
           <div class="search-count">
-            {{ searchResponse.result.page.totalElements }}
-            {{ t('search.hitsFor') }} {{ searchQuery }}
+            {{ searchResponse.result.page.totalElements }} {{ t('search.results') }}
+            {{ searchQuery.length != 0 ? t('search.for') : '' }} {{ searchQuery }}
           </div>
           <div class="results-grid">
             <Product v-for="item in searchResponse.result.content" :key="item.id" :product="item" />
+          </div>
+          <div v-if="totalPagesRange.length > 1" class="pagination">
+            <button
+              :disabled="currentPage === 1"
+              class="pagination-button"
+              @click="handlePageClick(currentPage - 1)"
+            >
+              Prev
+            </button>
+
+            <button
+              v-for="page in totalPagesRange"
+              :key="page"
+              :class="{ active: page === currentPage }"
+              class="pagination-button"
+              @click="handlePageClick(page)"
+            >
+              {{ page }}
+            </button>
+
+            <button
+              :disabled="currentPage === searchResponse.result.page.totalPages"
+              class="pagination-button"
+              @click="handlePageClick(currentPage + 1)"
+            >
+              Next
+            </button>
           </div>
         </div>
       </section>
@@ -321,6 +374,7 @@ onMounted(async () => {
   background-color: #d0eaff;
 }
 .vipps-section {
+  padding: 0 0.5rem;
   display: flex;
   gap: 10px;
 }
@@ -343,6 +397,44 @@ onMounted(async () => {
 .loading-spinner {
   text-align: center;
   padding: 2rem;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.pagination-button {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.pagination-button:hover:not(:disabled) {
+  background-color: #f0f8ff;
+}
+.pagination-button.active {
+  background-color: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.map-section {
+  height: 300px;
+  width: 100%;
+}
+.map-container {
+  width: 100%;
+  height: 300px;
+  border-radius: 6px;
 }
 
 @media (max-width: 768px) {

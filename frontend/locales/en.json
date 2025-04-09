@@ -18,7 +18,8 @@
     "updatedAtAsc": "Oldest",
     "closest": "Closest",
     "showOnMap": "Show on map",
-    "hitsFor": "results for",
+    "results": "results",
+    "for": "for",
     "acceptsVipps": "Accepts Vipps payment",
     "loading": "Loading"
   },
