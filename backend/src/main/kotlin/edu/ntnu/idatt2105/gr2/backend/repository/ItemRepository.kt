@@ -182,8 +182,8 @@ class ItemRepository(private val dataSource: DataSource) {
             allowVippsBuy = rs.getBoolean("allow_vipps_buy"),
             primaryImageId = rs.getIntOrNull("primary_image_id"),
             status = rs.getItemStatus(),
-            createdAt = rs.getTimestamp("created_at").toLocalDateTime(),
-            updatedAt = rs.getTimestamp("updated_at").toLocalDateTime(),
+            createdAt = rs.getTimestamp("created_at").toInstant(),
+            updatedAt = rs.getTimestamp("updated_at").toInstant(),
             municipality = rs.getString("municipality"),
         )
     }
@@ -198,5 +198,9 @@ class ItemRepository(private val dataSource: DataSource) {
                 stmt.executeUpdate()
             }
         }
+    }
+
+    fun findAllBought(userId: Int): List<Item> {
+        return queryItemsWhere("buyer_id = ?") { it.setInt(1, userId) }
     }
 }

@@ -1,32 +1,48 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getRecommendedItems, type ItemCard } from '@/service/itemService'
+import { getItemsOfUser, type ItemCard } from '@/service/itemService'
 import LanguageSelector from '@/components/LanguageSelector.vue'
-import { useSessionStore } from '@/stores/session'
-
+import { useSessionStore, type User } from '@/stores/session'
+import Product from '@/components/home/Product.vue'
 const authStore = useSessionStore()
 
 const { t } = useI18n()
 
-const user = ref({
-  name: 'User Name',
-  location: 'Location',
-  joinDate: '2023-01-15',
+const user = ref<User | null>(null)
+
+const items = ref<ItemCard[]>([])
+onMounted(async () => {
+  if (authStore.user) {
+    user.value = authStore.user
+  }
+  const response = authStore.user ? await getItemsOfUser(authStore.user.id) : []
+  items.value = response
 })
 
-const listings = ref<ListingItem[]>([])
-getRecommendedItems().then((response) => {
-  listings.value = response.listings
+type ItemStatus = 'active' | 'reserved' | 'sold' | 'archived' | 'bought'
+const selectedStatus = ref<ItemStatus>('active')
+
+const statusMatches = (item: ItemCard, status: ItemStatus) => {
+  switch (status) {
+    case 'active':
+      return item.status === 'available'
+    case 'reserved':
+      return item.status === 'reserved'
+    case 'sold':
+      return item.status === 'sold'
+    case 'archived':
+      return item.status === 'archived'
+    case 'bought':
+      return item.status === 'bought'
+  }
+}
+
+const filteredItems = computed(() => {
+  return items.value.filter((item) => statusMatches(item, selectedStatus.value))
 })
 
-const selectedStatus = ref<'active' | 'reserved' | 'sold' | 'archived' | 'bought'>('active')
-
-const filteredListings = computed(() => {
-  return listings.value.filter((listing) => listing.status === selectedStatus.value)
-})
-
-const selectStatus = (status: 'active' | 'reserved' | 'sold' | 'archived' | 'bought') => {
+const selectStatus = (status: ItemStatus) => {
   selectedStatus.value = status
 }
 </script>
@@ -42,10 +58,12 @@ const selectStatus = (status: 'active' | 'reserved' | 'sold' | 'archived' | 'bou
           <h1 class="name">
             {{ user?.name || 'User Name' }}
           </h1>
-          <p class="location">
-            {{ user?.location || 'Location' }}
+          <p class="email">
+            {{ user?.email || 'Email' }}
           </p>
-          <p class="join-date">{{ t('profile.joinedOn') }}: {{ user?.joinDate || 'N/A' }}</p>
+          <p class="join-date">
+            {{ new Date(user?.joinedAt || '').toLocaleDateString() || 'N/A' }}
+          </p>
         </div>
       </div>
       <div class="header-actions">
@@ -82,7 +100,7 @@ const selectStatus = (status: 'active' | 'reserved' | 'sold' | 'archived' | 'bou
       </div>
 
       <div class="listings-grid">
-        <ItemCard v-for="listing in filteredListings" :key="listing.id" :listing="listing" />
+        <Product v-for="item in filteredItems" :key="item.id" :product="item" />
       </div>
     </section>
   </div>
@@ -138,7 +156,7 @@ const selectStatus = (status: 'active' | 'reserved' | 'sold' | 'archived' | 'bou
   font-size: 1.5rem;
 }
 
-.location {
+.email {
   margin: 0.25rem 0;
   color: #666;
 }

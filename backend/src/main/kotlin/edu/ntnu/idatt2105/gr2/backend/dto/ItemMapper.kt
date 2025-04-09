@@ -3,7 +3,7 @@ package edu.ntnu.idatt2105.gr2.backend.dto
 
 import edu.ntnu.idatt2105.gr2.backend.model.Item
 import edu.ntnu.idatt2105.gr2.backend.model.ItemStatus
-import java.time.LocalDateTime
+import java.time.Instant
 
 internal fun CreateItemRequest.toItem(userId: Int): Item {
     return Item(
@@ -19,7 +19,7 @@ internal fun CreateItemRequest.toItem(userId: Int): Item {
         allowVippsBuy = this.allowVippsBuy,
         primaryImageId = -1,
         status = ItemStatus.Available,
-        createdAt = LocalDateTime.now(),
-        updatedAt = LocalDateTime.now()
+        createdAt = Instant.now(),
+        updatedAt = Instant.now()
     )
 }
