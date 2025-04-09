@@ -19,7 +19,7 @@ class AreaRepository (private val dataSource: DataSource) {
                 postal_codes pc
             LEFT JOIN 
                 items i ON pc.postal_code = i.postal_code
-            WHERE ${request.whereClause()}
+            WHERE i.id IS NULL || (${request.whereClause()})
             GROUP BY 
                 pc.county, pc.municipality
             ORDER BY 

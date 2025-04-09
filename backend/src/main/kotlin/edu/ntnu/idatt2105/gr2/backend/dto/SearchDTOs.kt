@@ -15,5 +15,5 @@ data class SearchRequest(
 
 data class SearchResponse(
     val counties: List<CountyResponse>,
-    val items: Page<ItemCard>
+    val result: Page<ItemCard>
 )
