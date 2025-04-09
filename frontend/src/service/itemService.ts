@@ -27,7 +27,7 @@ const ItemCardSchema = z.object({
   image: ImageSchema.nullish(),
   location: LocationSchema.nullish(),
   status: z.enum(['available', 'reserved', 'sold', 'archived']),
-  updatedAt: z.string(),
+  updatedAt: z.string().datetime(),
 })
 
 const CreateItemRequestSchema = z.object({
@@ -53,8 +53,8 @@ const CompleteItemSchema = z.object({
   allowVippsBuy: z.boolean(),
   primaryImageId: z.number().nullable(),
   status: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
   municipality: z.string(),
   images: z.array(ImageSchema).optional(),
 })

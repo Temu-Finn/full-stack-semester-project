@@ -16,7 +16,7 @@ const UserResponseSchema = z.object({
   userId: z.number(),
   name: z.string(),
   email: z.string(),
-  joinedAt: z.string(),
+  joinedAt: z.string().datetime(),
   admin: z.boolean(),
   token: z.string(),
   expiresIn: z.number(),

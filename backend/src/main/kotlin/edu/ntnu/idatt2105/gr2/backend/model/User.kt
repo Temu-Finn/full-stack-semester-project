@@ -2,13 +2,13 @@ package edu.ntnu.idatt2105.gr2.backend.model
 
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
-import java.time.LocalDateTime
+import java.time.Instant
 
 data class User(
     val id: Int = -1,
     val name: String,
     val email: String,
-    val joinedAt: LocalDateTime = LocalDateTime.now(),
+    val joinedAt: Instant = Instant.now(),
     val isAdmin: Boolean = false,
 
     private var passwordHashed: String

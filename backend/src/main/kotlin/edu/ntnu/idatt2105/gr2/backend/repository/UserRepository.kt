@@ -57,7 +57,7 @@ class UserRepository(private val dataSource: DataSource) {
             id = rs.getInt("id"),
             name = rs.getString("name"),
             email = rs.getString("email"),
-            joinedAt =  rs.getTimestamp("created_at").toLocalDateTime(),
+            joinedAt =  rs.getTimestamp("created_at").toInstant(),
             isAdmin = rs.getBoolean("is_admin"),
             passwordHashed = rs.getString("password")
         )

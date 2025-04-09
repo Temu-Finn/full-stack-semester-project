@@ -54,8 +54,8 @@ class ConversationRepository(private val dataSource: DataSource) {
                             id = rows.getInt("id"),
                             itemId = rows.getInt("item_id"),
                             buyerId = rows.getInt("buyer_id"),
-                            createdAt = rows.getTimestamp("created_at").toLocalDateTime(),
-                            updatedAt = rows.getTimestamp("updated_at").toLocalDateTime()
+                            createdAt = rows.getTimestamp("created_at").toInstant(),
+                            updatedAt = rows.getTimestamp("updated_at").toInstant()
                         )
                     }
                 }
@@ -82,8 +82,8 @@ class ConversationRepository(private val dataSource: DataSource) {
                                 id = rows.getInt("id"),
                                 itemId = rows.getInt("item_id"),
                                 buyerId = rows.getInt("buyer_id"),
-                                createdAt = rows.getTimestamp("created_at").toLocalDateTime(),
-                                updatedAt = rows.getTimestamp("updated_at").toLocalDateTime()
+                                createdAt = rows.getTimestamp("created_at").toInstant(),
+                                updatedAt = rows.getTimestamp("updated_at").toInstant()
                             )
                         )
                     }

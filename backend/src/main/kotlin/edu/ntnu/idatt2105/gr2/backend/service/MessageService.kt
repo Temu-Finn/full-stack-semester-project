@@ -4,7 +4,7 @@ import edu.ntnu.idatt2105.gr2.backend.model.Message
 import edu.ntnu.idatt2105.gr2.backend.repository.MessageRepository
 import org.springframework.stereotype.Service
 import java.sql.Timestamp
-import java.time.LocalDateTime
+import java.time.Instant
 
 @Service
 class MessageService(
@@ -17,7 +17,7 @@ class MessageService(
             conversationId = conversationId,
             senderId = senderId,
             content = content,
-            sentAt = LocalDateTime.now()
+            sentAt = Instant.now()
         )
         return messageRepository.save(message)
     }

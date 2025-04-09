@@ -3,7 +3,7 @@ package edu.ntnu.idatt2105.gr2.backend.dto
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
-import java.time.LocalDateTime
+import java.time.Instant
 
 data class CreateUserRequest(
     @field:NotBlank(message = "Name cannot be empty")
@@ -34,7 +34,7 @@ data class UserResponse(
     val userId: Int,
     val name: String,
     val email: String,
-    val joinedAt: LocalDateTime,
+    val joinedAt: Instant,
     val isAdmin: Boolean,
     val token: String,
     val expiresIn: Long,

@@ -9,7 +9,7 @@ const authStore = useSessionStore()
 
 const { t } = useI18n()
 
-const user = ref<User>()
+const user = ref<User | null>(null)
 
 const listings = ref<ItemCard[]>([])
 onMounted(() => {
@@ -43,10 +43,12 @@ const selectStatus = (status: 'active' | 'reserved' | 'sold' | 'archived' | 'bou
           <h1 class="name">
             {{ user?.name || 'User Name' }}
           </h1>
-          <p class="location">
-            {{ user?.location || 'Location' }}
+          <p class="email">
+            {{ user?.email || 'Email' }}
           </p>
-          <p class="join-date">{{ t('profile.joinedOn') }}: {{ user?.joinedAt || 'N/A' }}</p>
+          <p class="join-date">
+            {{ new Date(user?.joinedAt || '').toLocaleDateString() || 'N/A' }}
+          </p>
         </div>
       </div>
       <div class="header-actions">
@@ -139,7 +141,7 @@ const selectStatus = (status: 'active' | 'reserved' | 'sold' | 'archived' | 'bou
   font-size: 1.5rem;
 }
 
-.location {
+.email {
   margin: 0.25rem 0;
   color: #666;
 }

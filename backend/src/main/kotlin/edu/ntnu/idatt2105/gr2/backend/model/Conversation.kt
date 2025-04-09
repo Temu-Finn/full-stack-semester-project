@@ -1,13 +1,13 @@
 package edu.ntnu.idatt2105.gr2.backend.model
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 data class Conversation(
     val id: Int = -1,
     val itemId: Int,
     val buyerId: Int,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime
+    val createdAt: Instant,
+    val updatedAt: Instant
 )
 {
     init {

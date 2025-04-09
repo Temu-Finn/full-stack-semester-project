@@ -2,7 +2,7 @@ package edu.ntnu.idatt2105.gr2.backend.dto
 
 import edu.ntnu.idatt2105.gr2.backend.model.ItemStatus
 import jakarta.validation.constraints.*
-import java.time.LocalDateTime
+import java.time.Instant
 
 /**
  * Basic item information used in list views and search results
@@ -15,7 +15,7 @@ data class ItemCard(
     val image: ImageResponse?,
     val location: Location?,
     val status: String,
-    val updatedAt: LocalDateTime
+    val updatedAt: Instant
 )
 
 /**
@@ -35,8 +35,8 @@ data class CompleteItem(
     val allowVippsBuy: Boolean,
     val primaryImageId: Int?,
     val status: String,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime,
+    val createdAt: Instant,
+    val updatedAt: Instant,
     val municipality: String,
     val images: List<ImageResponse>
 )
