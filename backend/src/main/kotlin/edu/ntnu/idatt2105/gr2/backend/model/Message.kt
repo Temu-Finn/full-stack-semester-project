@@ -11,7 +11,7 @@ data class Message (
     var isRead: Boolean = false,
 ) {
     init {
-        require(id >= 0) { "ID must be non-negative" }
+        require(id == -1 || id >= 0) { "ID must be -1 for unsaved messages or non-negative for saved messages" }
         require(conversationId >= 0) { "Conversation ID must be non-negative" }
         require(senderId >= 0) { "Sender ID must be non-negative" }
         require(content.isNotBlank()) { "Content cannot be blank" }
