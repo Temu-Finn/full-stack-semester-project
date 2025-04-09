@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
-import Product from './Product.vue'
+import Product from '@/components/Product.vue'
 import { getRecommendedItems, type ItemCard } from '@/service/itemService'
 
 const products = ref<ItemCard[]>([])
