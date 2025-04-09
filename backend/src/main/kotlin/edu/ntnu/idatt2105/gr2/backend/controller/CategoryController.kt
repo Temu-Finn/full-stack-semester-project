@@ -65,12 +65,6 @@ class CategoryController(
     ): ResponseEntity<CategoryResponse> {
         logger.info("Fetching category with id: $id")
         val category = categoryService.getCategory(id)
-
-        if(category == null) {
-            logger.error("Category with id: $id not found")
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
-        }
-
         logger.info("Successfully fetched category with id: $id")
         return ResponseEntity.status(HttpStatus.OK).body(category)
     }
