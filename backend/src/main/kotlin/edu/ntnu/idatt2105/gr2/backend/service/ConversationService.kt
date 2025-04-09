@@ -4,12 +4,8 @@ import edu.ntnu.idatt2105.gr2.backend.dto.*
 import edu.ntnu.idatt2105.gr2.backend.model.Conversation
 import edu.ntnu.idatt2105.gr2.backend.model.Message
 import edu.ntnu.idatt2105.gr2.backend.repository.ConversationRepository
-import edu.ntnu.idatt2105.gr2.backend.repository.ItemRepository
 import edu.ntnu.idatt2105.gr2.backend.repository.MessageRepository
 import org.springframework.stereotype.Service
-import org.springframework.context.annotation.Lazy
-import java.time.Instant
-import java.sql.Timestamp
 import java.time.LocalDateTime
 
 
@@ -20,7 +16,8 @@ class ConversationService(
     private val itemService: ItemService,
     private val userContextService: UserContextService,
 ) {
-    fun createConversation(request: CreateConversationRequest, buyerId: Int): CreateConversationResponse {
+    fun createConversation(request: CreateConversationRequest): CreateConversationResponse {
+        val buyerId = userContextService.getCurrentUserId()
         return conversationRepository.save(request.toModel(buyerId)).toResponse()
     }
 
@@ -34,13 +31,13 @@ class ConversationService(
         conversationRepository.delete(id)
     }
 
-    fun getAllConversationsForUser(): ConversationsCardsResponse {
+    fun getAllConversationsForUser(): ConversationsResponse {
         val userId = userContextService.getCurrentUserId()
         val conversations = conversationRepository.findAllConversationsByUserId(userId)
 
         val conversationCards = conversations.map { conversation -> conversation.toResponse() }
 
-        return ConversationsCardsResponse(conversationCards)
+        return ConversationsResponse(conversationCards)
     }
 
 

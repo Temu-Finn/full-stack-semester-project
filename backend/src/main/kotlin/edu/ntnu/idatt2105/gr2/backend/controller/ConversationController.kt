@@ -1,11 +1,9 @@
 package edu.ntnu.idatt2105.gr2.backend.controller
 
-import edu.ntnu.idatt2105.gr2.backend.dto.ConversationsCardsResponse
+import edu.ntnu.idatt2105.gr2.backend.dto.ConversationsResponse
 import edu.ntnu.idatt2105.gr2.backend.dto.CreateConversationRequest
 import edu.ntnu.idatt2105.gr2.backend.dto.CreateConversationResponse
-import edu.ntnu.idatt2105.gr2.backend.repository.ItemRepository
 import edu.ntnu.idatt2105.gr2.backend.service.ConversationService
-import edu.ntnu.idatt2105.gr2.backend.service.UserContextService
 import org.slf4j.LoggerFactory
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -16,7 +14,6 @@ import org.springframework.messaging.handler.annotation.SendTo
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -24,7 +21,6 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "Conversation", description = "Conversation management APIs")
 class ConversationController(
     private val conversationService: ConversationService,
-    private val userContextService: UserContextService,
 ) {
 
     private val logger = LoggerFactory.getLogger(ConversationController::class.java)
@@ -49,8 +45,7 @@ class ConversationController(
     )
     fun createConversation(request: CreateConversationRequest):
             CreateConversationResponse {
-        val buyerId = userContextService.getCurrentUserId()
-        return conversationService.createConversation(request, buyerId)
+        return conversationService.createConversation(request)
     }
 
     //sort by latest message
@@ -72,7 +67,7 @@ class ConversationController(
             )
         ]
     )
-    fun getAllConversations(): ConversationsCardsResponse {
+    fun getAllConversations(): ConversationsResponse {
         logger.info("fetching all conversations")
         val conversations = conversationService.getAllConversationsForUser()
         logger.info("Successfully fetched all conversations")

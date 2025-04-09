@@ -9,12 +9,8 @@ data class ConversationCardResponse(
     val item: ItemCard
 )
 
-data class ConversationsCardsResponse(
+data class ConversationsResponse(
     val conversations: List<ConversationCardResponse>
-)
-
-data class ConversationCardsRequest (
-    val userId: Int
 )
 
 data class NewMessageResponse(
