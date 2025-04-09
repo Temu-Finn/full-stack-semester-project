@@ -97,23 +97,23 @@ class ItemService(
 
     fun Item.toResponse(): CompleteItem {
         return CompleteItem(
-            id = this.id,
-            sellerId = this.sellerId,
-            category = categoryService.getCategory(this.categoryId),
-            title = this.title,
-            description = this.description,
-            price = this.price,
-            purchasePrice = this.purchasePrice,
-            buyerId = this.buyerId,
-            location = this.location,
-            allowVippsBuy = this.allowVippsBuy,
-            primaryImageId = this.primaryImageId,
-            status = this.status.toString(),
+            id = id,
+            sellerId = sellerId,
+            category = categoryService.getCategory(categoryId),
+            title = title,
+            description = description,
+            price = price,
+            purchasePrice = purchasePrice,
+            buyerId = buyerId,
+            location = location,
+            allowVippsBuy = allowVippsBuy,
+            primaryImageId = primaryImageId,
+            status = status.toString(),
             images = emptyList(),
-            createdAt = this.createdAt,
-            updatedAt = this.updatedAt,
-            municipality = this.municipality,
-            postalCode = this.postalCode
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            municipality = municipality,
+            postalCode = postalCode
         )
     }
 
