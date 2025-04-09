@@ -99,7 +99,7 @@ class ItemController (
         @RequestParam(required = false) @Min(-180) @Max(180) longitude: Double?,
         @Parameter(description = "Maximum distance in kilometers (must be zero or positive)")
         @RequestParam(required = false) @PositiveOrZero maxDistanceKm: Double?,
-        @Parameter(hidden = true) @PageableDefault(size = 20, sort = ["updatedAt"]) pageable: Pageable
+        @Parameter(hidden = true) @PageableDefault(size = 20, sort = ["updated_at"]) pageable: Pageable
     ): ResponseEntity<Page<ItemCard>> {
         logger.info("Searching items with text: $searchText, category: $categoryId, county: $county, municipality: $municipality, city: $city, lat: $latitude, lon: $longitude, distKm: $maxDistanceKm, pageable: $pageable")
         val searchRequest = SearchItemRequest(
