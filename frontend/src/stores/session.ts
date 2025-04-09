@@ -26,7 +26,7 @@ export const useSessionStore = defineStore('session', () => {
     }
     if (response) {
       user.value = {
-        id: response.userId,
+        id: response.userId.toString(),
         email: response.email,
         name: response.name,
         joinedAt: response.joinedAt,

@@ -13,10 +13,12 @@ const user = ref<User>()
 
 const listings = ref<ItemCard[]>([])
 onMounted(() => {
+  if (authStore.user) {
+    user.value = authStore.user
+  }
   getRecommendedItems().then((response) => {
     listings.value = response.items
   })
-  user.value = authStore.user
 })
 
 const selectedStatus = ref<'active' | 'reserved' | 'sold' | 'archived' | 'bought'>('active')
@@ -44,7 +46,7 @@ const selectStatus = (status: 'active' | 'reserved' | 'sold' | 'archived' | 'bou
           <p class="location">
             {{ user?.location || 'Location' }}
           </p>
-          <p class="join-date">{{ t('profile.joinedOn') }}: {{ user?.joinDate || 'N/A' }}</p>
+          <p class="join-date">{{ t('profile.joinedOn') }}: {{ user?.joinedAt || 'N/A' }}</p>
         </div>
       </div>
       <div class="header-actions">

@@ -6,6 +6,12 @@ const LoginRequestSchema = z.object({
   password: z.string(),
 })
 
+const SignupRequestSchema = z.object({
+  email: z.string().email(),
+  name: z.string(),
+  password: z.string(),
+})
+
 const UserResponseSchema = z.object({
   userId: z.number(),
   name: z.string(),
@@ -19,7 +25,8 @@ const UserResponseSchema = z.object({
 export type UserResponse = z.infer<typeof UserResponseSchema>
 
 export async function loginUser(email: string, password: string): Promise<UserResponse> {
-  const response = await api.post('/auth/login', { email, password })
+  const request = LoginRequestSchema.parse({ email, password })
+  const response = await api.post('/auth/login', request)
   return UserResponseSchema.parse(response.data)
 }
 
@@ -28,6 +35,7 @@ export async function signupUser(
   name: string,
   password: string,
 ): Promise<UserResponse> {
-  const response = await api.post('/auth/signup', { email, name, password })
+  const request = SignupRequestSchema.parse({ email, name, password })
+  const response = await api.post('/auth/signup', request)
   return UserResponseSchema.parse(response.data)
 }
