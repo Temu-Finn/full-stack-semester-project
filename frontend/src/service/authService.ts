@@ -11,19 +11,23 @@ const UserResponseSchema = z.object({
   name: z.string(),
   email: z.string(),
   joinedAt: z.string(),
-  isAdmin: z.boolean(),
+  admin: z.boolean(),
   token: z.string(),
   expiresIn: z.number(),
 })
 
 export type UserResponse = z.infer<typeof UserResponseSchema>
 
-export async function login(email: string, password: string): Promise<UserResponse> {
+export async function loginUser(email: string, password: string): Promise<UserResponse> {
   const response = await api.post('/auth/login', { email, password })
   return UserResponseSchema.parse(response.data)
 }
 
-export async function signup(email: string, name: string, password: string): Promise<UserResponse> {
+export async function signupUser(
+  email: string,
+  name: string,
+  password: string,
+): Promise<UserResponse> {
   const response = await api.post('/auth/signup', { email, name, password })
   return UserResponseSchema.parse(response.data)
 }

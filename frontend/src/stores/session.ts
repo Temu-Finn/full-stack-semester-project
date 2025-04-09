@@ -2,9 +2,10 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import api from '@/config/api'
 import router from '@/router'
+import { loginUser, signupUser, type UserResponse } from '@/service/authService'
 
 export interface User {
-  id: string
+  id: number
   email: string
   name: string
   joinedAt: string
@@ -16,16 +17,21 @@ export const useSessionStore = defineStore('session', () => {
 
   const isAuthenticated = computed(() => !!token.value)
 
-  function setToken(newToken: string | null, newUser: User | null = null) {
-    token.value = newToken
-    if (newToken) {
-      localStorage.setItem('token', newToken)
+  function setToken(response: UserResponse | null) {
+    if (response) {
+      token.value = response.token
+      localStorage.setItem('token', response.token)
     } else {
       localStorage.removeItem('token')
     }
-    user.value = newUser
-    if (newUser) {
-      localStorage.setItem('user', JSON.stringify(newUser))
+    if (response) {
+      user.value = {
+        id: response.userId,
+        email: response.email,
+        name: response.name,
+        joinedAt: response.joinedAt,
+      }
+      localStorage.setItem('user', JSON.stringify(user.value))
     } else {
       localStorage.removeItem('user')
     }
@@ -33,14 +39,8 @@ export const useSessionStore = defineStore('session', () => {
 
   async function login(email: string, password: string) {
     try {
-      const response = await api.post(`/auth/login`, { email, password })
-      const userData = {
-        id: response.data.userId,
-        email: response.data.email,
-        name: response.data.name,
-        joinedAt: response.data.joinedAt,
-      }
-      setToken(response.data.token, userData)
+      const response = await loginUser(email, password)
+      setToken(response)
       return true
     } catch (error) {
       console.error('Error logging in:', error)
@@ -50,18 +50,8 @@ export const useSessionStore = defineStore('session', () => {
 
   async function signup(email: string, name: string, password: string) {
     try {
-      const response = await api.post(`/auth/signup`, {
-        email,
-        name,
-        password,
-      })
-      const userData = {
-        id: response.data.userId,
-        email: response.data.email,
-        name: response.data.name,
-        joinedAt: response.data.joinedAt,
-      }
-      setToken(response.data.token, userData)
+      const response = await signupUser(email, name, password)
+      setToken(response)
       return true
     } catch (error) {
       console.error('Error signing up:', error)
@@ -70,7 +60,7 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   function logout() {
-    setToken(null, null)
+    setToken(null)
     router.push('/')
   }
 
