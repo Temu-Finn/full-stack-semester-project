@@ -3,9 +3,7 @@ package edu.ntnu.idatt2105.gr2.backend.controller
 import edu.ntnu.idatt2105.gr2.backend.dto.CreateUserRequest
 import edu.ntnu.idatt2105.gr2.backend.dto.LoginRequest
 import edu.ntnu.idatt2105.gr2.backend.dto.UserResponse
-import edu.ntnu.idatt2105.gr2.backend.model.User
 import edu.ntnu.idatt2105.gr2.backend.service.AuthenticationService
-import edu.ntnu.idatt2105.gr2.backend.service.JwtService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse

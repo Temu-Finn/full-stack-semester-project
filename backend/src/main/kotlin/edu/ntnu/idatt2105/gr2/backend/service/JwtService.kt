@@ -21,8 +21,8 @@ class JwtService {
     private var expiration: Long = 0
 
     fun generateToken(userDetails: UserDetails): String {
-        val now = System.currentTimeMillis();
-        val expirationTime = now + expiration;
+        val now = System.currentTimeMillis()
+        val expirationTime = now + expiration
 
         val userId = if (userDetails is User) userDetails.id else throw IllegalArgumentException("UserDetails must be an instance of custom User class")
         val email = userDetails.username
