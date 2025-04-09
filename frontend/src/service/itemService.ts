@@ -68,7 +68,7 @@ const RecommendedItemsResponseSchema = z.object({
 const SearchItemParamsSchema = z
   .object({
     searchText: z.string().optional(),
-    categoryId: z.number().int().positive().optional(),
+    categoryId: z.number().int().nonnegative().optional(),
     county: z.string().optional(),
     municipality: z.string().optional(),
     city: z.string().optional(),
@@ -77,11 +77,7 @@ const SearchItemParamsSchema = z
     maxDistanceKm: z.number().min(0).optional(),
     page: z.number().int().min(0).optional(),
     size: z.number().int().positive().optional(),
-    sort: z
-      .string()
-      .regex(/^[a-zA-Z]+,(asc|desc)$/)
-      .array()
-      .optional(),
+    sort: z.string().array().optional(),
   })
   .refine(
     (data) => {
@@ -104,12 +100,12 @@ const PageMetadataSchema = z.object({
 
 const MunicipalitySchema = z.object({
   name: z.string(),
-  count: z.number().int().positive(),
+  count: z.number().int().nonnegative(),
 })
 
 const CountySchema = z.object({
   name: z.string(),
-  count: z.number().int().positive(),
+  count: z.number().int().nonnegative(),
   municipalities: z.array(MunicipalitySchema),
 })
 
