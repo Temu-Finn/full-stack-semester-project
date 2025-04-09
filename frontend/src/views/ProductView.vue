@@ -1,10 +1,12 @@
 <template>
-  <div v-if="isLoading" class="loading-state">Loading product details...</div>
-  <div v-else-if="error" class="error-state">Error loading product: {{ error }}</div>
+  <div v-if="isLoading" class="loading-state">{{ $t('productView.loading') }}</div>
+  <div v-else-if="error" class="error-state">
+    {{ $t('productView.errorLoadingPrefix') }} {{ error }}
+  </div>
   <div v-else-if="product" class="product-container">
     <div class="left-column">
       <div class="main-image">
-        <img :src="selectedImage" alt="Main product" />
+        <img :src="selectedImage" :alt="$t('productView.altMainImage')" />
       </div>
       <div v-if="productImages.length > 1" class="thumbnails">
         <img
@@ -12,26 +14,40 @@
           :key="index"
           :class="{ active: selectedImage === img }"
           :src="img"
-          alt="Thumbnail"
+          :alt="$t('productView.altThumbnail')"
           @click="selectedImage = img"
         />
       </div>
-      <div v-else-if="productImages.length === 0" class="no-images">No images available.</div>
+      <div v-else-if="productImages.length === 0" class="no-images">
+        {{ $t('productView.noImages') }}
+      </div>
     </div>
 
     <div class="right-column">
       <h1 class="product-title">{{ product.title }}</h1>
-      <div class="product-price">{{ product.price }} kr</div>
+      <div class="product-price">{{ product.price }}{{ $t('productView.currencySuffix') }}</div>
 
       <button class="buy-button" :disabled="!product.allowVippsBuy">
-        {{ product.allowVippsBuy ? 'Kjøp nå (Vipps)' : 'Kjøp ikke tilgjengelig' }}
+        {{
+          product.allowVippsBuy ? $t('productView.buyNowVipps') : $t('productView.buyNotAvailable')
+        }}
       </button>
 
       <div class="product-details">
-        <p><strong>Status:</strong> {{ product.status }}</p>
-        <p><strong>Sted:</strong> {{ product.municipality }} ({{ product.postalCode }})</p>
-        <!-- Add other relevant details from CompleteItem if needed -->
-        <p><strong>Beskrivelse:</strong> {{ product.description }}</p>
+        <p>
+          <strong>{{ $t('productView.statusLabel') }}</strong> {{ product.status }}
+        </p>
+        <p>
+          <strong>{{ $t('productView.locationLabel') }}</strong> {{ product.municipality }} ({{
+            product.postalCode
+          }})
+        </p>
+        <p>
+          <strong>{{ $t('productView.categoryLabel') }}</strong> {{ product.category }}
+        </p>
+        <p>
+          <strong>{{ $t('productView.descriptionLabel') }}</strong> {{ product.description }}
+        </p>
       </div>
 
       <div class="map-section">
@@ -39,7 +55,7 @@
       </div>
     </div>
   </div>
-  <div v-else class="not-found">Product not found.</div>
+  <div v-else class="not-found">{{ $t('productView.notFound') }}</div>
 </template>
 
 <script setup lang="ts">
@@ -49,12 +65,14 @@ import Map from '@/components/Map.vue'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { getItem, type CompleteItem } from '@/service/itemService'
 import { logger } from '@/utils/logger'
+import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
 const product = ref<CompleteItem | null>(null)
 const selectedImage = ref<string>('')
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
+const { t } = useI18n()
 
 const productId = computed(() => {
   const idParam = route.params.id
@@ -70,7 +88,7 @@ const productImages = computed(() => {
 
 onMounted(async () => {
   if (isNaN(productId.value)) {
-    error.value = 'Invalid Product ID.'
+    error.value = t('productView.errorInvalidId')
     isLoading.value = false
     return
   }
@@ -87,7 +105,7 @@ onMounted(async () => {
     }
   } catch (err) {
     logger.error('Failed to fetch product:', err)
-    error.value = 'Could not load product details. Please try again later.'
+    error.value = t('productView.errorFetchFailed')
     product.value = null
   } finally {
     isLoading.value = false

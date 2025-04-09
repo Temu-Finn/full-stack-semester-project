@@ -79,5 +79,22 @@
     "positiveNumber": "{field} must be a positive number.",
     "postalCode": "{field} must be 4 digits.",
     "invalid": "Above field(s) are invalid."
+  },
+  "productView": {
+    "loading": "Loading product details...",
+    "errorLoadingPrefix": "Error loading product:",
+    "altMainImage": "Main product",
+    "altThumbnail": "Thumbnail",
+    "noImages": "No images available.",
+    "currencySuffix": " kr",
+    "buyNowVipps": "Buy now (Vipps)",
+    "buyNotAvailable": "Purchase not available",
+    "statusLabel": "Status:",
+    "locationLabel": "Location:",
+    "categoryLabel": "Category:",
+    "descriptionLabel": "Description:",
+    "notFound": "Product not found.",
+    "errorInvalidId": "Invalid Product ID.",
+    "errorFetchFailed": "Could not load product details. Please try again later."
   }
 }
