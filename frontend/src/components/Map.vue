@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, defineProps } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import mapboxgl from 'mapbox-gl'
 import type { Location } from '@/service/itemService'
 
