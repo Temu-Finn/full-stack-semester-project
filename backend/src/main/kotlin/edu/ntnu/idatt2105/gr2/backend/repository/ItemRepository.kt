@@ -1,6 +1,6 @@
 package edu.ntnu.idatt2105.gr2.backend.repository
 
-import edu.ntnu.idatt2105.gr2.backend.dto.SearchItemRequest
+import edu.ntnu.idatt2105.gr2.backend.dto.SearchRequest
 import edu.ntnu.idatt2105.gr2.backend.model.*
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -99,45 +99,8 @@ class ItemRepository(private val dataSource: DataSource) {
         return cards
     }
 
-    fun searchItems(request: SearchItemRequest, pageable: Pageable): Page<Item> {
-        val conditions = mutableListOf<String>("i.status = ?")
-        val params = mutableListOf<Any>(ItemStatus.Available.toString())
-
-        // Search text filtering 🔍
-        if (!request.searchText.isNullOrBlank()) {
-            conditions.add("(LOWER(i.title) LIKE LOWER(?) OR LOWER(i.description) LIKE LOWER(?))")
-            params.add("%${request.searchText}%")
-            params.add("%${request.searchText}%")
-        }
-
-        // Category filtering 📦
-        if (request.categoryId != null) {
-            conditions.add("i.category_id = ?")
-            params.add(request.categoryId)
-        }
-
-        // Postal code based filtering (county, municipality, city) 🏠
-        if (!request.county.isNullOrBlank()) {
-            conditions.add("pc.county = ?")
-            params.add(request.county)
-            if (!request.municipality.isNullOrBlank()) {
-                conditions.add("pc.municipality = ?")
-                params.add(request.municipality)
-                if (!request.city.isNullOrBlank()) {
-                    conditions.add("pc.city = ?")
-                    params.add(request.city)
-                }
-            }
-        }
-
-        // Distance filtering 📍
-        if (request.latitude != null && request.longitude != null && request.maxDistanceKm != null && request.maxDistanceKm > 0) {
-            conditions.add("i.location IS NOT NULL AND ST_Distance_Sphere(location, ST_PointFromText(?, 4326)) <= ?")
-            params.add("POINT(${request.longitude} ${request.latitude})")
-            params.add(request.maxDistanceKm * 1000) // Convert km to meters
-        }
-
-        val whereClause = conditions.joinToString(" AND ")
+    fun searchItems(request: SearchRequest, pageable: Pageable): Page<Item> {
+        val whereClause = request.whereClause()
         val baseSql = """
             FROM items i
             JOIN postal_codes pc ON i.postal_code = pc.postal_code
@@ -148,7 +111,7 @@ class ItemRepository(private val dataSource: DataSource) {
         val countSql = "SELECT COUNT(i.id) $baseSql"
         val totalCount = dataSource.connection.use { conn ->
             conn.prepareStatement(countSql).use { stmt ->
-                params.forEachIndexed { index, param -> stmt.setObject(index + 1, param) }
+                request.prepareWhereClause(stmt)
                 stmt.executeQuery().use { rs ->
                     if (rs.next()) rs.getLong(1) else 0L
                 }
@@ -168,10 +131,9 @@ class ItemRepository(private val dataSource: DataSource) {
         
         val content = dataSource.connection.use { conn ->
             conn.prepareStatement(contentSql).use { stmt ->
-                var paramIndex = 1
-                params.forEach { param -> stmt.setObject(paramIndex++, param) }
+                var paramIndex = request.prepareWhereClause(stmt)
                 stmt.setInt(paramIndex++, pageable.pageSize)
-                stmt.setLong(paramIndex++, pageable.offset)
+                stmt.setLong(paramIndex, pageable.offset)
                 
                 stmt.executeQuery().use { rs ->
                     buildList { while (rs.next()) { add(mapRowToItem(rs)) } }

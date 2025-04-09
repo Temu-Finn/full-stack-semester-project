@@ -100,9 +100,25 @@ const PageMetadataSchema = z.object({
   totalPages: z.number().int().min(0),
 })
 
-const SearchItemsResponseSchema = z.object({
+const MunicipalitySchema = z.object({
+  name: z.string(),
+  count: z.number().int().positive(),
+})
+
+const CountySchema = z.object({
+  name: z.string(),
+  count: z.number().int().positive(),
+  municipalities: z.array(MunicipalitySchema),
+})
+
+const PageSchema = z.object({
   content: z.array(ItemCardSchema),
   page: PageMetadataSchema,
+})
+
+const SearchItemsResponseSchema = z.object({
+  counties: z.array(CountySchema),
+  result: PageSchema,
 })
 
 export type ItemCard = z.infer<typeof ItemCardSchema>

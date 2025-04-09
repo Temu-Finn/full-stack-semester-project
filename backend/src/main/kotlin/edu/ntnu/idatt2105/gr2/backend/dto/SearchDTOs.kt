@@ -1,6 +1,8 @@
 package edu.ntnu.idatt2105.gr2.backend.dto
 
-data class SearchItemRequest(
+import org.springframework.data.domain.Page
+
+data class SearchRequest(
     val searchText: String? = null,
     val categoryId: Int? = null,
     val county: String? = null,
@@ -9,4 +11,9 @@ data class SearchItemRequest(
     val latitude: Double? = null,
     val longitude: Double? = null,
     val maxDistanceKm: Double? = null // Maximum distance in kilometers
-) 
+)
+
+data class SearchResponse(
+    val counties: List<CountyResponse>,
+    val result: Page<ItemCard>
+)

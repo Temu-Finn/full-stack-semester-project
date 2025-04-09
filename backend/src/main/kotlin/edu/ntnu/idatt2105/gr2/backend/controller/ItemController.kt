@@ -13,7 +13,6 @@ import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.PositiveOrZero
 import org.slf4j.LoggerFactory
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
@@ -25,7 +24,7 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/api/item")
 @Tag(name = "Item", description = "Item management APIs")
-@Validated // Enable validation for request parameters
+@Validated
 class ItemController (
     private val itemService: ItemService,
 ) {
@@ -100,9 +99,9 @@ class ItemController (
         @Parameter(description = "Maximum distance in kilometers (must be zero or positive)")
         @RequestParam(required = false) @PositiveOrZero maxDistanceKm: Double?,
         @Parameter(hidden = true) @PageableDefault(size = 20, sort = ["updated_at"]) pageable: Pageable
-    ): ResponseEntity<Page<ItemCard>> {
+    ): ResponseEntity<SearchResponse> {
         logger.info("Searching items with text: $searchText, category: $categoryId, county: $county, municipality: $municipality, city: $city, lat: $latitude, lon: $longitude, distKm: $maxDistanceKm, pageable: $pageable")
-        val searchRequest = SearchItemRequest(
+        val searchRequest = SearchRequest(
             searchText = searchText,
             categoryId = categoryId,
             county = county,
@@ -112,8 +111,8 @@ class ItemController (
             longitude = longitude,
             maxDistanceKm = maxDistanceKm
         )
-        val itemsPage = itemService.searchItems(searchRequest, pageable)
-        return ResponseEntity.ok(itemsPage)
+        val searchResult = itemService.searchItems(searchRequest, pageable)
+        return ResponseEntity.ok(searchResult)
     }
 
     @GetMapping("/user/{userId}")
