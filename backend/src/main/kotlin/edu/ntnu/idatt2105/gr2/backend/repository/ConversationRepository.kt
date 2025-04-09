@@ -1,5 +1,6 @@
 package edu.ntnu.idatt2105.gr2.backend.repository
 
+import edu.ntnu.idatt2105.gr2.backend.dto.CreateConversationResponse
 import edu.ntnu.idatt2105.gr2.backend.model.Conversation
 import org.springframework.stereotype.Repository
 import javax.sql.DataSource
@@ -7,7 +8,7 @@ import javax.sql.DataSource
 @Repository
 class ConversationRepository(private val dataSource: DataSource) {
 
-    fun save(conversation: Conversation): Conversation {
+    fun save(conversation: Conversation): CreateConversationResponse {
         val itemId = conversation.itemId
         val buyerId = conversation.buyerId
         dataSource.connection.use { conn ->
@@ -23,19 +24,23 @@ class ConversationRepository(private val dataSource: DataSource) {
 
                 stmt.generatedKeys.use { keys ->
                     if (keys.next()) {
-                        return Conversation(
-                            id = keys.getInt(1),
-                            itemId = itemId,
-                            buyerId = buyerId,
-                            createdAt = conversation.createdAt,
-                            updatedAt = conversation.updatedAt
-                        )
-                    } else {
-                        throw RuntimeException("Creating conversation failed, no ID obtained.")
+                        val generatedId = keys.getInt(1)
+                        // Retrieve the full conversation, including timestamps
+                        val selectSql = "SELECT * FROM conversations WHERE id = ?"
+                        conn.prepareStatement(selectSql).use { selectStmt ->
+                            selectStmt.setInt(1, generatedId)
+                            selectStmt.executeQuery().use { rows ->
+                                if (rows.next()) {
+                                    return CreateConversationResponse("Conversation created successfully with ID: $generatedId"
+                                            +" at ${rows.getTimestamp("created_at")}")
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
+        throw RuntimeException("Creating conversation failed, no ID obtained.")
     }
 
     fun findConversationById(id: Int): Conversation? {
@@ -49,8 +54,8 @@ class ConversationRepository(private val dataSource: DataSource) {
                             id = rows.getInt("id"),
                             itemId = rows.getInt("item_id"),
                             buyerId = rows.getInt("buyer_id"),
-                            createdAt = rows.getTimestamp("created_at"),
-                            updatedAt = rows.getTimestamp("updated_at")
+                            createdAt = rows.getTimestamp("created_at").toLocalDateTime(),
+                            updatedAt = rows.getTimestamp("updated_at").toLocalDateTime()
                         )
                     }
                 }
@@ -58,6 +63,34 @@ class ConversationRepository(private val dataSource: DataSource) {
         }
 
         return null
+    }
+
+
+    fun findAllConversationsByUserId(userId: Int): List<Conversation> {
+        dataSource.connection.use { conn ->
+            val sql = """
+            SELECT * FROM conversations
+            WHERE buyer_id = ?
+        """
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setInt(1, userId)
+                stmt.executeQuery().use { rows ->
+                    val conversations = mutableListOf<Conversation>()
+                    while (rows.next()) {
+                        conversations.add(
+                            Conversation(
+                                id = rows.getInt("id"),
+                                itemId = rows.getInt("item_id"),
+                                buyerId = rows.getInt("buyer_id"),
+                                createdAt = rows.getTimestamp("created_at").toLocalDateTime(),
+                                updatedAt = rows.getTimestamp("updated_at").toLocalDateTime()
+                            )
+                        )
+                    }
+                    return conversations
+                }
+            }
+        }
     }
 
     fun delete(id: Int) {

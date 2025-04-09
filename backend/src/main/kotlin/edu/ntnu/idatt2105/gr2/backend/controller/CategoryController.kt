@@ -1,10 +1,7 @@
 package edu.ntnu.idatt2105.gr2.backend.controller
 
+import edu.ntnu.idatt2105.gr2.backend.dto.*
 import edu.ntnu.idatt2105.gr2.backend.service.CategoryService
-import edu.ntnu.idatt2105.gr2.backend.dto.CategoriesResponse
-import edu.ntnu.idatt2105.gr2.backend.dto.CategoryResponse
-import edu.ntnu.idatt2105.gr2.backend.dto.CreateCategoryRequest
-import edu.ntnu.idatt2105.gr2.backend.dto.DeleteCategoryRequest
 import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
 import edu.ntnu.idatt2105.gr2.backend.service.UserContextService
 import io.swagger.v3.oas.annotations.Operation
@@ -47,23 +44,13 @@ class CategoryController(
         val categories = categoryService.getCategories()
 
         logger.info("Successfully fetched all categories")
-        return ResponseEntity.status(HttpStatus.OK).body(
-            CategoriesResponse(
-                categories.map { category ->
-                    CategoryResponse(
-                        category.id,
-                        category.name,
-                        category.description
-                    )
-                }
-            )
-        )
+        return ResponseEntity.status(HttpStatus.OK).body(CategoriesResponse(categories))
     }
 
-    @GetMapping("/getCategoryByName/{name}")
+    @GetMapping("/{id}")
     @Operation(
-        summary = "Get category by name",
-        description = "Returns a category by its name"
+        summary = "Get category by id",
+        description = "Returns a category by its id"
     )
     @ApiResponses(
         value = [
@@ -72,26 +59,14 @@ class CategoryController(
             ApiResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    fun getCategoryByName(
-        @Parameter(description = "Name of the category to retrieve", required = true)
-        @PathVariable name: String
+    fun getCategoryById(
+        @Parameter(description = "Id of the category to retrieve", required = true)
+        @PathVariable id: Int
     ): ResponseEntity<CategoryResponse> {
-        logger.info("Fetching category with name: $name")
-        val category = categoryService.getCategory(name)
-
-        if(category == null) {
-            logger.error("Category with name: $name not found")
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
-        }
-
-        logger.info("Successfully fetched category with name: $name")
-        return ResponseEntity.status(HttpStatus.OK).body(
-            CategoryResponse(
-                category.id,
-                category.name,
-                category.description
-            )
-        )
+        logger.info("Fetching category with id: $id")
+        val category = categoryService.getCategory(id)
+        logger.info("Successfully fetched category with id: $id")
+        return ResponseEntity.status(HttpStatus.OK).body(category)
     }
 
     @PostMapping("/create")
@@ -118,16 +93,10 @@ class CategoryController(
         }
 
         logger.info("Creating new category with name: ${req.name}")
-        val category = categoryService.createCategory(req.name, req.description)
+        val category = categoryService.createCategory(req)
         logger.info("Successfully created category with name: ${req.name}")
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-            CategoryResponse(
-                category.id,
-                category.name,
-                category.description
-            )
-        )
+        return ResponseEntity.status(HttpStatus.CREATED).body(category)
     }
 
     @DeleteMapping("/delete")
@@ -158,5 +127,35 @@ class CategoryController(
         logger.info("Successfully deleted category with name: ${request.name}")
 
         return ResponseEntity.status(HttpStatus.OK).body(null)
+    }
+
+    @PutMapping("/update")
+    @Operation(
+        summary = "Update a category",
+        description = "Updates a category by its name"
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Category updated successfully"),
+            ApiResponse(responseCode = "404", description = "Category not found"),
+            ApiResponse(responseCode = "403", description = "User not authorized to update category"),
+            ApiResponse(responseCode = "500", description = "Internal server error")
+        ]
+    )
+    fun updateCategory(
+        @Parameter(description = "Name of the category to update", required = true)
+        @RequestBody @Valid request: UpdateCategoryRequest
+    ): ResponseEntity<CategoryResponse> {
+        val isAuthorized = userRepository.isAdmin(userContextService.getCurrentUserId())
+        if (!isAuthorized) {
+            logger.error("User not authorized to update category")
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null)
+        }
+
+        logger.info("Updating category with name: ${request.name}") 
+        val category = categoryService.updateCategory(request)
+        logger.info("Successfully updated category with name: ${request.name}")
+
+        return ResponseEntity.status(HttpStatus.OK).body(category)
     }
 }

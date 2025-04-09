@@ -1,8 +1,12 @@
 <template>
-  <div class="product-container">
+  <div v-if="isLoading" class="loading-state">{{ $t('productView.loading') }}</div>
+  <div v-else-if="error" class="error-state">
+    {{ $t('productView.errorLoadingPrefix') }} {{ error }}
+  </div>
+  <div v-else-if="product" class="product-container">
     <div class="left-column">
       <div class="main-image">
-        <img :src="selectedImage" alt="Main product image" />
+        <img :src="selectedImage" :alt="$t('productView.altMainImage')" />
       </div>
       <div v-if="productImages.length > 1" class="thumbnails">
         <img
@@ -10,69 +14,105 @@
           :key="index"
           :class="{ active: selectedImage === img }"
           :src="img"
-          alt="Thumbnail"
+          :alt="$t('productView.altThumbnail')"
           @click="selectedImage = img"
         />
+      </div>
+      <div v-else-if="productImages.length === 0" class="no-images">
+        {{ $t('productView.noImages') }}
       </div>
     </div>
 
     <div class="right-column">
       <h1 class="product-title">{{ product.title }}</h1>
-      <div class="product-price">{{ product.price }} kr</div>
+      <div class="product-price">{{ product.price }}{{ $t('productView.currencySuffix') }}</div>
 
-      <button class="buy-button">Kjøp nå</button>
+      <button class="buy-button" :disabled="!product.allowVippsBuy">
+        {{
+          product.allowVippsBuy ? $t('productView.buyNowVipps') : $t('productView.buyNotAvailable')
+        }}
+      </button>
 
       <div class="product-details">
-        <p><strong>Tilstand:</strong> {{ product.condition }}</p>
-        <p><strong>Størrelse:</strong> {{ product.size }}</p>
-        <p><strong>Merke:</strong> {{ product.brand }}</p>
-        <p><strong>Kjønn:</strong> {{ product.gender }}</p>
-        <p><strong>Frakt:</strong> {{ product.shipping }}</p>
-        <p><strong>Beskrivelse:</strong> {{ product.description }}</p>
+        <p>
+          <strong>{{ $t('productView.statusLabel') }}</strong> {{ product.status }}
+        </p>
+        <p>
+          <strong>{{ $t('productView.locationLabel') }}</strong> {{ product.municipality }} ({{
+            product.postalCode
+          }})
+        </p>
+        <p>
+          <strong>{{ $t('productView.categoryLabel') }}</strong> {{ product.category.icon }}
+          {{ product.category.name }}
+        </p>
+        <p>
+          <strong>{{ $t('productView.descriptionLabel') }}</strong> {{ product.description }}
+        </p>
       </div>
 
       <div class="map-section">
-        <MapB />
+        <Map :location="product.location" />
       </div>
     </div>
   </div>
+  <div v-else class="not-found">{{ $t('productView.notFound') }}</div>
 </template>
 
-<script>
-import MapB from '@/components/Map.vue'
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import Map from '@/components/Map.vue'
 import 'mapbox-gl/dist/mapbox-gl.css'
+import { getItem, type CompleteItem } from '@/service/itemService'
+import { logger } from '@/utils/logger'
+import { useI18n } from 'vue-i18n'
 
-export default {
-  name: 'ProductView',
-  components: {
-    MapB,
-  },
-  data() {
-    return {
-      product: {
-        title: 'Bamboo Watch',
-        price: 350,
-        condition: 'Pent brukt',
-        size: '104',
-        brand: 'Polarn O. Pyret',
-        gender: 'Gutt',
-        shipping: 'Hentes eller sendes mot frakt',
-        description: 'Flott klespakke fra John Lewis & GAP ...',
-      },
-      productImages: [
-        'https://primefaces.org/cdn/primevue/images/product/bamboo-watch.jpg',
-        'https://primefaces.org/cdn/primevue/images/product/black-watch.jpg',
-        'https://primefaces.org/cdn/primevue/images/product/blue-band.jpg',
-      ],
-      selectedImage: '',
+const route = useRoute()
+const product = ref<CompleteItem | null>(null)
+const selectedImage = ref<string>('')
+const isLoading = ref<boolean>(true)
+const error = ref<string | null>(null)
+const { t } = useI18n()
+
+const productId = computed(() => {
+  const idParam = route.params.id
+  return Number(Array.isArray(idParam) ? idParam[0] : idParam)
+})
+
+const productImages = computed(() => {
+  if (!product.value?.images?.length) {
+    return ['/placeholder.svg']
+  }
+  return product.value.images.map((img) => img.dataURL)
+})
+
+onMounted(async () => {
+  if (isNaN(productId.value)) {
+    error.value = t('productView.errorInvalidId')
+    isLoading.value = false
+    return
+  }
+
+  try {
+    isLoading.value = true
+    error.value = null
+    const fetchedProduct = await getItem(productId.value)
+    product.value = fetchedProduct
+    console.log(product.value)
+
+    if (productImages.value.length > 0) {
+      const primary = product.value.images?.find((img) => img.id === product.value?.primaryImageId)
+      selectedImage.value = primary ? primary.dataURL : productImages.value[0]
     }
-  },
-  created() {
-    if (this.productImages.length) {
-      this.selectedImage = this.productImages[0]
-    }
-  },
-}
+  } catch (err) {
+    logger.error('Failed to fetch product:', err)
+    error.value = t('productView.errorFetchFailed')
+    product.value = null
+  } finally {
+    isLoading.value = false
+  }
+})
 </script>
 
 <style scoped>
@@ -97,6 +137,7 @@ export default {
   max-width: 600px;
   border-radius: 8px;
   object-fit: cover;
+  height: 500px;
 }
 
 .thumbnails {
@@ -154,11 +195,33 @@ export default {
 
 .map-section {
   margin-top: 20px;
+  height: 300px;
 }
 
 .map-container {
   width: 100%;
   height: 300px;
   border-radius: 6px;
+}
+
+.loading-state,
+.error-state,
+.not-found {
+  padding: 40px 20px;
+  text-align: center;
+  font-size: 18px;
+  color: #666;
+}
+
+.error-state {
+  color: red;
+}
+
+.no-images {
+  text-align: center;
+  color: #999;
+  padding: 20px;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
 }
 </style>

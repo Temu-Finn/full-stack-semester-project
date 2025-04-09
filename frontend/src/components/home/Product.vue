@@ -1,14 +1,18 @@
 <template>
-  <a class="product-card" href="">
-    <img :alt="product.title" :src="product.image?.dataURL" class="product-image" />
+  <router-link class="product-card" :to="`/product/${product.id}`">
+    <img
+      :alt="product.title"
+      :src="product.image?.dataURL || '/placeholder.svg'"
+      class="product-image"
+    />
     <div class="product-info">
       <h3 class="product-name">{{ product.title }}</h3>
       <div class="product-meta">
         <span class="product-location">{{ product.municipality }}</span>
-        <span class="product-price">${{ product.price }}</span>
+        <span class="product-price">{{ product.price }} kr</span>
       </div>
     </div>
-  </a>
+  </router-link>
 </template>
 
 <script setup lang="ts">

@@ -56,6 +56,26 @@ class UserRepository(private val dataSource: DataSource) {
         return null
     }
 
+    fun findById(id: Int): User? {
+        dataSource.connection.use { conn ->
+            val sql = "SELECT * FROM users WHERE id = ?"
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setInt(1, id)
+                stmt.executeQuery().use { rows ->
+                    if (rows.next()) {
+                        return User(
+                            rows.getInt("id"),
+                            rows.getString("name"),
+                            rows.getString("email"),
+                            rows.getString("password"),
+                        )
+                    }
+                }
+            }
+        }
+        return null
+    }
+
     fun isAdmin(userId: Int): Boolean {
         dataSource.connection.use { conn ->
             val sql = "SELECT is_admin FROM users WHERE id = ?"
