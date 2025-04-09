@@ -61,7 +61,7 @@ class ItemService(
         logger.info("Fetching item with ID: $id")
         val item = itemRepository.getItemById(id)
             ?: throw ItemNotFoundException("Item with ID $id not found")
-        return item.toResponse(withImages = true)
+        return item.toResponse().withImages()
     }
 
     @Transactional
@@ -95,7 +95,7 @@ class ItemService(
         return itemRepository.findAllBySellerId(userId, isOwnUser).map {  it.toCard() }
     }
 
-    fun Item.toResponse(withImages: Boolean = false): CompleteItem {
+    fun Item.toResponse(): CompleteItem {
         return CompleteItem(
             id = this.id,
             sellerId = this.sellerId,
@@ -109,14 +109,17 @@ class ItemService(
             allowVippsBuy = this.allowVippsBuy,
             primaryImageId = this.primaryImageId,
             status = this.status.toString(),
-            images = if (withImages)
-                imageService.getImagesByItemId(this.id)
-            else
-                emptyList(),
+            images = emptyList(),
             createdAt = this.createdAt,
             updatedAt = this.updatedAt,
             municipality = this.municipality,
             postalCode = this.postalCode
+        )
+    }
+
+    fun CompleteItem.withImages(): CompleteItem {
+        return this.copy(
+            images = imageService.getImagesByItemId(this.id)
         )
     }
 
