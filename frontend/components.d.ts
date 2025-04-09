@@ -18,7 +18,7 @@ declare module 'vue' {
     LanguageSelector: typeof import('./src/components/LanguageSelector.vue')['default']
     Map: typeof import('./src/components/Map.vue')['default']
     NavBar: typeof import('./src/components/NavBar.vue')['default']
-    Product: typeof import('./src/components/home/Product.vue')['default']
+    Product: typeof import('./src/components/Product.vue')['default']
     ProductsCarousel: typeof import('./src/components/home/ProductsCarousel.vue')['default']
     ProductsGrid: typeof import('./src/components/home/ProductsGrid.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
