@@ -262,3 +262,8 @@ export async function createItem(
     throw error
   }
 }
+
+export async function getItemsOfUser(userId: number): Promise<ItemCard[]> {
+  const response = await api.get(`/item/user/${userId}`)
+  return ItemCardSchema.array().parse(response.data)
+}

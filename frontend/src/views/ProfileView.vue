@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getRecommendedItems, type ItemCard } from '@/service/itemService'
+import { getItemsOfUser, type ItemCard } from '@/service/itemService'
 import LanguageSelector from '@/components/LanguageSelector.vue'
 import { useSessionStore, type User } from '@/stores/session'
 import Product from '@/components/home/Product.vue'
@@ -16,8 +16,8 @@ onMounted(async () => {
   if (authStore.user) {
     user.value = authStore.user
   }
-  const response = await getRecommendedItems()
-  items.value = response.items
+  const response = authStore.user ? await getItemsOfUser(authStore.user.id) : []
+  items.value = response
 })
 
 type ItemStatus = 'active' | 'reserved' | 'sold' | 'archived' | 'bought'
