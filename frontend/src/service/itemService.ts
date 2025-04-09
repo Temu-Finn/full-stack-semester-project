@@ -2,6 +2,13 @@ import { z } from 'zod'
 import api from '@/config/api'
 import { logger } from '@/utils/logger'
 
+const CategorySchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  icon: z.string(),
+  description: z.string(),
+})
+
 const ImageSchema = z.object({
   id: z.number(),
   dataURL: z.string(),
@@ -35,7 +42,7 @@ const CreateItemRequestSchema = z.object({
 const CompleteItemSchema = z.object({
   id: z.number(),
   sellerId: z.number(),
-  categoryId: z.number(),
+  category: CategorySchema,
   postalCode: z.string(),
   title: z.string(),
   description: z.string(),
