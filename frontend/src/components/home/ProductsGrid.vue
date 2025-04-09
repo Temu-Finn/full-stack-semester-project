@@ -15,12 +15,14 @@ getRecommendedItems().then((items) => {
     <h3 class="title">{{ $t('home.recommended') }}</h3>
     <div class="product-grid">
       <Product v-for="product in products" :key="product.id" :product="product" />
+      <p v-if="products.length == 0">{{ $t('home.noItemsFound') }}</p>
     </div>
   </div>
 </template>
 
 <style scoped>
 .container {
+  padding: 0 1rem;
   width: 100%;
 }
 .title {

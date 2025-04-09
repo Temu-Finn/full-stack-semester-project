@@ -6,7 +6,8 @@
   "home": {
     "heroTitle": "Find Your Next Favourite Item",
     "search": "Search",
-    "recommended": "Recommended for you"
+    "recommended": "Recommended for you",
+    "noItemsFound": "No items found. Try searching!"
   },
   "search": {
     "sortBy": "Sort by",
