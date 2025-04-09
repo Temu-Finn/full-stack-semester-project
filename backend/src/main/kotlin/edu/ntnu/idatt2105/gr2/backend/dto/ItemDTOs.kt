@@ -46,10 +46,6 @@ data class RecommendedItemsResponse(
     val items: List<ItemCard>
 )
 
-data class SearchResponse(
-    val items: List<ItemCard>
-)
-
 data class CreateItemRequest(
     @field:Positive(message = "Category ID must be positive")
     val categoryId: Int,

@@ -19,6 +19,7 @@ class ItemService(
     private val userContextService: UserContextService,
     private val imageService: ImageService,
     private val categoryService: CategoryService,
+    private val areaService: AreaService,
 ) {
     private val logger = LoggerFactory.getLogger(ItemService::class.java)
 
@@ -82,9 +83,10 @@ class ItemService(
         return itemRepository.findRecommendedItems().map { it.toCard() }
     }
 
-    fun searchItems(request: SearchItemRequest, pageable: Pageable): Page<ItemCard> {
+    fun searchItems(request: SearchRequest, pageable: Pageable): Page<ItemCard> {
         logger.info("Searching items with request: $request and pageable: $pageable")
         val itemPage = itemRepository.searchItems(request, pageable)
+        val counties = areaService.populateCounties(request)
         val itemCards = itemPage.content.map { it.toCard() }
         return PageImpl(itemCards, pageable, itemPage.totalElements)
     }
