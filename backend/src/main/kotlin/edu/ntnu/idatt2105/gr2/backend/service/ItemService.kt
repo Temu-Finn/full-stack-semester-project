@@ -18,6 +18,7 @@ class ItemService(
     private val itemRepository: ItemRepository,
     private val userContextService: UserContextService,
     private val imageService: ImageService,
+    private val categoryService: CategoryService,
 ) {
     private val logger = LoggerFactory.getLogger(ItemService::class.java)
 
@@ -45,7 +46,7 @@ class ItemService(
             images = imagesResponse,
             status = item.status.toString(),
             sellerId = item.sellerId,
-            categoryId = item.categoryId,
+            category = categoryService.getCategory(item.categoryId),
             postalCode = item.postalCode,
             buyerId = item.buyerId,
             allowVippsBuy = item.allowVippsBuy,
@@ -60,8 +61,7 @@ class ItemService(
         logger.info("Fetching item with ID: $id")
         val item = itemRepository.getItemById(id)
             ?: throw ItemNotFoundException("Item with ID $id not found")
-        val images = imageService.getImagesByItemId(id)
-        return item.toResponse(images)
+        return item.toResponse(withImages = true)
     }
 
     @Transactional
@@ -107,26 +107,30 @@ class ItemService(
         logger.info("Fetching items for user ID: $userId")
         return itemRepository.findAllBySellerId(userId, isOwnUser).map {  itemModelToCard(it) }
     }
-}
 
-fun Item.toResponse(images: List<ImageResponse>): CompleteItem {
-    return CompleteItem(
-        id = this.id,
-        sellerId = this.sellerId,
-        categoryId = this.categoryId,
-        title = this.title,
-        description = this.description,
-        price = this.price,
-        purchasePrice = this.purchasePrice,
-        buyerId = this.buyerId,
-        location = this.location,
-        allowVippsBuy = this.allowVippsBuy,
-        primaryImageId = this.primaryImageId,
-        status = this.status.toString(),
-        images = images,
-        createdAt = this.createdAt,
-        updatedAt = this.updatedAt,
-        municipality = this.municipality,
-        postalCode = this.postalCode
-    )
+
+    fun Item.toResponse(withImages: Boolean = false): CompleteItem {
+        return CompleteItem(
+            id = this.id,
+            sellerId = this.sellerId,
+            category = categoryService.getCategory(this.categoryId),
+            title = this.title,
+            description = this.description,
+            price = this.price,
+            purchasePrice = this.purchasePrice,
+            buyerId = this.buyerId,
+            location = this.location,
+            allowVippsBuy = this.allowVippsBuy,
+            primaryImageId = this.primaryImageId,
+            status = this.status.toString(),
+            images = if (withImages)
+                imageService.getImagesByItemId(this.id)
+            else
+                emptyList(),
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt,
+            municipality = this.municipality,
+            postalCode = this.postalCode
+        )
+    }
 }
