@@ -64,8 +64,6 @@ const productId = computed(() => {
 
 const productImages = computed(() => {
   if (!product.value?.images?.length) {
-    // Optionally return a placeholder image URL if no images are present
-    // return ['/path/to/placeholder.jpg'];
     return ['/placeholder.svg']
   }
   return product.value.images.map((img) => img.dataURL)
@@ -84,26 +82,18 @@ onMounted(async () => {
     const fetchedProduct = await getItem(productId.value)
     product.value = fetchedProduct
 
-    // Set initial selected image
     if (productImages.value.length > 0) {
-      selectedImage.value = productImages.value[0]
-      // Or prioritize primary image if available:
-      // const primary = product.value.images?.find(img => img.id === product.value?.primaryImageId);
-      // selectedImage.value = primary ? primary.dataURL : productImages.value[0];
-    } else {
-      // Handle case with no images (e.g., set a default placeholder)
-      selectedImage.value = '/img/placeholder.png' // Example placeholder path
+      const primary = product.value.images?.find((img) => img.id === product.value?.primaryImageId)
+      selectedImage.value = primary ? primary.dataURL : productImages.value[0]
     }
   } catch (err) {
     logger.error('Failed to fetch product:', err)
     error.value = 'Could not load product details. Please try again later.'
-    product.value = null // Ensure product is null on error
+    product.value = null
   } finally {
     isLoading.value = false
   }
 })
-
-// Remove the existing <script> block below if it still exists after this edit.
 </script>
 
 <style scoped>
@@ -185,6 +175,7 @@ onMounted(async () => {
 
 .map-section {
   margin-top: 20px;
+  height: 300px;
 }
 
 .map-container {
@@ -212,19 +203,5 @@ onMounted(async () => {
   padding: 20px;
   border: 1px dashed #ccc;
   border-radius: 4px;
-}
-
-/* Ensure map section is handled correctly when location might be null */
-.map-section {
-  margin-top: 20px;
-  min-height: 300px; /* Give map container a min-height */
-}
-
-.map-container {
-  /* Style might be inside MapB, ensure consistency */
-  width: 100%;
-  height: 300px;
-  border-radius: 6px;
-  background-color: #eee; /* Placeholder background */
 }
 </style>
