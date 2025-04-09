@@ -1,8 +1,10 @@
 <template>
-  <div class="product-container">
+  <div v-if="isLoading" class="loading-state">Loading product details...</div>
+  <div v-else-if="error" class="error-state">Error loading product: {{ error }}</div>
+  <div v-else-if="product" class="product-container">
     <div class="left-column">
       <div class="main-image">
-        <img :src="selectedImage" alt="Main product image" />
+        <img :src="selectedImage" alt="Main product" />
       </div>
       <div v-if="productImages.length > 1" class="thumbnails">
         <img
@@ -14,65 +16,94 @@
           @click="selectedImage = img"
         />
       </div>
+      <div v-else-if="productImages.length === 0" class="no-images">No images available.</div>
     </div>
 
     <div class="right-column">
       <h1 class="product-title">{{ product.title }}</h1>
       <div class="product-price">{{ product.price }} kr</div>
 
-      <button class="buy-button">Kjøp nå</button>
+      <button class="buy-button" :disabled="!product.allowVippsBuy">
+        {{ product.allowVippsBuy ? 'Kjøp nå (Vipps)' : 'Kjøp ikke tilgjengelig' }}
+      </button>
 
       <div class="product-details">
-        <p><strong>Tilstand:</strong> {{ product.condition }}</p>
-        <p><strong>Størrelse:</strong> {{ product.size }}</p>
-        <p><strong>Merke:</strong> {{ product.brand }}</p>
-        <p><strong>Kjønn:</strong> {{ product.gender }}</p>
-        <p><strong>Frakt:</strong> {{ product.shipping }}</p>
+        <p><strong>Status:</strong> {{ product.status }}</p>
+        <p><strong>Sted:</strong> {{ product.municipality }} ({{ product.postalCode }})</p>
+        <!-- Add other relevant details from CompleteItem if needed -->
         <p><strong>Beskrivelse:</strong> {{ product.description }}</p>
       </div>
 
       <div class="map-section">
-        <MapB />
+        <!-- Pass location data to MapB component if it accepts props -->
+        <MapB :location="product.location" />
       </div>
     </div>
   </div>
+  <div v-else class="not-found">Product not found.</div>
 </template>
 
-<script>
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import MapB from '@/components/Map.vue'
-import 'mapbox-gl/dist/mapbox-gl.css'
+import 'mapbox-gl/dist/mapbox-gl.css' // Keep mapbox CSS import if MapB requires it globally styled
+import { getItem, type CompleteItem } from '@/service/itemService'
+import { logger } from '@/utils/logger' // Import logger for error handling
 
-export default {
-  name: 'ProductView',
-  components: {
-    MapB,
-  },
-  data() {
-    return {
-      product: {
-        title: 'Bamboo Watch',
-        price: 350,
-        condition: 'Pent brukt',
-        size: '104',
-        brand: 'Polarn O. Pyret',
-        gender: 'Gutt',
-        shipping: 'Hentes eller sendes mot frakt',
-        description: 'Flott klespakke fra John Lewis & GAP ...',
-      },
-      productImages: [
-        'https://primefaces.org/cdn/primevue/images/product/bamboo-watch.jpg',
-        'https://primefaces.org/cdn/primevue/images/product/black-watch.jpg',
-        'https://primefaces.org/cdn/primevue/images/product/blue-band.jpg',
-      ],
-      selectedImage: '',
+const route = useRoute()
+const product = ref<CompleteItem | null>(null)
+const selectedImage = ref<string>('')
+const isLoading = ref<boolean>(true)
+const error = ref<string | null>(null)
+
+const productId = computed(() => {
+  const idParam = route.params.id
+  return Number(Array.isArray(idParam) ? idParam[0] : idParam)
+})
+
+const productImages = computed(() => {
+  if (!product.value?.images?.length) {
+    // Optionally return a placeholder image URL if no images are present
+    // return ['/path/to/placeholder.jpg'];
+    return []
+  }
+  return product.value.images.map((img) => img.dataURL)
+})
+
+onMounted(async () => {
+  if (isNaN(productId.value)) {
+    error.value = 'Invalid Product ID.'
+    isLoading.value = false
+    return
+  }
+
+  try {
+    isLoading.value = true
+    error.value = null
+    const fetchedProduct = await getItem(productId.value)
+    product.value = fetchedProduct
+
+    // Set initial selected image
+    if (productImages.value.length > 0) {
+      selectedImage.value = productImages.value[0]
+      // Or prioritize primary image if available:
+      // const primary = product.value.images?.find(img => img.id === product.value?.primaryImageId);
+      // selectedImage.value = primary ? primary.dataURL : productImages.value[0];
+    } else {
+      // Handle case with no images (e.g., set a default placeholder)
+      selectedImage.value = '/img/placeholder.png' // Example placeholder path
     }
-  },
-  created() {
-    if (this.productImages.length) {
-      this.selectedImage = this.productImages[0]
-    }
-  },
-}
+  } catch (err) {
+    logger.error('Failed to fetch product:', err)
+    error.value = 'Could not load product details. Please try again later.'
+    product.value = null // Ensure product is null on error
+  } finally {
+    isLoading.value = false
+  }
+})
+
+// Remove the existing <script> block below if it still exists after this edit.
 </script>
 
 <style scoped>
@@ -160,5 +191,40 @@ export default {
   width: 100%;
   height: 300px;
   border-radius: 6px;
+}
+
+.loading-state,
+.error-state,
+.not-found {
+  padding: 40px 20px;
+  text-align: center;
+  font-size: 18px;
+  color: #666;
+}
+
+.error-state {
+  color: red;
+}
+
+.no-images {
+  text-align: center;
+  color: #999;
+  padding: 20px;
+  border: 1px dashed #ccc;
+  border-radius: 4px;
+}
+
+/* Ensure map section is handled correctly when location might be null */
+.map-section {
+  margin-top: 20px;
+  min-height: 300px; /* Give map container a min-height */
+}
+
+.map-container {
+  /* Style might be inside MapB, ensure consistency */
+  width: 100%;
+  height: 300px;
+  border-radius: 6px;
+  background-color: #eee; /* Placeholder background */
 }
 </style>
