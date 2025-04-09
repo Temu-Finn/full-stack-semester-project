@@ -120,6 +120,9 @@ export async function getItem(id: number): Promise<CompleteItem> {
   }
 }
 
+export type CreateItemRequest = z.infer<typeof CreateItemRequestSchema>
+export type CompleteItem = z.infer<typeof CompleteItemSchema>
+
 /**
  * Fetches recommended items for the current user
  * @returns Promise containing the recommended items
