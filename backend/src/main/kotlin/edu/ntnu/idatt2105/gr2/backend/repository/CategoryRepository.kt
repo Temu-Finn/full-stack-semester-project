@@ -71,11 +71,11 @@ class CategoryRepository (private val dataSource: DataSource) {
     }
 
     // Finds a category by name
-    fun findByName(name: String): Category? {
+    fun getById(id: Int): Category? {
         dataSource.connection.use { conn ->
-            val sql = "SELECT * FROM categories WHERE name = ?"
+            val sql = "SELECT * FROM categories WHERE id = ?"
             conn.prepareStatement(sql).use { stmt ->
-                stmt.setString(1, name)
+                stmt.setInt(1, id)
                 stmt.executeQuery().use { rows ->
                     if (rows.next()) {
                         return Category(

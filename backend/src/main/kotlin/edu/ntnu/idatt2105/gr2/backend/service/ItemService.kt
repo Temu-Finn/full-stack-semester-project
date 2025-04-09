@@ -18,6 +18,7 @@ class ItemService(
     private val itemRepository: ItemRepository,
     private val userContextService: UserContextService,
     private val imageService: ImageService,
+    private val categoryService: CategoryService,
 ) {
     private val logger = LoggerFactory.getLogger(ItemService::class.java)
 
@@ -45,7 +46,7 @@ class ItemService(
             images = imagesResponse,
             status = item.status.toString(),
             sellerId = item.sellerId,
-            categoryId = item.categoryId,
+            category = categoryService.getCategory(item.categoryId),
             postalCode = item.postalCode,
             buyerId = item.buyerId,
             allowVippsBuy = item.allowVippsBuy,
@@ -60,8 +61,7 @@ class ItemService(
         logger.info("Fetching item with ID: $id")
         val item = itemRepository.getItemById(id)
             ?: throw ItemNotFoundException("Item with ID $id not found")
-        val images = imageService.getImagesByItemId(id)
-        return item.toResponse(images)
+        return item.toResponse().withImages()
     }
 
     @Transactional
@@ -77,56 +77,62 @@ class ItemService(
         return itemRepository.deleteById(itemId)
     }
 
-    private fun itemModelToCard(item: Item): ItemCard {
-        return ItemCard(
-            id = item.id,
-            title = item.title,
-            price = item.price,
-            municipality = item.municipality,
-            image = item.primaryImageId?.let { imageService.getImageById(item.primaryImageId)},
-            location = item.location,
-            status = item.status.toString(),
-            updatedAt = item.updatedAt
-        )
-    }
-
     fun getRecommendedItems(): List<ItemCard> {
         logger.info("Fetching recommended items")
-        return itemRepository.findRecommendedItems().map { itemModelToCard(it) }
+        return itemRepository.findRecommendedItems().map { it.toCard() }
     }
 
     fun searchItems(request: SearchItemRequest, pageable: Pageable): Page<ItemCard> {
         logger.info("Searching items with request: $request and pageable: $pageable")
         val itemPage = itemRepository.searchItems(request, pageable)
-        val itemCards = itemPage.content.map { itemModelToCard(it) }
+        val itemCards = itemPage.content.map { it.toCard() }
         return PageImpl(itemCards, pageable, itemPage.totalElements)
     }
 
     fun getItemsOfUser(userId: Int): List<ItemCard> {
         val isOwnUser = userId == userContextService.getCurrentUserId()
         logger.info("Fetching items for user ID: $userId")
-        return itemRepository.findAllBySellerId(userId, isOwnUser).map {  itemModelToCard(it) }
+        return itemRepository.findAllBySellerId(userId, isOwnUser).map {  it.toCard() }
     }
-}
 
-fun Item.toResponse(images: List<ImageResponse>): CompleteItem {
-    return CompleteItem(
-        id = this.id,
-        sellerId = this.sellerId,
-        categoryId = this.categoryId,
-        title = this.title,
-        description = this.description,
-        price = this.price,
-        purchasePrice = this.purchasePrice,
-        buyerId = this.buyerId,
-        location = this.location,
-        allowVippsBuy = this.allowVippsBuy,
-        primaryImageId = this.primaryImageId,
-        status = this.status.toString(),
-        images = images,
-        createdAt = this.createdAt,
-        updatedAt = this.updatedAt,
-        municipality = this.municipality,
-        postalCode = this.postalCode
-    )
+    fun Item.toResponse(): CompleteItem {
+        return CompleteItem(
+            id = id,
+            sellerId = sellerId,
+            category = categoryService.getCategory(categoryId),
+            title = title,
+            description = description,
+            price = price,
+            purchasePrice = purchasePrice,
+            buyerId = buyerId,
+            location = location,
+            allowVippsBuy = allowVippsBuy,
+            primaryImageId = primaryImageId,
+            status = status.toString(),
+            images = emptyList(),
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            municipality = municipality,
+            postalCode = postalCode
+        )
+    }
+
+    fun CompleteItem.withImages(): CompleteItem {
+        return this.copy(
+            images = imageService.getImagesByItemId(this.id)
+        )
+    }
+
+    fun Item.toCard(): ItemCard {
+        return ItemCard(
+            id = id,
+            title = title,
+            price = price,
+            municipality = municipality,
+            image = primaryImageId?.let { imageService.getImageById(primaryImageId)},
+            location = location,
+            status = status.toString(),
+            updatedAt = updatedAt
+        )
+    }
 }

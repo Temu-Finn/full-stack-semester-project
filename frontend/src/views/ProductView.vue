@@ -43,7 +43,8 @@
           }})
         </p>
         <p>
-          <strong>{{ $t('productView.categoryLabel') }}</strong> {{ product.category }}
+          <strong>{{ $t('productView.categoryLabel') }}</strong> {{ product.category.icon }}
+          {{ product.category.name }}
         </p>
         <p>
           <strong>{{ $t('productView.descriptionLabel') }}</strong> {{ product.description }}
@@ -98,6 +99,7 @@ onMounted(async () => {
     error.value = null
     const fetchedProduct = await getItem(productId.value)
     product.value = fetchedProduct
+    console.log(product.value)
 
     if (productImages.value.length > 0) {
       const primary = product.value.images?.find((img) => img.id === product.value?.primaryImageId)

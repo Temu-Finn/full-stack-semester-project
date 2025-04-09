@@ -24,7 +24,7 @@ data class ItemCard(
 data class CompleteItem(
     val id: Int,
     val sellerId: Int,
-    val categoryId: Int,
+    val category: CategoryResponse,
     val postalCode: String,
     val title: String,
     val description: String,
