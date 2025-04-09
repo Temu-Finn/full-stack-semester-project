@@ -3,22 +3,21 @@ package edu.ntnu.idatt2105.gr2.backend.service
 import edu.ntnu.idatt2105.gr2.backend.model.Message
 import edu.ntnu.idatt2105.gr2.backend.repository.MessageRepository
 import org.springframework.stereotype.Service
-import org.springframework.context.annotation.Lazy
 import java.sql.Timestamp
-import java.time.Instant
+import java.time.LocalDateTime
 
 @Service
 class MessageService(
     private val messageRepository: MessageRepository
 ) {
-    fun createMessage(Id: Int, conversationId: Int, senderId: Int, content: String, sentAt: Timestamp): Message {
+    fun createMessage(id: Int, conversationId: Int, senderId: Int, content: String, sentAt: Timestamp): Message {
 
         val message = Message(
-            id = Id,
+            id = id,
             conversationId = conversationId,
             senderId = senderId,
             content = content,
-            sentAt = Timestamp(System.currentTimeMillis())
+            sentAt = LocalDateTime.now()
         )
         return messageRepository.save(message)
     }

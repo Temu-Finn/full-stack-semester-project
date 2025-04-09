@@ -1,10 +1,8 @@
 package edu.ntnu.idatt2105.gr2.backend.controller
 
-import edu.ntnu.idatt2105.gr2.backend.dto.ConversationCardResponse
 import edu.ntnu.idatt2105.gr2.backend.dto.ConversationsCardsResponse
 import edu.ntnu.idatt2105.gr2.backend.dto.CreateConversationRequest
 import edu.ntnu.idatt2105.gr2.backend.dto.CreateConversationResponse
-import edu.ntnu.idatt2105.gr2.backend.model.Conversation
 import edu.ntnu.idatt2105.gr2.backend.repository.ItemRepository
 import edu.ntnu.idatt2105.gr2.backend.service.ConversationService
 import edu.ntnu.idatt2105.gr2.backend.service.UserContextService
@@ -27,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController
 class ConversationController(
     private val conversationService: ConversationService,
     private val userContextService: UserContextService,
-    private val itemRepository: ItemRepository,
 ) {
 
     private val logger = LoggerFactory.getLogger(ConversationController::class.java)
@@ -77,8 +74,7 @@ class ConversationController(
     )
     fun getAllConversations(): ConversationsCardsResponse {
         logger.info("fetching all conversations")
-        val currentUserId = userContextService.getCurrentUserId()
-        val conversations = conversationService.getAllConversationsForUser(currentUserId)
+        val conversations = conversationService.getAllConversationsForUser()
         logger.info("Successfully fetched all conversations")
         return conversations
     }

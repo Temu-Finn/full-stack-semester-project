@@ -65,6 +65,13 @@ class ItemService(
         return item.toResponse().withImages()
     }
 
+    fun getItemCardById(id: Int): ItemCard {
+        logger.info("Fetching item card with ID: $id")
+        val item = itemRepository.getItemById(id)
+            ?: throw ItemNotFoundException("Item with ID $id not found")
+        return item.toCard()
+    }
+
     @Transactional
     fun deleteItem(itemId: Int): Boolean {
         val item = getItemById(itemId)

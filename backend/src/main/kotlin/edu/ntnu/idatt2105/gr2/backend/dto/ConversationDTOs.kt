@@ -1,13 +1,12 @@
 package edu.ntnu.idatt2105.gr2.backend.dto
 
-import java.sql.Timestamp
+import java.time.LocalDateTime
 
 data class ConversationCardResponse(
     val id: Int,
-    val itemTitle: String,
-    val lastMessage: String,
-    val lastMessageTime: String,
-    val containsUnreadMessages: Boolean
+    val lastMessage: String?,
+    val lastMessageTime: LocalDateTime?,
+    val item: ItemCard
 )
 
 data class ConversationsCardsResponse(

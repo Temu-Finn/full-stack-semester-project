@@ -1,13 +1,13 @@
 package edu.ntnu.idatt2105.gr2.backend.model
 
-import java.sql.Timestamp
+import java.time.LocalDateTime
 
-class Message (
+data class Message (
     val id: Int = -1,
     val conversationId: Int = -1,
     val senderId: Int = -1,
     var content: String = "",
-    var sentAt: Timestamp,
+    var sentAt: LocalDateTime,
     var isRead: Boolean = false,
 ) {
     init {
@@ -15,7 +15,5 @@ class Message (
         require(conversationId >= 0) { "Conversation ID must be non-negative" }
         require(senderId >= 0) { "Sender ID must be non-negative" }
         require(content.isNotBlank()) { "Content cannot be blank" }
-        require(sentAt.time > 0) { "Sent time must be a valid timestamp" }
-        require(!isRead) { "isRead must be false upon initialization" }
     }
 }

@@ -10,13 +10,15 @@ import org.springframework.stereotype.Service
 import org.springframework.context.annotation.Lazy
 import java.time.Instant
 import java.sql.Timestamp
+import java.time.LocalDateTime
 
 
 @Service
 class ConversationService(
     private val conversationRepository: ConversationRepository,
     private val messageRepository: MessageRepository,
-    private val itemRepository: ItemRepository
+    private val itemService: ItemService,
+    private val userContextService: UserContextService,
 ) {
     fun createConversation(request: CreateConversationRequest, buyerId: Int): CreateConversationResponse {
         return conversationRepository.save(request.toModel(buyerId)).toResponse()
@@ -32,23 +34,13 @@ class ConversationService(
         conversationRepository.delete(id)
     }
 
-    fun getAllConversationsForUser(userId: Int): ConversationsCardsResponse {
+    fun getAllConversationsForUser(): ConversationsCardsResponse {
+        val userId = userContextService.getCurrentUserId()
         val conversations = conversationRepository.findAllConversationsByUserId(userId)
 
-        val conversationCards = conversations.map { convo ->
-            val latestMessage = messageRepository.getLatestMessage(convo.id)
-            val itemTitle = itemRepository.getItemById(convo.itemId)?.let { it.title } ?: "Unknown item name"
+        val conversationCards = conversations.map { conversation -> conversation.toResponse() }
 
-            ConversationCardResponse(
-                id = convo.id,
-                itemTitle = itemTitle,
-                lastMessage = latestMessage?.content ?:"No messages",
-                lastMessageTime = latestMessage?.sentAt?.toString() ?: "Unknown time",
-                containsUnreadMessages = latestMessage?.isRead ?: false
-            )
-        }
-
-        return ConversationsCardsResponse(conversations = conversationCards).toResponse()
+        return ConversationsCardsResponse(conversationCards)
     }
 
 
@@ -65,13 +57,12 @@ class ConversationService(
             throw IllegalArgumentException("User does not have access to this conversation")
         }
 
-        val currentTimeStamp = Timestamp.from(Instant.now())
         val message = Message(
             id = -1,
             conversationId = conversationId,
             senderId = senderId,
             content = content,
-            sentAt = currentTimeStamp
+            sentAt = LocalDateTime.now(),
         )
 
         return messageRepository.save(message)
@@ -84,30 +75,25 @@ class ConversationService(
         )
     }
 
-    fun CreateConversationRequest.toModel(
-        buyerId: Int = -1): Conversation {
+    fun CreateConversationRequest.toModel(buyerId: Int = -1): Conversation {
         return Conversation(
             id = -1,
             itemId = this.itemId,
             buyerId = buyerId,
-            createdAt = Timestamp.from(Instant.now()),
-            updatedAt = Timestamp.from(Instant.now())
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now()
         )
     }
 
-    fun ConversationCardResponse.toResponse(): ConversationCardResponse {
+    fun Conversation.toResponse(): ConversationCardResponse {
+        val latestMessage = messageRepository.getLatestMessage(id)
+        val item = itemService.getItemCardById(itemId)
+
         return ConversationCardResponse(
-            id = this.id,
-            itemTitle = this.itemTitle,
-            lastMessage = this.lastMessage,
-            lastMessageTime = this.lastMessageTime,
-            containsUnreadMessages = this.containsUnreadMessages
-        )
-    }
-
-    fun ConversationsCardsResponse.toResponse(): ConversationsCardsResponse {
-        return ConversationsCardsResponse(
-            conversations = this.conversations.map { it.toResponse() }
+            id = id,
+            lastMessage = latestMessage?.content,
+            lastMessageTime = latestMessage?.sentAt,
+            item = item,
         )
     }
 }
