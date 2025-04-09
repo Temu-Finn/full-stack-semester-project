@@ -2,6 +2,7 @@ package edu.ntnu.idatt2105.gr2.backend.repository
 
 import edu.ntnu.idatt2105.gr2.backend.model.User
 import org.springframework.stereotype.Repository
+import java.sql.ResultSet
 import java.sql.Statement
 import javax.sql.DataSource
 
@@ -26,7 +27,7 @@ class UserRepository(private val dataSource: DataSource) {
 
                 stmt.generatedKeys.use { keys ->
                     if (keys.next()) {
-                        return User(keys.getInt(1), name, email, password)
+                        return user.copy(id = keys.getInt(1))
                     } else {
                         throw RuntimeException("Creating user failed, no ID obtained.")
                     }
@@ -42,12 +43,7 @@ class UserRepository(private val dataSource: DataSource) {
                 stmt.setString(1, email)
                 stmt.executeQuery().use { rows ->
                     if (rows.next()) {
-                        return User(
-                            rows.getInt("id"),
-                            rows.getString("name"),
-                            rows.getString("email"),
-                            rows.getString("password"),
-                        )
+                        return mapRowToUser(rows)
                     }
                 }
             }
@@ -63,17 +59,23 @@ class UserRepository(private val dataSource: DataSource) {
                 stmt.setInt(1, id)
                 stmt.executeQuery().use { rows ->
                     if (rows.next()) {
-                        return User(
-                            rows.getInt("id"),
-                            rows.getString("name"),
-                            rows.getString("email"),
-                            rows.getString("password"),
-                        )
+                        return mapRowToUser(rows)
                     }
                 }
             }
         }
         return null
+    }
+
+    fun mapRowToUser(rs: ResultSet): User {
+        return User(
+            id = rs.getInt("id"),
+            name = rs.getString("name"),
+            email = rs.getString("email"),
+            joinedAt =  rs.getTimestamp("created_at").toLocalDateTime(),
+            isAdmin = rs.getBoolean("is_admin"),
+            passwordHashed = rs.getString("password")
+        )
     }
 
     fun isAdmin(userId: Int): Boolean {

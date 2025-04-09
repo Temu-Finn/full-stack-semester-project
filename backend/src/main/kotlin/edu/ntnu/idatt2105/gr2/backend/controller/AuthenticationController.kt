@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "Authentication", description = "Authentication management APIs")
 class AuthenticationController(
     private val authenticationService: AuthenticationService,
-    private val jwtService: JwtService
 ) {
     private val logger = LoggerFactory.getLogger(AuthenticationController::class.java)
 
@@ -46,20 +45,11 @@ class AuthenticationController(
         @Valid @RequestBody request: CreateUserRequest
     ): ResponseEntity<UserResponse> {
         logger.info("Attempting to create new user with email: ${request.email}")
-        
-        val user: User = authenticationService.signup(request.name, request.email, request.password)
-        val jwtToken = jwtService.generateToken(user)
+
+        val user = authenticationService.signup(request.name, request.email, request.password)
 
         logger.info("Successfully created user with email: ${user.email}")
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-            UserResponse(
-                user.userId,
-                user.name,
-                user.email,
-                jwtToken,
-                jwtService.getExpirationTime()
-            )
-        )
+        return ResponseEntity.status(HttpStatus.CREATED).body(user)
     }
 
     @PostMapping("/login")
@@ -80,18 +70,9 @@ class AuthenticationController(
     ): ResponseEntity<UserResponse> {
         logger.info("Login attempt for user with email: ${request.email}")
         
-        val user: User = authenticationService.authenticate(request.email, request.password)
-        val jwtToken = jwtService.generateToken(user)
+        val user = authenticationService.authenticate(request.email, request.password)
 
         logger.info("Successfully authenticated user with email: ${user.email}")
-        return ResponseEntity.ok(
-            UserResponse(
-                user.userId,
-                user.name,
-                user.email,
-                jwtToken,
-                jwtService.getExpirationTime()
-            )
-        )
+        return ResponseEntity.ok(user)
     }
 }

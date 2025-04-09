@@ -5,7 +5,6 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
@@ -25,7 +24,7 @@ class JwtService {
         val now = System.currentTimeMillis();
         val expirationTime = now + expiration;
 
-        val userId = if (userDetails is User) userDetails.userId else throw IllegalArgumentException("UserDetails must be an instance of custom User class")
+        val userId = if (userDetails is User) userDetails.id else throw IllegalArgumentException("UserDetails must be an instance of custom User class")
         val email = userDetails.username
 
         val claims: Map<String, Any> = mapOf("email" to email)
@@ -51,7 +50,7 @@ class JwtService {
 
     fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
         val extractedUserId: Int? = extractUserIdFromToken(token)
-        val userIdFromUserDetails = if (userDetails is User) userDetails.userId else null
+        val userIdFromUserDetails = if (userDetails is User) userDetails.id else null
         return extractedUserId != null && extractedUserId == userIdFromUserDetails && !isTokenExpired(token)
     }
 

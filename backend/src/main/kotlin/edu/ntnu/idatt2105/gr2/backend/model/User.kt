@@ -2,11 +2,14 @@ package edu.ntnu.idatt2105.gr2.backend.model
 
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
+import java.time.LocalDateTime
 
-class User(
-    val userId: Int = -1,
+data class User(
+    val id: Int = -1,
     val name: String,
     val email: String,
+    val joinedAt: LocalDateTime = LocalDateTime.now(),
+    val isAdmin: Boolean = false,
 
     private var passwordHashed: String
 ) : UserDetails {
