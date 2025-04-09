@@ -1,23 +1,38 @@
-<script lang="ts">
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted, defineProps } from 'vue'
 import mapboxgl from 'mapbox-gl'
+import type { Location } from '@/service/itemService'
+
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN
 
-export default {
-  mounted() {
-    const map = new mapboxgl.Map({
-      container: this.$refs.mapContainer,
-      style: 'mapbox://styles/mapbox/streets-v12', // Replace with your preferred map style
-      center: [-71.224518, 42.213995],
+const mapContainer = ref<HTMLElement | null>(null)
+let map: mapboxgl.Map | null = null
+
+const props = defineProps<{
+  location: Location
+}>()
+
+onMounted(() => {
+  if (mapContainer.value) {
+    const centerLng = props.location ? props.location.longitude : 10.4036
+    const centerLat = props.location ? props.location.latitude : 63.4168
+    console.log(props.location)
+
+    map = new mapboxgl.Map({
+      container: mapContainer.value,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [centerLng, centerLat],
       zoom: 9,
     })
+  }
+})
 
-    this.map = map
-  },
-  unmounted() {
-    this.map.remove()
-    this.map = null
-  },
-}
+onUnmounted(() => {
+  if (map) {
+    map.remove()
+    map = null
+  }
+})
 </script>
 
 <template>

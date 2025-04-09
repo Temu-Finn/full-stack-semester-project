@@ -35,8 +35,7 @@
       </div>
 
       <div class="map-section">
-        <!-- Pass location data to MapB component if it accepts props -->
-        <MapB :location="product.location" />
+        <Map :location="product.location" />
       </div>
     </div>
   </div>
@@ -46,10 +45,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import MapB from '@/components/Map.vue'
-import 'mapbox-gl/dist/mapbox-gl.css' // Keep mapbox CSS import if MapB requires it globally styled
+import Map from '@/components/Map.vue'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import { getItem, type CompleteItem } from '@/service/itemService'
-import { logger } from '@/utils/logger' // Import logger for error handling
+import { logger } from '@/utils/logger'
 
 const route = useRoute()
 const product = ref<CompleteItem | null>(null)
