@@ -3,6 +3,7 @@ package edu.ntnu.idatt2105.gr2.backend.repository
 import edu.ntnu.idatt2105.gr2.backend.dto.SearchRequest
 import edu.ntnu.idatt2105.gr2.backend.model.CountyMunicipalityCount
 import org.springframework.stereotype.Repository
+import java.sql.ResultSet
 import javax.sql.DataSource
 
 @Repository
@@ -17,7 +18,8 @@ class AreaRepository (private val dataSource: DataSource) {
             FROM 
                 postal_codes pc
             LEFT JOIN 
-                items i ON pc.postal_code = i.postal_code AND i.status = 'Available'
+                items i ON pc.postal_code = i.postal_code
+            WHERE ${request.whereClause()}
             GROUP BY 
                 pc.county, pc.municipality
             ORDER BY 
@@ -26,17 +28,23 @@ class AreaRepository (private val dataSource: DataSource) {
 
         return dataSource.connection.use { conn ->
             conn.prepareStatement(sql).use { stmt ->
+                request.prepareWhereClause(stmt)
                 stmt.executeQuery().use { rs ->
-                    val counties = mutableListOf<CountyMunicipalityCount>()
-                    while (rs.next()) {
-                        val county = rs.getString("county")
-                        val municipality = rs.getString("municipality")
-                        val count = rs.getInt("item_count")
-                        counties.add(CountyMunicipalityCount(county, municipality, count))
+                    buildList {
+                        while (rs.next()) {
+                            add(mapRowToCountyMunicipalityCount(rs))
+                        }
                     }
-                    counties
                 }
             }
         }
+    }
+
+    fun mapRowToCountyMunicipalityCount(rs: ResultSet): CountyMunicipalityCount {
+        return CountyMunicipalityCount(
+            county = rs.getString("county"),
+            municipality = rs.getString("municipality"),
+            count = rs.getInt("item_count")
+        )
     }
 }

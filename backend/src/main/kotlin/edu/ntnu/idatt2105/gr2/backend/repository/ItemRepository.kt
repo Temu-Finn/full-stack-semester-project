@@ -99,56 +99,8 @@ class ItemRepository(private val dataSource: DataSource) {
         return cards
     }
 
-    fun SearchRequest.whereClause() = StringBuilder().apply {
-        append("i.status = ?")
-        if (!searchText.isNullOrBlank()) {
-            append(" AND (LOWER(i.title) LIKE LOWER(?) OR LOWER(i.description) LIKE LOWER(?))")
-        }
-        if (categoryId != null) {
-            append(" AND i.category_id = ?")
-        }
-        if (!county.isNullOrBlank()) {
-            append(" AND pc.county = ?")
-            if (!municipality.isNullOrBlank()) {
-                append(" AND pc.municipality = ?")
-                if (!city.isNullOrBlank()) {
-                    append(" AND pc.city = ?")
-                }
-            }
-        }
-        if (latitude != null && longitude != null && maxDistanceKm != null && maxDistanceKm > 0) {
-            append(" AND i.location IS NOT NULL AND ST_Distance_Sphere(location, ST_PointFromText(?, 4326)) <= ?")
-        }
-    }
-
-    fun SearchRequest.params(): List<Any> {
-        val params = mutableListOf<Any>(ItemStatus.Available.toString())
-        if (!searchText.isNullOrBlank()) {
-            params.add("%$searchText%")
-            params.add("%$searchText%")
-        }
-        if (categoryId != null) {
-            params.add(categoryId)
-        }
-        if (!county.isNullOrBlank()) {
-            params.add(county)
-            if (!municipality.isNullOrBlank()) {
-                params.add(municipality)
-                if (!city.isNullOrBlank()) {
-                    params.add(city)
-                }
-            }
-        }
-        if (latitude != null && longitude != null && maxDistanceKm != null && maxDistanceKm > 0) {
-            params.add("POINT($longitude $latitude)")
-            params.add(maxDistanceKm * 1000) // Convert km to meters
-        }
-        return params
-    }
-
     fun searchItems(request: SearchRequest, pageable: Pageable): Page<Item> {
         val whereClause = request.whereClause()
-        val params = request.params()
         val baseSql = """
             FROM items i
             JOIN postal_codes pc ON i.postal_code = pc.postal_code
@@ -159,7 +111,7 @@ class ItemRepository(private val dataSource: DataSource) {
         val countSql = "SELECT COUNT(i.id) $baseSql"
         val totalCount = dataSource.connection.use { conn ->
             conn.prepareStatement(countSql).use { stmt ->
-                params.forEachIndexed { index, param -> stmt.setObject(index + 1, param) }
+                request.prepareWhereClause(stmt)
                 stmt.executeQuery().use { rs ->
                     if (rs.next()) rs.getLong(1) else 0L
                 }
@@ -179,10 +131,9 @@ class ItemRepository(private val dataSource: DataSource) {
         
         val content = dataSource.connection.use { conn ->
             conn.prepareStatement(contentSql).use { stmt ->
-                var paramIndex = 1
-                params.forEach { param -> stmt.setObject(paramIndex++, param) }
+                var paramIndex = request.prepareWhereClause(stmt)
                 stmt.setInt(paramIndex++, pageable.pageSize)
-                stmt.setLong(paramIndex++, pageable.offset)
+                stmt.setLong(paramIndex, pageable.offset)
                 
                 stmt.executeQuery().use { rs ->
                     buildList { while (rs.next()) { add(mapRowToItem(rs)) } }

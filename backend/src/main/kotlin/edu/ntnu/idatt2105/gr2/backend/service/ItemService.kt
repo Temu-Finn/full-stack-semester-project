@@ -83,12 +83,12 @@ class ItemService(
         return itemRepository.findRecommendedItems().map { it.toCard() }
     }
 
-    fun searchItems(request: SearchRequest, pageable: Pageable): Page<ItemCard> {
+    fun searchItems(request: SearchRequest, pageable: Pageable): SearchResponse {
         logger.info("Searching items with request: $request and pageable: $pageable")
         val itemPage = itemRepository.searchItems(request, pageable)
         val counties = areaService.populateCounties(request)
         val itemCards = itemPage.content.map { it.toCard() }
-        return PageImpl(itemCards, pageable, itemPage.totalElements)
+        return SearchResponse(counties, PageImpl(itemCards, pageable, itemPage.totalElements))
     }
 
     fun getItemsOfUser(userId: Int): List<ItemCard> {
