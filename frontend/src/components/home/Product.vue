@@ -9,7 +9,7 @@
       <h3 class="product-name">{{ product.title }}</h3>
       <div class="product-meta">
         <span class="product-location">{{ product.municipality }}</span>
-        <span class="product-price">${{ product.price }}</span>
+        <span class="product-price">{{ product.price }} kr</span>
       </div>
     </div>
   </router-link>
