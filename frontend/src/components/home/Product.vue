@@ -1,5 +1,5 @@
 <template>
-  <a class="product-card" href="">
+  <router-link class="product-card" :to="`/product/${product.id}`">
     <img :alt="product.title" :src="product.image?.dataURL" class="product-image" />
     <div class="product-info">
       <h3 class="product-name">{{ product.title }}</h3>
@@ -8,7 +8,7 @@
         <span class="product-price">${{ product.price }}</span>
       </div>
     </div>
-  </a>
+  </router-link>
 </template>
 
 <script setup lang="ts">
