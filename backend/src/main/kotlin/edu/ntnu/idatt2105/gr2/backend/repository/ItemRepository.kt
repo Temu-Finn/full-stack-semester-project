@@ -1,7 +1,10 @@
 package edu.ntnu.idatt2105.gr2.backend.repository
 
-import edu.ntnu.idatt2105.gr2.backend.dto.SearchItemRequest
+import edu.ntnu.idatt2105.gr2.backend.dto.SearchRequest
 import edu.ntnu.idatt2105.gr2.backend.model.*
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
 import java.sql.Statement
@@ -96,58 +99,69 @@ class ItemRepository(private val dataSource: DataSource) {
         return cards
     }
 
-    fun searchItems(request: SearchItemRequest): List<Item> {
-        val conditions = mutableListOf<String>()
-        val params = mutableListOf<Any>()
-        var paramIndex = 1
+    fun searchItems(request: SearchRequest, pageable: Pageable): Page<Item> {
+        val whereClause = request.whereClause()
+        val baseSql = """
+            FROM items i
+            JOIN postal_codes pc ON i.postal_code = pc.postal_code
+            WHERE $whereClause
+        """.trimIndent()
 
-        if (!request.searchText.isNullOrBlank()) {
-            conditions.add("(LOWER(i.title) LIKE LOWER(?) OR LOWER(i.description) LIKE LOWER(?))")
-            params.add("%${request.searchText}%")
-            params.add("%${request.searchText}%")
-            paramIndex += 2
-        }
-
-        if (request.categoryId != null) {
-            conditions.add("i.category_id = ?")
-            params.add(request.categoryId)
-            paramIndex++
-        }
-
-        val whereClause = if (conditions.isEmpty()) {
-            "1=1" // Return all items if no conditions
-        } else {
-            conditions.joinToString(" AND ")
-        }
-
-        return queryItemsWhere(whereClause) { stmt ->
-            for (i in params.indices) {
-                stmt.setObject(i + 1, params[i])
+        // Query for total count
+        val countSql = "SELECT COUNT(i.id) $baseSql"
+        val totalCount = dataSource.connection.use { conn ->
+            conn.prepareStatement(countSql).use { stmt ->
+                request.prepareWhereClause(stmt)
+                stmt.executeQuery().use { rs ->
+                    if (rs.next()) rs.getLong(1) else 0L
+                }
             }
         }
+
+        // Query for page content
+        val sortClause = pageable.sort.map { "${it.property} ${it.direction}" }.joinToString(", ").ifBlank { "i.updated_at DESC" }
+        val contentSql = """
+            SELECT id, seller_id, category_id, i.postal_code, title, description, price, purchase_price, buyer_id, 
+                   ST_X(location) AS longitude, ST_Y(location) AS latitude, allow_vipps_buy, primary_image_id, 
+                   status, created_at, updated_at, municipality
+            $baseSql
+            ORDER BY $sortClause
+            LIMIT ? OFFSET ? 
+        """.trimIndent()
+        
+        val content = dataSource.connection.use { conn ->
+            conn.prepareStatement(contentSql).use { stmt ->
+                var paramIndex = request.prepareWhereClause(stmt)
+                stmt.setInt(paramIndex++, pageable.pageSize)
+                stmt.setLong(paramIndex, pageable.offset)
+                
+                stmt.executeQuery().use { rs ->
+                    buildList { while (rs.next()) { add(mapRowToItem(rs)) } }
+                }
+            }
+        }
+
+        return PageImpl(content, pageable, totalCount)
     }
 
     private fun queryItemsWhere(
         where: String,
         setParams: (java.sql.PreparedStatement) -> Unit = {}
     ): List<Item> {
+        val effectiveWhere = if (where.isBlank()) "1=1" else where
         val sql = """
             SELECT id, seller_id, category_id, i.postal_code, title, description, price, purchase_price, buyer_id, 
                    ST_X(location) AS longitude, ST_Y(location) AS latitude, allow_vipps_buy, primary_image_id, 
                    status, created_at, updated_at, municipality
             FROM items i
             JOIN postal_codes pc ON i.postal_code = pc.postal_code
-            WHERE $where
+            WHERE $effectiveWhere
         """.trimIndent()
         return dataSource.connection.use { conn ->
             conn.prepareStatement(sql).use { stmt ->
                 setParams(stmt)
                 stmt.executeQuery().use { rs ->
-                    buildList {
-                        while (rs.next()) {
-                            add(mapRowToItem(rs))
-                        }
-                    }
+                    buildList { while (rs.next()) { add(mapRowToItem(rs)) } }
                 }
             }
         }

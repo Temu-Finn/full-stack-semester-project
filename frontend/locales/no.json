@@ -6,16 +6,36 @@
   "home": {
     "heroTitle": "Finn din neste favorittgjenstand",
     "search": "Søk",
-    "recommended": "Anbefalt for deg"
+    "recommended": "Anbefalt for deg",
+    "noItemsFound": "Ingen produkter funnet. Prøv å søke!"
+  },
+  "search": {
+    "sortBy": "Sorter",
+    "lowestPrice": "Laveste pris",
+    "highestPrice": "Høyeste pris",
+    "newest": "Nyeste",
+    "oldest": "Eldste",
+    "closest": "Nærmeste",
+    "showOnMap": "Vis på kart",
+    "hitsFor": "resultater for",
+    "acceptsVipps": "Aksepterer Vipps-betaling"
   },
   "newProduct": {
     "title": "Legg ut nytt produkt",
-    "productTitle": "Produkt tittel",
+    "category": "Kategori",
+    "selectCategory": "Velg kategori",
+    "productTitle": "Tittel",
     "description": "Beskrivelse",
     "price": "Pris (NOK)",
     "location": "Posisjon",
-    "image": "Legg til bilder",
-    "vipps": "Aksepter Vipps betaling"
+    "images": "Bilder",
+    "selectImages": "Velg eller dra bilder hit",
+    "addImages": "Legg til bilder",
+    "primaryIndicator": "Primær",
+    "vipps": "Betaling",
+    "postalCode": "Postnummer",
+    "creating": "Oppretter...",
+    "createButton": "Opprett produkt"
   },
   "chat": {
     "online": "På nett",
@@ -57,6 +77,35 @@
   "profile": {
     "title": "Profil",
     "language": "Språk",
-    "logout": "Logg ut"
+    "logout": "Logg ut",
+    "joinedOn": "Ble med",
+    "active": "Til salgs",
+    "reserved": "Reservert",
+    "sold": "Solgt",
+    "archived": "Arkivert",
+    "bought": "Kjøpt"
+  },
+  "validation": {
+    "required": "{field} er påkrevd.",
+    "positiveNumber": "{field} må være et positivt tall.",
+    "postalCode": "{field} må være 4 siffer.",
+    "invalid": "Felt ovenfor er ugyldig."
+  },
+  "productView": {
+    "loading": "Laster produktdetaljer...",
+    "errorLoadingPrefix": "Feil ved lasting av produkt:",
+    "altMainImage": "Hovedproduktbilde",
+    "altThumbnail": "Miniatyrbilde",
+    "noImages": "Ingen bilder tilgjengelig.",
+    "currencySuffix": " kr",
+    "buyNowVipps": "Kjøp nå (Vipps)",
+    "buyNotAvailable": "Kjøp ikke tilgjengelig",
+    "statusLabel": "Status:",
+    "locationLabel": "Sted:",
+    "categoryLabel": "Kategori:",
+    "descriptionLabel": "Beskrivelse:",
+    "notFound": "Produkt ikke funnet.",
+    "errorInvalidId": "Ugyldig produkt-ID.",
+    "errorFetchFailed": "Kunne ikke laste produktdetaljer. Vennligst prøv igjen senere."
   }
 }

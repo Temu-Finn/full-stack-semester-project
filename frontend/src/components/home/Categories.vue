@@ -4,7 +4,7 @@
       <a
         v-for="category in categories"
         :key="category.id"
-        :href="category.link"
+        :href="`/item/search?category=${category.id}`"
         class="category-card"
         @click.prevent
       >
@@ -16,20 +16,19 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { getCategories } from '@/service/categoryService'
 
-const categories = ref(
-  Array.from({ length: 12 }, (_, i) => ({
-    id: i + 1,
-    name: 'Electronics',
-    icon: '💻', // Example Icon
-    link: '#/category/electronics', // Mock link
-  })),
-)
+const categories = ref([])
+
+onMounted(async () => {
+  categories.value = await getCategories()
+})
 </script>
 
 <style scoped>
 .category-grid-container {
+  width: 100%;
 }
 
 .category-grid-container h2 {
@@ -40,9 +39,9 @@ const categories = ref(
 .category-grid {
   margin: auto;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
   justify-items: center;
-  gap: 24px;
 }
 
 .category-card {
@@ -82,7 +81,10 @@ const categories = ref(
 
 @media (max-width: 600px) {
   .category-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+  }
+  .category-card {
+    width: 6rem;
   }
   .category-icon {
     font-size: 1rem;
