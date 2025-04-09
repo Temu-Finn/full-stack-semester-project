@@ -78,5 +78,22 @@
     "positiveNumber": "{field} må være et positivt tall.",
     "postalCode": "{field} må være 4 siffer.",
     "invalid": "Felt ovenfor er ugyldig."
+  },
+  "productView": {
+    "loading": "Laster produktdetaljer...",
+    "errorLoadingPrefix": "Feil ved lasting av produkt:",
+    "altMainImage": "Hovedproduktbilde",
+    "altThumbnail": "Miniatyrbilde",
+    "noImages": "Ingen bilder tilgjengelig.",
+    "currencySuffix": " kr",
+    "buyNowVipps": "Kjøp nå (Vipps)",
+    "buyNotAvailable": "Kjøp ikke tilgjengelig",
+    "statusLabel": "Status:",
+    "locationLabel": "Sted:",
+    "categoryLabel": "Kategori:",
+    "descriptionLabel": "Beskrivelse:",
+    "notFound": "Produkt ikke funnet.",
+    "errorInvalidId": "Ugyldig produkt-ID.",
+    "errorFetchFailed": "Kunne ikke laste produktdetaljer. Vennligst prøv igjen senere."
   }
 }

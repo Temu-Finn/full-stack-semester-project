@@ -673,7 +673,7 @@ button[type='submit'] {
   border: none;
   border-radius: 8px;
   font-size: 1rem; /* Consistent font size */
-  font-weight: 500;
+  font-weight: bold;
   cursor: pointer;
   transition:
     background-color 0.2s ease,

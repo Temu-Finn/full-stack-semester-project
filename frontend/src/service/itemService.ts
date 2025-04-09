@@ -106,6 +106,20 @@ export type SearchItemsResponse = z.infer<typeof SearchItemsResponseSchema>
 
 export type CreateItemRequest = z.infer<typeof CreateItemRequestSchema>
 export type CompleteItem = z.infer<typeof CompleteItemSchema>
+export type Location = z.infer<typeof LocationSchema>
+
+export async function getItem(id: number): Promise<CompleteItem> {
+  try {
+    const response = await api.get(`/item/${id}`)
+    return CompleteItemSchema.parse(response.data)
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      logger.error('Invalid response format from server', { errors: error.errors })
+      throw new Error('Invalid response format from server')
+    }
+    throw error
+  }
+}
 
 /**
  * Fetches recommended items for the current user
