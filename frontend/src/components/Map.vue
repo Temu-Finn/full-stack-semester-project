@@ -16,7 +16,6 @@ onMounted(() => {
   if (mapContainer.value) {
     const centerLng = props.location ? props.location.longitude : 10.4036
     const centerLat = props.location ? props.location.latitude : 63.4168
-    console.log(props.location)
 
     map = new mapboxgl.Map({
       container: mapContainer.value,
