@@ -91,7 +91,7 @@ class MessageRepository (private val dataSource: DataSource) {
             conversationId = rs.getInt("conversationId"),
             senderId = rs.getInt("senderId"),
             content = rs.getString("content"),
-            sentAt = rs.getTimestamp("sentAt").toLocalDateTime(),
+            sentAt = rs.getTimestamp("sentAt").toInstant(),
             isRead = rs.getBoolean("isRead")
         )
     }

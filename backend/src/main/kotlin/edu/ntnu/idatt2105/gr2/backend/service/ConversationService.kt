@@ -7,7 +7,7 @@ import edu.ntnu.idatt2105.gr2.backend.repository.ConversationRepository
 import edu.ntnu.idatt2105.gr2.backend.repository.MessageRepository
 import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
 import org.springframework.stereotype.Service
-import java.time.LocalDateTime
+import java.time.Instant
 
 
 @Service
@@ -89,7 +89,7 @@ class ConversationService(
             conversationId = conversationId,
             senderId = senderId,
             content = content,
-            sentAt = LocalDateTime.now(),
+            sentAt = Instant.now(),
         )
 
         return messageRepository.save(message)
@@ -108,8 +108,8 @@ class ConversationService(
             id = -1,
             itemId = this.itemId,
             buyerId = buyerId,
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
+            createdAt = Instant.now(),
+            updatedAt = Instant.now()
         )
     }
 

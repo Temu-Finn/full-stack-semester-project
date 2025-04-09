@@ -1,12 +1,11 @@
 package edu.ntnu.idatt2105.gr2.backend.dto
 
-import edu.ntnu.idatt2105.gr2.backend.model.Message
-import java.time.LocalDateTime
+import java.time.Instant
 
 data class ConversationCardResponse(
     val id: Int,
     val lastMessage: String?,
-    val lastMessageTime: LocalDateTime?,
+    val lastMessageTime: Instant?,
     val item: ItemCard
 )
 
@@ -21,7 +20,7 @@ data class NewMessageResponse(
     val sentAt: String
 )
 
-data class Messages(
+data class Message(
     val id: Int,
     val conversationId: Int,
     val senderId: Int,
@@ -44,8 +43,8 @@ data class getConversationRequest(
 
 data class getConversationResponse(
     val otherParticipantName: String,
-    val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime,
+    val createdAt: Instant,
+    val updatedAt: Instant,
     val messages: MutableList<Message>,
     val item: ItemCard
 )

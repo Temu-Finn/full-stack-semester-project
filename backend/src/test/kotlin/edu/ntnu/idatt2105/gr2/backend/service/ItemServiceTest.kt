@@ -17,7 +17,7 @@ import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.containers.MariaDBContainer
 import org.testcontainers.junit.jupiter.Testcontainers
-import java.time.LocalDateTime
+import java.time.Instant
 import org.junit.jupiter.api.*
 import org.springframework.test.context.jdbc.Sql
 
@@ -92,8 +92,8 @@ class ItemServiceTest {
             allowVippsBuy = true,
             primaryImageId = null,
             status = "available",
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
+            createdAt = Instant.now(),
+            updatedAt = Instant.now()
             )
 
         testItem2 = Item(
@@ -110,8 +110,8 @@ class ItemServiceTest {
             allowVippsBuy = false,
             primaryImageId = null,
             status = "available",
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
+            createdAt = Instant.now(),
+            updatedAt = Instant.now()
         )
 
         itemService.deleteAllItems()
@@ -203,8 +203,8 @@ class ItemServiceTest {
                     allowVippsBuy = false,
                     primaryImageId = null,
                     status = "available",
-                    createdAt = LocalDateTime.now(),
-                    updatedAt = LocalDateTime.now()
+                    createdAt = Instant.now(),
+                    updatedAt = Instant.now()
                 )
 
                 itemService.createItem(itemWithNegData)
