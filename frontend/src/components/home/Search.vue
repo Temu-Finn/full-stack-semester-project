@@ -1,6 +1,19 @@
+<script lang="ts" setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const searchQuery = ref('')
+const router = useRouter()
+
+function handleSubmit() {
+  // Redirect to "/search?textSearch=" with the entered query
+  router.push(`/search?textSearch=${encodeURIComponent(searchQuery.value)}`)
+}
+</script>
+
 <template>
   <div class="simple-search-bar-container">
-    <div class="simple-search-bar">
+    <form class="simple-search-bar" @submit.prevent="handleSubmit">
       <span class="search-icon">
         <svg
           fill="none"
@@ -18,12 +31,14 @@
         </svg>
       </span>
       <input
+        v-model="searchQuery"
         :placeholder="$t('home.search')"
         aria-label="Search"
         class="search-input"
         type="search"
       />
-    </div>
+      <button class="submit-button" type="submit">Søk</button>
+    </form>
   </div>
 </template>
 
@@ -38,11 +53,11 @@
 .simple-search-bar {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   width: 100%;
   border: 1px solid #ccc;
   border-radius: 50px;
-  padding: 10px 20px;
+  padding: 10px 10px 10px 20px;
   box-sizing: border-box;
   transition:
     box-shadow 0.1s ease-in-out,
@@ -50,9 +65,6 @@
 }
 
 .simple-search-bar:focus-within {
-  transition:
-    box-shadow 0.1s ease-in-out,
-    background-color 0.1s ease-in-out;
   box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1);
   background-color: white;
 }
@@ -70,7 +82,7 @@
 .search-input {
   flex-grow: 1;
   width: 100%;
-  padding: 8px 10px 8px 35px;
+  padding: 8px 0 8px 35px;
   border: none;
   outline: none;
   background-color: transparent;
@@ -87,5 +99,22 @@
 .search-input::-webkit-search-decoration {
   -webkit-appearance: none;
   appearance: none;
+}
+
+.submit-button {
+  margin-left: 10px;
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 500px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
 }
 </style>

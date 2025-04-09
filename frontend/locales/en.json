@@ -8,6 +8,17 @@
     "search": "Search",
     "recommended": "Recommended for you"
   },
+  "search": {
+    "sortBy": "Sort by",
+    "lowestPrice": "Lowest price",
+    "highestPrice": "Highest price",
+    "newest": "Newest",
+    "oldest": "Oldest",
+    "closest": "Closest",
+    "showOnMap": "Show on map",
+    "hitsFor": "results for",
+    "acceptsVipps": "Accepts Vipps payment"
+  },
   "newProduct": {
     "title": "Create New Product",
     "category": "Category",
