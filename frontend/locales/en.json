@@ -1,7 +1,8 @@
 {
   "navbar": {
     "newProduct": "New product",
-    "messages": "Messages"
+    "messages": "Messages",
+    "editMode": "Edit Mode"
   },
   "home": {
     "heroTitle": "Find Your Next Favourite Item",
