@@ -101,6 +101,14 @@ function handleCategoryClick(categoryId: number | string) {
     },
   })
 }
+function clearCategory() {
+  router.push({
+    query: {
+      ...route.query,
+      category: null,
+    },
+  })
+}
 
 const categories = ref([])
 onMounted(async () => {
@@ -112,7 +120,6 @@ onMounted(async () => {
   <div class="search-page">
     <header class="search-header">
       <div class="search-filter-bar">
-        <!-- Search form: text input and Search button -->
         <form class="search-form" @submit.prevent="handleSearchSubmit">
           <input
             v-model="localSearch"
@@ -125,7 +132,6 @@ onMounted(async () => {
           </button>
         </form>
 
-        <!-- Sorting Dropdown -->
         <div class="sort-dropdown">
           <label for="sort-select">{{ t('search.sortBy') }}:</label>
           <select
@@ -148,6 +154,14 @@ onMounted(async () => {
     <div class="search-main">
       <aside class="search-filters">
         <div class="category-section">
+          <div
+            :class="{ selected: selectedCategory == null }"
+            class="category-card"
+            @click.prevent="clearCategory()"
+          >
+            <span class="category-icon">🌐</span>
+            <span class="category-name">All</span>
+          </div>
           <div
             v-for="category in categories"
             :key="category.id"
