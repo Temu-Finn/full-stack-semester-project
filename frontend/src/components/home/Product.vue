@@ -1,6 +1,10 @@
 <template>
   <router-link class="product-card" :to="`/product/${product.id}`">
-    <img :alt="product.title" :src="product.image?.dataURL" class="product-image" />
+    <img
+      :alt="product.title"
+      :src="product.image?.dataURL || '/placeholder.svg'"
+      class="product-image"
+    />
     <div class="product-info">
       <h3 class="product-name">{{ product.title }}</h3>
       <div class="product-meta">

@@ -66,7 +66,7 @@ const productImages = computed(() => {
   if (!product.value?.images?.length) {
     // Optionally return a placeholder image URL if no images are present
     // return ['/path/to/placeholder.jpg'];
-    return []
+    return ['/placeholder.svg']
   }
   return product.value.images.map((img) => img.dataURL)
 })
