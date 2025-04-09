@@ -4,30 +4,45 @@ import { useI18n } from 'vue-i18n'
 import { getRecommendedItems, type ItemCard } from '@/service/itemService'
 import LanguageSelector from '@/components/LanguageSelector.vue'
 import { useSessionStore, type User } from '@/stores/session'
-
+import Product from '@/components/home/Product.vue'
 const authStore = useSessionStore()
 
 const { t } = useI18n()
 
 const user = ref<User | null>(null)
 
-const listings = ref<ItemCard[]>([])
-onMounted(() => {
+const items = ref<ItemCard[]>([])
+onMounted(async () => {
   if (authStore.user) {
     user.value = authStore.user
   }
-  getRecommendedItems().then((response) => {
-    listings.value = response.items
-  })
+  const response = await getRecommendedItems()
+  items.value = response.items
 })
 
-const selectedStatus = ref<'active' | 'reserved' | 'sold' | 'archived' | 'bought'>('active')
+type ItemStatus = 'active' | 'reserved' | 'sold' | 'archived' | 'bought'
+const selectedStatus = ref<ItemStatus>('active')
 
-const filteredListings = computed(() => {
-  return listings.value.filter((listing) => listing.status === selectedStatus.value)
+const itemMatchesStatus = (item: ItemCard, status: ItemStatus) => {
+  switch (status) {
+    case 'active':
+      return item.status === 'available'
+    case 'reserved':
+      return item.status === 'reserved'
+    case 'sold':
+      return item.status === 'sold'
+    case 'archived':
+      return item.status === 'archived'
+    case 'bought':
+      return false // TODO: Implement bought items
+  }
+}
+
+const filteredItems = computed(() => {
+  return items.value.filter((item) => itemMatchesStatus(item, selectedStatus.value))
 })
 
-const selectStatus = (status: 'active' | 'reserved' | 'sold' | 'archived' | 'bought') => {
+const selectStatus = (status: ItemStatus) => {
   selectedStatus.value = status
 }
 </script>
@@ -85,7 +100,7 @@ const selectStatus = (status: 'active' | 'reserved' | 'sold' | 'archived' | 'bou
       </div>
 
       <div class="listings-grid">
-        <ItemCard v-for="listing in filteredListings" :key="listing.id" :listing="listing" />
+        <Product v-for="item in filteredItems" :key="item.id" :product="item" />
       </div>
     </section>
   </div>
