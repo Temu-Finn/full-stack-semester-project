@@ -28,6 +28,7 @@ onMounted(async () => {
 
 <style scoped>
 .category-grid-container {
+  width: 100%;
 }
 
 .category-grid-container h2 {
@@ -38,9 +39,9 @@ onMounted(async () => {
 .category-grid {
   margin: auto;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
   justify-items: center;
-  gap: 24px;
 }
 
 .category-card {
@@ -80,7 +81,10 @@ onMounted(async () => {
 
 @media (max-width: 600px) {
   .category-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
+  }
+  .category-card {
+    width: 6rem;
   }
   .category-icon {
     font-size: 1rem;

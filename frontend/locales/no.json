@@ -6,7 +6,8 @@
   "home": {
     "heroTitle": "Finn din neste favorittgjenstand",
     "search": "Søk",
-    "recommended": "Anbefalt for deg"
+    "recommended": "Anbefalt for deg",
+    "noItemsFound": "Ingen produkter funnet. Prøv å søke!"
   },
   "search": {
     "sortBy": "Sorter",

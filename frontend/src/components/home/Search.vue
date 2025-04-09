@@ -117,4 +117,14 @@ function handleSubmit() {
 .submit-button:hover {
   background-color: #0056b3;
 }
+
+@media (max-width: 480px) {
+  .search-input {
+    font-size: 1.2rem;
+  }
+  .submit-button {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+  }
+}
 </style>
