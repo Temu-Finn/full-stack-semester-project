@@ -5,6 +5,7 @@ import edu.ntnu.idatt2105.gr2.backend.model.Conversation
 import edu.ntnu.idatt2105.gr2.backend.model.Message
 import edu.ntnu.idatt2105.gr2.backend.repository.ConversationRepository
 import edu.ntnu.idatt2105.gr2.backend.repository.MessageRepository
+import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -15,20 +16,49 @@ class ConversationService(
     private val messageRepository: MessageRepository,
     private val itemService: ItemService,
     private val userContextService: UserContextService,
+    private val userRepository: UserRepository
 ) {
     fun createConversation(request: CreateConversationRequest): CreateConversationResponse {
         val buyerId = userContextService.getCurrentUserId()
         return conversationRepository.save(request.toModel(buyerId)).toResponse()
     }
 
-    /*
-    fun getConversationById(id: Int): Conversation? {
-        return conversationRepository.findConversationById(id).toResponse()
-    }
-     */
-
     fun deleteConversation(id: Int) {
         conversationRepository.delete(id)
+    }
+
+    fun getConversationById(id: Int): getConversationResponse {
+        val currentUserId = userContextService.getCurrentUserId()
+        if (!hasAccessToConversation(id, currentUserId)) {
+            throw IllegalArgumentException("User does not have access to this conversation")
+        }
+        val conversation = conversationRepository.findConversationById(id)
+            ?: throw IllegalArgumentException("Conversation with id $id not found")
+
+
+        val messages = messageRepository.getAllMessagesInConversation(id)
+
+        val sellerId = itemService.getItemById(conversation.itemId).sellerId
+
+        // is needed to set correct name
+        val isItemOwner = currentUserId == sellerId
+        val otherParticipantName: String
+
+        if(isItemOwner) {
+            otherParticipantName = userRepository.findUserById(conversation.buyerId)?.name
+                ?: throw IllegalArgumentException("Buyer with id ${conversation.buyerId} not found")
+        } else {
+            otherParticipantName = userRepository.findUserById(sellerId)?.name
+                ?: throw IllegalArgumentException("Seller with id $sellerId not found")
+        }
+
+        return getConversationResponse(
+            otherParticipantName=  otherParticipantName,
+            createdAt = conversation.createdAt,
+            updatedAt = conversation.updatedAt,
+            messages = messages,
+            item = itemService.getItemCardById(conversation.itemId)
+        )
     }
 
     fun getAllConversationsForUser(): ConversationsResponse {
@@ -41,7 +71,7 @@ class ConversationService(
     }
 
 
-
+    // WHAT IF THE USER IS NOT THE BUYER?
     fun hasAccessToConversation(id: Int, userId: Int): Boolean {
         val conversation = conversationRepository.findConversationById(id)
             ?: throw IllegalArgumentException("Access could not be granted because conversation with id $id not found")
@@ -71,6 +101,7 @@ class ConversationService(
             statusMessage = this.statusMessage
         )
     }
+
 
     fun CreateConversationRequest.toModel(buyerId: Int = -1): Conversation {
         return Conversation(

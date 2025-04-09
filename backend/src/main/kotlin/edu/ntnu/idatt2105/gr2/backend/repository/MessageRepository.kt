@@ -69,6 +69,22 @@ class MessageRepository (private val dataSource: DataSource) {
         return null
     }
 
+    fun getAllMessagesInConversation(conversationId: Int): MutableList<Message> {
+        dataSource.connection.use { conn ->
+            val sql = "SELECT * FROM messages WHERE conversation_id = ? ORDER BY sent_at DESC"
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setInt(1, conversationId)
+                stmt.executeQuery().use { rows ->
+                    val messages = mutableListOf<Message>()
+                    while (rows.next()) {
+                        messages.add(mapRowToMessage(rows))
+                    }
+                    return messages
+                }
+            }
+        }
+    }
+
     fun mapRowToMessage(rs: ResultSet): Message {
         return Message(
             id = rs.getInt("id"),
