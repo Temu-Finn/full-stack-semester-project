@@ -1,16 +1,16 @@
 <template>
   <div class="category-grid-container">
     <div class="category-grid">
-      <a
+      <router-link
         v-for="category in categories"
         :key="category.id"
-        :href="`/item/search?category=${category.id}`"
+        :to="`/search?category=${category.id}`"
         class="category-card"
         @click.prevent
       >
         <span class="category-icon">{{ category.icon }}</span>
         <span class="category-name">{{ category.name }}</span>
-      </a>
+      </router-link>
     </div>
   </div>
 </template>
