@@ -5,7 +5,9 @@ import { getItemsOfUser, type ItemCard } from '@/service/itemService'
 import LanguageSelector from '@/components/LanguageSelector.vue'
 import { useSessionStore, type User } from '@/stores/session'
 import Product from '@/components/Product.vue'
-const authStore = useSessionStore()
+import BaseButton from '@/components/BaseButton.vue'
+
+const sessionStore = useSessionStore()
 
 const { t } = useI18n()
 
@@ -13,10 +15,10 @@ const user = ref<User | null>(null)
 
 const items = ref<ItemCard[]>([])
 onMounted(async () => {
-  if (authStore.user) {
-    user.value = authStore.user
+  if (sessionStore.user) {
+    user.value = sessionStore.user
   }
-  const response = authStore.user ? await getItemsOfUser(authStore.user.id) : []
+  const response = sessionStore.user ? await getItemsOfUser(sessionStore.user.id) : []
   items.value = response
 })
 
@@ -67,9 +69,9 @@ const selectStatus = (status: ItemStatus) => {
         </div>
       </div>
       <div class="header-actions">
-        <button class="logout-button" @click="authStore.logout">
+        <BaseButton class="logout-button" @click="sessionStore.logout">
           {{ t('profile.logout') }}
-        </button>
+        </BaseButton>
         <LanguageSelector />
       </div>
     </header>
@@ -110,7 +112,7 @@ const selectStatus = (status: ItemStatus) => {
 .profile-view {
   width: 100%;
   min-height: calc(100vh - 60px);
-  padding: 2rem 1rem;
+  padding: 2rem 1rem 0 1rem;
   font-family: sans-serif;
   color: #333;
   background-color: #fff;
@@ -122,7 +124,7 @@ const selectStatus = (status: ItemStatus) => {
   gap: 1rem;
   margin-bottom: 2rem;
   border-bottom: 1px solid #ddd;
-  padding-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
   justify-content: space-between;
 }
 
@@ -140,8 +142,7 @@ const selectStatus = (status: ItemStatus) => {
 }
 
 .avatar-img {
-  width: 100px;
-  height: 100px;
+  height: 140px;
   object-fit: cover;
   display: block;
   border-radius: 50%;
@@ -153,7 +154,7 @@ const selectStatus = (status: ItemStatus) => {
 
 .name {
   margin: 0 0 0.25rem;
-  font-size: 1.5rem;
+  font-size: 2.5rem;
 }
 
 .email {
@@ -171,21 +172,19 @@ const selectStatus = (status: ItemStatus) => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  min-width: 140px;
 }
 
 .logout-button {
   background-color: #dd4422;
-  border: none;
-  outline: none;
-  color: #fff;
   padding: 0.5rem 1rem;
   font-size: 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.1s ease;
+  width: auto;
+  max-height: 20px;
+  margin-bottom: 1rem;
 }
 
-.logout-button:hover {
+.logout-button:hover:not(:disabled) {
   background-color: #cc3311;
 }
 
@@ -235,6 +234,10 @@ const selectStatus = (status: ItemStatus) => {
   .header-actions {
     flex-direction: row;
     flex-flow: row-reverse;
+    align-items: end;
+  }
+  .logout-button {
+    margin-bottom: 1.5rem;
   }
 }
 </style>

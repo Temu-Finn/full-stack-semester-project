@@ -2,7 +2,11 @@ import { z } from 'zod'
 import api from '@/config/api'
 import { logger } from '@/utils/logger'
 
+<<<<<<< HEAD
 // Schema for starting payment response
+=======
+// Schema for starting payment
+>>>>>>> main
 const StartVippsPaymentResponseSchema = z.object({
   redirectUrl: z.string().url(),
   reference: z.string().uuid(),
@@ -10,7 +14,11 @@ const StartVippsPaymentResponseSchema = z.object({
 
 export type StartVippsPaymentResponse = z.infer<typeof StartVippsPaymentResponseSchema>
 
+<<<<<<< HEAD
 // Schema for checking payment status response
+=======
+// Schema for checking payment status
+>>>>>>> main
 const VippsPaymentStatusSchema = z.object({
   amount: z.object({
     currency: z.string(),
@@ -34,8 +42,13 @@ const VippsPaymentStatusSchema = z.object({
       value: z.number(),
     }),
   }),
+<<<<<<< HEAD
   state: z.string(), // We care about this now
   reference: z.string().uuid(),
+=======
+  reference: z.string().uuid(),
+  state: z.string(),
+>>>>>>> main
 })
 
 export type VippsPaymentStatus = z.infer<typeof VippsPaymentStatusSchema>
@@ -63,15 +76,22 @@ export async function startVippsPayment(price: number): Promise<StartVippsPaymen
 
 /**
  * Checks the status of a Vipps payment using the reference.
+<<<<<<< HEAD
  * A payment is considered APPROVED if state === 'AUTHORIZED'
  */
 export async function checkVippsStatus(
   reference: string,
 ): Promise<{ status: 'APPROVED' | 'PENDING' | 'FAILED' }> {
+=======
+ * A payment is considered APPROVED if amount.value === 0.
+ */
+export async function checkVippsStatus(reference: string): Promise<{ status: 'APPROVED' | 'PENDING' | 'FAILED' }> {
+>>>>>>> main
   try {
     const response = await api.get(`/vipps/payment/${reference}`)
     const parsed = VippsPaymentStatusSchema.parse(response.data)
 
+<<<<<<< HEAD
     logger.debug('Vipps payment status response:', parsed)
 
     if (parsed.state === 'AUTHORIZED') {
@@ -79,11 +99,22 @@ export async function checkVippsStatus(
     }
 
     // Still processing
+=======
+    logger.debug('Parsed Vipps status response:', parsed)
+
+    if (parsed.amount.value === 0) {
+      return { status: 'APPROVED' }
+    }
+
+>>>>>>> main
     if (parsed.state === 'CREATED' || parsed.state === 'INITIATED') {
       return { status: 'PENDING' }
     }
 
+<<<<<<< HEAD
     // Anything else → failed
+=======
+>>>>>>> main
     return { status: 'FAILED' }
   } catch (error) {
     if (error instanceof z.ZodError) {

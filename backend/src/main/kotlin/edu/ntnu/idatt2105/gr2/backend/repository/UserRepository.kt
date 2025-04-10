@@ -36,6 +36,19 @@ class UserRepository(private val dataSource: DataSource) {
         }
     }
 
+    fun findById(id: Int): User? {
+        dataSource.connection.use { conn ->
+            val sql = "SELECT * FROM users WHERE id = ?"
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setInt(1, id)
+                stmt.executeQuery().use { rs ->
+                    if (rs.next()) return mapRowToUser(rs)
+                }
+            }
+        }
+        return null
+    }
+
     fun findByEmail(email: String): User? {
         dataSource.connection.use { conn ->
             val sql = "SELECT * FROM users WHERE email = ?"
@@ -57,11 +70,34 @@ class UserRepository(private val dataSource: DataSource) {
             id = rs.getInt("id"),
             name = rs.getString("name"),
             email = rs.getString("email"),
-            joinedAt =  rs.getTimestamp("created_at").toInstant(),
+            joinedAt = rs.getTimestamp("created_at").toInstant(),
             isAdmin = rs.getBoolean("is_admin"),
             passwordHashed = rs.getString("password")
         )
     }
+
+    fun findUserById(id: Int): User? {
+        dataSource.connection.use { conn ->
+            val sql = "SELECT * FROM users WHERE id = ?"
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setInt(1, id)
+                stmt.executeQuery().use { rows ->
+                    if (rows.next()) {
+                        return User(
+                            rows.getInt("id"),
+                            rows.getString("name"),
+                            rows.getString("email"),
+                            rows.getTimestamp("created_at").toInstant(),
+                            rows.getBoolean("is_admin"),
+                            rows.getString("password"),
+                        )
+                    }
+                }
+            }
+        }
+        return null
+    }
+
 
     fun isAdmin(userId: Int): Boolean {
         dataSource.connection.use { conn ->
@@ -76,5 +112,38 @@ class UserRepository(private val dataSource: DataSource) {
             }
         }
         return false
+    }
+
+    fun updateName(userId: Int, newName: String): Boolean {
+        dataSource.connection.use { conn ->
+            val sql = "UPDATE users SET name = ? WHERE id = ?"
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setString(1, newName)
+                stmt.setInt(2, userId)
+                return stmt.executeUpdate() > 0
+            }
+        }
+    }
+
+    fun updateEmail(userId: Int, newEmail: String): Boolean {
+        dataSource.connection.use { conn ->
+            val sql = "UPDATE users SET email = ? WHERE id = ?"
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setString(1, newEmail)
+                stmt.setInt(2, userId)
+                return stmt.executeUpdate() > 0
+            }
+        }
+    }
+
+    fun updatePassword(userId: Int, hashedPassword: String): Boolean {
+        dataSource.connection.use { conn ->
+            val sql = "UPDATE users SET password = ? WHERE id = ?"
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setString(1, hashedPassword)
+                stmt.setInt(2, userId)
+                return stmt.executeUpdate() > 0
+            }
+        }
     }
 }
