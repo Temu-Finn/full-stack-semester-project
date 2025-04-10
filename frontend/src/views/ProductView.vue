@@ -24,31 +24,35 @@
     </div>
 
     <div class="right-column">
-      <h1 class="product-title">{{ product.title }}</h1>
-      <div class="product-price">{{ product.price }}{{ $t('productView.currencySuffix') }}</div>
+      <div class="right-column-details">
+        <h1 class="product-title">{{ product.title }}</h1>
+        <div class="product-price">{{ product.price }}{{ $t('productView.currencySuffix') }}</div>
 
-      <button :disabled="!product.allowVippsBuy" class="buy-button">
-        {{
-          product.allowVippsBuy ? $t('productView.buyNowVipps') : $t('productView.buyNotAvailable')
-        }}
-      </button>
+        <button :disabled="!product.allowVippsBuy" class="buy-button">
+          {{
+            product.allowVippsBuy
+              ? $t('productView.buyNowVipps')
+              : $t('productView.buyNotAvailable')
+          }}
+        </button>
 
-      <div class="product-details">
-        <p>
-          <strong>{{ $t('productView.statusLabel') }}</strong> {{ product.status }}
-        </p>
-        <p>
-          <strong>{{ $t('productView.locationLabel') }}</strong> {{ product.municipality }} ({{
-            product.postalCode
-          }})
-        </p>
-        <p>
-          <strong>{{ $t('productView.categoryLabel') }}</strong> {{ product.category.icon }}
-          {{ product.category.name }}
-        </p>
-        <p>
-          <strong>{{ $t('productView.descriptionLabel') }}</strong> {{ product.description }}
-        </p>
+        <div class="product-details">
+          <p>
+            <strong>{{ $t('productView.statusLabel') }}</strong> {{ product.status }}
+          </p>
+          <p>
+            <strong>{{ $t('productView.locationLabel') }}</strong> {{ product.municipality }} ({{
+              product.postalCode
+            }})
+          </p>
+          <p>
+            <strong>{{ $t('productView.categoryLabel') }}</strong> {{ product.category.icon }}
+            {{ product.category.name }}
+          </p>
+          <p>
+            <strong>{{ $t('productView.descriptionLabel') }}</strong> {{ product.description }}
+          </p>
+        </div>
       </div>
 
       <div class="map-section">
@@ -251,9 +255,10 @@ async function fetchItems(categoryId: number) {
   width: 100%;
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 .similar-items div {
-  width: 25%;
+  width: 220px;
 }
 
 .loading-state,
@@ -275,5 +280,35 @@ async function fetchItems(categoryId: number) {
   padding: 20px;
   border: 1px dashed #ccc;
   border-radius: 4px;
+}
+
+@media (max-width: 960px) {
+  .product {
+    flex-direction: column;
+  }
+  .main-image img {
+    aspect-ratio: 2/1;
+  }
+  .right-column {
+    flex-direction: row;
+    align-content: stretch;
+  }
+  .right-column-details {
+    flex: 1;
+  }
+  .map-section {
+    flex: 1;
+    width: 100%;
+    height: 18rem;
+    margin-top: 0;
+  }
+  .similar-items div {
+    width: calc(50% - 1rem);
+  }
+}
+@media (max-width: 496px) {
+  .similar-items div {
+    width: 100%;
+  }
 }
 </style>
