@@ -9,6 +9,7 @@ export interface User {
   email: string
   name: string
   joinedAt: string
+  admin: boolean
 }
 
 export const useSessionStore = defineStore('session', () => {
@@ -16,25 +17,25 @@ export const useSessionStore = defineStore('session', () => {
   const user = ref<User | null>(JSON.parse(localStorage.getItem('user') ?? 'null'))
 
   const isAuthenticated = computed(() => !!token.value)
+  const isAdmin = computed(() => user.value?.admin ?? false)
 
   function setToken(response: UserResponse | null) {
-    if (response) {
-      token.value = response.token
-      localStorage.setItem('token', response.token)
-    } else {
+    if (response === null) {
       localStorage.removeItem('token')
-    }
-    if (response) {
-      user.value = {
-        id: response.userId.toString(),
-        email: response.email,
-        name: response.name,
-        joinedAt: response.joinedAt,
-      }
-      localStorage.setItem('user', JSON.stringify(user.value))
-    } else {
       localStorage.removeItem('user')
+      return
     }
+
+    token.value = response.token
+    localStorage.setItem('token', response.token)
+    user.value = {
+      id: response.userId,
+      email: response.email,
+      name: response.name,
+      joinedAt: response.joinedAt,
+      admin: response.admin,
+    }
+    localStorage.setItem('user', JSON.stringify(user.value))
   }
 
   async function login(email: string, password: string) {
@@ -64,5 +65,5 @@ export const useSessionStore = defineStore('session', () => {
     router.push('/')
   }
 
-  return { token, isAuthenticated, login, signup, logout, user }
+  return { token, user, isAuthenticated, isAdmin, login, signup, logout }
 })

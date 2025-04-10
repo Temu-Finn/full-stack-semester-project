@@ -1,9 +1,12 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useSessionStore } from '@/stores/session'
+import { useEditStore } from '@/stores/edit'
 import { useI18n } from 'vue-i18n'
+import ToggleButton from './ToggleButton.vue'
 
 const authStore = useSessionStore()
+const editStore = useEditStore()
 const { t } = useI18n()
 
 const isSidebarOpen = ref(false)
@@ -31,6 +34,11 @@ const closeSidebar = () => {
           <a href="/search">{{ t('navbar.browse') }}</a>
           <a href="/new">{{ t('navbar.newProduct') }}</a>
           <a href="/chat">{{ t('navbar.messages') }}</a>
+          <ToggleButton
+            v-if="authStore.isAdmin"
+            v-model="editStore.editMode"
+            :label="t('navbar.editMode')"
+          />
         </div>
         <a class="profile-section" href="/profile">
           <img

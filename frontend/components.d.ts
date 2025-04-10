@@ -8,7 +8,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AddCategoryForm: typeof import('./src/components/dialogs/AddCategoryForm.vue')['default']
     Categories: typeof import('./src/components/home/Categories.vue')['default']
+    ConfirmationDialogContent: typeof import('./src/components/dialogs/ConfirmationDialogContent.vue')['default']
+    DeleteButton: typeof import('./src/components/DeleteButton.vue')['default']
+    Dialog: typeof import('./src/components/Dialog.vue')['default']
     FloatLabel: typeof import('primevue/floatlabel')['default']
     Globe: typeof import('./src/components/Globe.vue')['default']
     HeroSection: typeof import('./src/components/home/HeroSection.vue')['default']
@@ -18,7 +22,7 @@ declare module 'vue' {
     LanguageSelector: typeof import('./src/components/LanguageSelector.vue')['default']
     Map: typeof import('./src/components/Map.vue')['default']
     NavBar: typeof import('./src/components/NavBar.vue')['default']
-    Product: typeof import('./src/components/home/Product.vue')['default']
+    Product: typeof import('./src/components/Product.vue')['default']
     ProductsCarousel: typeof import('./src/components/home/ProductsCarousel.vue')['default']
     ProductsGrid: typeof import('./src/components/home/ProductsGrid.vue')['default']
     RadiusMap: typeof import('./src/components/searchResults/RadiusMap.vue')['default']
@@ -26,5 +30,6 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     Search: typeof import('./src/components/home/Search.vue')['default']
     SearchResultsContent: typeof import('./src/components/searchResults/SearchResultsContent.vue')['default']
+    ToggleButton: typeof import('./src/components/ToggleButton.vue')['default']
   }
 }

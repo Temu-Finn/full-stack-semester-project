@@ -5,6 +5,7 @@ import edu.ntnu.idatt2105.gr2.backend.dto.toItem
 import edu.ntnu.idatt2105.gr2.backend.model.Item
 import edu.ntnu.idatt2105.gr2.backend.repository.ItemRepository
 import edu.ntnu.idatt2105.gr2.backend.exception.ItemNotFoundException
+import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -20,6 +21,7 @@ class ItemService(
     private val imageService: ImageService,
     private val categoryService: CategoryService,
     private val areaService: AreaService,
+    private val userRepository: UserRepository,
 ) {
     private val logger = LoggerFactory.getLogger(ItemService::class.java)
 
@@ -77,7 +79,7 @@ class ItemService(
         val item = getItemById(itemId)
         val currentUserId = userContextService.getCurrentUserId()
 
-        if (item.sellerId != currentUserId) {
+        if (item.sellerId != currentUserId && !userRepository.isAdmin(currentUserId)) {
             logger.warn("User $currentUserId is not allowed to delete item ${item.id} owned by ${item.sellerId}")
             throw IllegalAccessException("You do not have permission to delete this item.")
         }
@@ -109,6 +111,12 @@ class ItemService(
         val boughtItems = itemRepository.findAllBought(userId).map { it.toCard().copy(status = "bought") }
 
         return items.plus(boughtItems)
+    }
+
+    fun getFavoriteItemsOfCurrentUser(): List<ItemCard> {
+        val userId = userContextService.getCurrentUserId()
+        logger.info("Fetching favourite items for user ID: $userId")
+        return itemRepository.findFavoriteByUserId(userId).map { it.toCard() }
     }
 
     fun Item.toResponse(): CompleteItem {

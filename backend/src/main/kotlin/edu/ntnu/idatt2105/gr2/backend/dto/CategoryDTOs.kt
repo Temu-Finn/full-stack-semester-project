@@ -21,7 +21,6 @@ data class CreateCategoryRequest(
     @field:NotBlank(message = "Icon cannot be empty")
     val icon: String,
 
-    @field:NotBlank(message = "Description cannot be empty")
     val description: String
 )
 

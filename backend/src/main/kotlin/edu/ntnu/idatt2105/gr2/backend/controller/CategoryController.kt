@@ -99,7 +99,7 @@ class CategoryController(
         return ResponseEntity.status(HttpStatus.CREATED).body(category)
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping("/{id}")
     @Operation(
         summary = "Delete a category",
         description = "Deletes a category by its name"
@@ -114,7 +114,7 @@ class CategoryController(
     )
     fun deleteCategory(
         @Parameter(description = "Name of the category to delete", required = true)
-        @RequestBody @Valid request: DeleteCategoryRequest
+        @PathVariable id: Int
     ): ResponseEntity<Nothing> {
         val isAuthorized = userRepository.isAdmin(userContextService.getCurrentUserId())
         if (!isAuthorized) {
@@ -122,9 +122,9 @@ class CategoryController(
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null)
         }
 
-        logger.info("Deleting category with name: ${request.name}")
-        categoryService.deleteCategory(request.name)
-        logger.info("Successfully deleted category with name: ${request.name}")
+        logger.info("Deleting category with name: ${id}")
+        categoryService.deleteCategory(id)
+        logger.info("Successfully deleted category with name: ${id}")
 
         return ResponseEntity.status(HttpStatus.OK).body(null)
     }
