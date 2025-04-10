@@ -1,19 +1,30 @@
 package edu.ntnu.idatt2105.gr2.backend.controller
 
 import edu.ntnu.idatt2105.gr2.backend.dto.*
-import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
 import edu.ntnu.idatt2105.gr2.backend.service.CategoryService
+import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
 import edu.ntnu.idatt2105.gr2.backend.service.UserContextService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.responses.ApiResponse
-import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+
+/**
+ * Controller for setting up endpoints receiving category-related requests from client.
+ * Controller includes getting all categories, creating, updating, deleting and getting
+ * a category by id.
+ *
+ * @constructor                 Creates a new instance of CategoryController.
+ * @param categoryService       The service for handling category-related operations.
+ * @param userContextService    The service for handling user context operations.
+ * @param userRepository        The repository for handling user-related operations.
+ */
 
 @RestController
 @RequestMapping("/api/categories")
@@ -23,7 +34,15 @@ class CategoryController(
     private val userContextService: UserContextService,
     private val userRepository: UserRepository,
 ) {
+
     private val logger = LoggerFactory.getLogger(AuthenticationController::class.java)
+
+    /**
+     * Handles client requests to get all categories. It delegates the request to the
+     * service layer and returns the list of categories.
+     *
+     * @return   ResponseEntity CategoriesResponse       contains the list of categories
+     */
 
     @GetMapping("/getAll")
     @Operation(
@@ -45,6 +64,14 @@ class CategoryController(
         return ResponseEntity.status(HttpStatus.OK).body(CategoriesResponse(categories))
     }
 
+    /**
+     * Handles client requests to get a category by id. It delegates the request to the
+     * service layer and returns status and category as requested from service layer.
+     *
+     * @param id   Int                                   The id of the category to retrieve.
+     * @return     ResponseEntity<CategoryResponse>      Contains the category details and status
+     */
+
     @GetMapping("/{id}")
     @Operation(
         summary = "Get category by id",
@@ -59,13 +86,21 @@ class CategoryController(
     )
     fun getCategoryById(
         @Parameter(description = "Id of the category to retrieve", required = true)
-        @PathVariable id: Int,
+        @PathVariable id: Int
     ): ResponseEntity<CategoryResponse> {
         logger.info("Fetching category with id: $id")
         val category = categoryService.getCategory(id)
         logger.info("Successfully fetched category with id: $id")
         return ResponseEntity.status(HttpStatus.OK).body(category)
     }
+
+    /**
+     * Handles client requests to create a new category. It delegates the request to the
+     * service layer and returns status and the created category from service layer.
+     *
+     * @param req   CreateCategoryRequest                 The request object containing category details.
+     * @return      ResponseEntity<CategoryResponse>      Contains the created category details adn status
+     */
 
     @PostMapping("/create")
     @Operation(
@@ -98,6 +133,14 @@ class CategoryController(
         return ResponseEntity.status(HttpStatus.CREATED).body(category)
     }
 
+    /**
+     * Handles client requests to delete a category. It delegates the request to the
+     * service layer and returns the status message to client.
+     *
+     * @param id   Int                                    The id of the category to delete.
+     * @return     ResponseEntity<CategoryResponse>       Contains the deleted category details
+     */
+
     @DeleteMapping("/{id}")
     @Operation(
         summary = "Delete a category",
@@ -127,6 +170,14 @@ class CategoryController(
 
         return ResponseEntity.status(HttpStatus.OK).body(null)
     }
+
+    /**
+     * Handles client requests to delete all categories. It delegates the request to the
+     * service layer and returns the updated category and status message to client.
+     *
+     * @param request    UpdateCategoryRequest               The id of the category to delete.
+     * @return           ResponseEntity<CategoryResponse>    contains the deleted category details
+     */
 
     @PutMapping("/update")
     @Operation(

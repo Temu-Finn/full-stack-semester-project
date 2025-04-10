@@ -55,6 +55,7 @@ class ConversationService(
 
     fun deleteConversation(id: Int) {
         conversationRepository.delete(id)
+
     }
 
     /**
@@ -67,31 +68,16 @@ class ConversationService(
     fun sendMessage(request: SendMessageRequest): NewMessageResponse {
         val senderId = userContextService.getCurrentUserId()
         val item = itemService.getItemById(request.itemId)
+        val itemBuyer = senderId
         val itemOwnerId = item.sellerId
 
-        val conversationId = request.conversationId
+        val existingConversation = conversationRepository.findConversationByParticipants(
+            itemBuyer, itemOwnerId, request.itemId)
 
-        if (conversationId == null) {
-            // No conversation ID provided - check if one already exists
-            val existingConversation = conversationRepository.findConversationByParticipants(senderId, itemOwnerId, request.itemId)
-            return if (existingConversation != null) {
-                // Conversation exists, proceed to send message
-                sendToConversation(existingConversation.id, senderId, request.content)
-            } else {
-                // No conversation exists, create a new one
-                createConversation(request)
-            }
+        if (existingConversation == null) {
+            return createConversation(request)
         } else {
-            // Conversation ID provided - validate it
-            val conversation =
-                conversationRepository.findConversationById(conversationId)
-                    ?: throw IllegalArgumentException("Conversation with id $conversationId not found")
-
-            if (!hasAccessToConversation(conversation.id, senderId)) {
-                throw IllegalArgumentException("User does not have access to this conversation")
-            }
-
-            return sendToConversation(conversation.id, senderId, request.content)
+            return sendToConversation(existingConversation.id, senderId, request.content)
         }
     }
 
@@ -136,6 +122,11 @@ class ConversationService(
 
     fun getConversationById(id: Int): GetConversationResponse {
         val currentUserId = userContextService.getCurrentUserId()
+
+        val conversation =
+            conversationRepository.findConversationById(id)
+                ?: throw IllegalArgumentException("Conversation with id $id not found")
+
         if (!hasAccessToConversation(id, currentUserId)) {
             throw IllegalArgumentException("User does not have access to this conversation")
         }
@@ -153,9 +144,6 @@ class ConversationService(
                         isRead = message.isRead,
                     )
                 }
-        val conversation =
-            conversationRepository.findConversationById(id)
-                ?: throw IllegalArgumentException("Conversation with id $id not found")
 
         val item = itemService.getItemById(conversation.itemId)
 
@@ -211,7 +199,8 @@ class ConversationService(
     ): Boolean {
         val conversation =
             conversationRepository.findConversationById(id)
-                ?: throw IllegalArgumentException("Access could not be granted because conversation with id $id not found")
+                ?: throw IllegalArgumentException("Access could not be granted because" +
+                        " conversation with id $id not found")
 
         val sellerId = itemService.getItemById(conversation.itemId).sellerId
 
