@@ -31,6 +31,7 @@ const closeSidebar = () => {
           <img alt="logo" src="/TemuFinn.png" width="96" />
         </a>
         <div class="items-section">
+          <a href="/search">{{ t('navbar.browse') }}</a>
           <a href="/new">{{ t('navbar.newProduct') }}</a>
           <a href="/chat">{{ t('navbar.messages') }}</a>
           <ToggleButton
@@ -54,9 +55,10 @@ const closeSidebar = () => {
     <aside :class="{ 'mobile-open': isSidebarOpen }" class="sidebar">
       <button class="close-sidebar" @click="closeSidebar">&times;</button>
       <nav class="sidebar-nav">
+        <a href="/search" @click="closeSidebar">{{ t('navbar.browse') }}</a>
         <a href="/new" @click="closeSidebar">{{ t('navbar.newProduct') }}</a>
         <a href="/chat" @click="closeSidebar">{{ t('navbar.messages') }}</a>
-        <a href="/profile" @click="closeSidebar">
+        <a class="sidebar-profile" href="/profile" @click="closeSidebar">
           <img
             :class="authStore.user ? '' : 'hidden'"
             alt="profile-icon"
@@ -163,6 +165,12 @@ const closeSidebar = () => {
   text-decoration: none;
   color: #333;
   font-size: 1.2rem;
+}
+
+.sidebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .overlay {

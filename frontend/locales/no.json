@@ -1,14 +1,8 @@
 {
   "navbar": {
-    "home": "Hjem",
-    "search": "Søk",
+    "browse": "Bla gjennom",
     "newProduct": "Nytt produkt",
     "login": "Logg inn",
-    "register": "Registrer deg",
-    "logout": "Logg ut",
-    "profile": "Profil",
-    "listings": "Mine annonser",
-    "admin": "Admin",
     "editMode": "Redigeringsmodus",
     "messages": "Meldinger"
   },
@@ -28,7 +22,8 @@
     "updatedAtDesc": "Nyeste",
     "updatedAtAsc": "Eldste",
     "closest": "Nærmeste",
-    "showOnMap": "Vis på kart",
+    "showOnMap": "Åpne kart",
+    "showGrid": "Lukk kart",
     "results": "resultater",
     "for": "for",
     "acceptsVipps": "Aksepterer Vipps-betaling",

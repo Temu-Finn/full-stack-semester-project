@@ -25,10 +25,11 @@ declare module 'vue' {
     Product: typeof import('./src/components/Product.vue')['default']
     ProductsCarousel: typeof import('./src/components/home/ProductsCarousel.vue')['default']
     ProductsGrid: typeof import('./src/components/home/ProductsGrid.vue')['default']
-    RadiusMap: typeof import('./src/components/RadiusMap.vue')['default']
+    RadiusMap: typeof import('./src/components/searchResults/RadiusMap.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Search: typeof import('./src/components/home/Search.vue')['default']
+    SearchResultsContent: typeof import('./src/components/searchResults/SearchResultsContent.vue')['default']
     ToggleButton: typeof import('./src/components/ToggleButton.vue')['default']
   }
 }
