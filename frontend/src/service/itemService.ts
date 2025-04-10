@@ -19,7 +19,14 @@ const LocationSchema = z.object({
   longitude: z.number(),
 })
 
-const ItemStatusSchema = z.enum(['available', 'reserved', 'sold', 'archived', 'bought'])
+const ItemStatusSchema = z.enum([
+  'available',
+  'reserved',
+  'reserved_by_user',
+  'sold',
+  'archived',
+  'bought',
+])
 
 const ItemCardSchema = z.object({
   id: z.number(),
@@ -30,6 +37,7 @@ const ItemCardSchema = z.object({
   location: LocationSchema.nullish(),
   status: ItemStatusSchema,
   updatedAt: z.string().datetime(),
+  allowVippsBuy: z.boolean(),
 })
 
 const CreateItemRequestSchema = z.object({
@@ -285,6 +293,22 @@ export async function deleteItem(id: number): Promise<void> {
     await api.delete(`/item/${id}`)
   } catch (error) {
     logger.error('Failed to delete item', error)
+    throw error
+  }
+}
+
+/**
+ * Reserves an item by its ID.
+ * @param id - The ID of the item to reserve.
+ * @returns Promise that resolves when the item is reserved.
+ * @throws Error if the API request fails.
+ */
+export async function reserveItem(id: number): Promise<CompleteItem> {
+  try {
+    const response = await api.post(`/item/reserve/${id}`)
+    return CompleteItemSchema.parse(response.data)
+  } catch (error) {
+    logger.error('Failed to reserve item', error)
     throw error
   }
 }

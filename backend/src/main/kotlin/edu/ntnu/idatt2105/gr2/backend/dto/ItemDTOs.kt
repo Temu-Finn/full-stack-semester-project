@@ -15,7 +15,8 @@ data class ItemCard(
     val image: ImageResponse?,
     val location: Location?,
     val status: String,
-    val updatedAt: Instant
+    val updatedAt: Instant,
+    val allowVippsBuy: Boolean,
 )
 
 /**
