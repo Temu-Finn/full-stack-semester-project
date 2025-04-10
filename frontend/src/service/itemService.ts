@@ -133,6 +133,7 @@ export type CreateItemRequest = z.infer<typeof CreateItemRequestSchema>
 export type CompleteItem = z.infer<typeof CompleteItemSchema>
 export type Location = z.infer<typeof LocationSchema>
 export type ItemStatus = z.infer<typeof ItemStatusSchema>
+
 export async function getItem(id: number): Promise<CompleteItem> {
   try {
     const response = await api.get(`/item/${id}`)
@@ -265,7 +266,28 @@ export async function createItem(
   }
 }
 
+/**
+ * Fetches items associated with a specific user.
+ * @param userId - The ID of the user to fetch items for.
+ * @returns Promise containing an array of ItemCard objects.
+ * @throws Error if the API request fails or response validation fails.
+ */
 export async function getItemsOfUser(userId: number): Promise<ItemCard[]> {
   const response = await api.get(`/item/user/${userId}`)
   return ItemCardSchema.array().parse(response.data)
+}
+
+/**
+ * Deletes an item by its ID.
+ * @param id - The ID of the item to delete.
+ * @returns Promise that resolves when the item is deleted.
+ * @throws Error if the API request fails.
+ */
+export async function deleteItem(id: number): Promise<void> {
+  try {
+    await api.delete(`/item/${id}`)
+  } catch (error) {
+    logger.error('Failed to delete item', error)
+    throw error
+  }
 }

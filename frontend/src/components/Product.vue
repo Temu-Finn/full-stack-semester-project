@@ -1,26 +1,36 @@
 <template>
-  <router-link class="product-card" :to="`/product/${product.id}`">
-    <img
-      :alt="product.title"
-      :src="product.image?.dataURL || '/placeholder.svg'"
-      class="product-image"
-    />
-    <div class="product-info">
-      <h3 class="product-name">{{ product.title }}</h3>
-      <div class="product-meta">
-        <span class="product-location">{{ product.municipality }}</span>
-        <span class="product-price">{{ product.price }} kr</span>
+  <div class="product-container">
+    <router-link class="product-card" :to="`/product/${product.id}`">
+      <img
+        :alt="product.title"
+        :src="product.image?.dataURL || '/placeholder.svg'"
+        class="product-image"
+      />
+      <div class="product-info">
+        <h3 class="product-name">{{ product.title }}</h3>
+        <div class="product-meta">
+          <span class="product-location">{{ product.municipality }}</span>
+          <span class="product-price">{{ product.price }} kr</span>
+        </div>
       </div>
-    </div>
-  </router-link>
+    </router-link>
+    <DeleteButton v-if="editStore.editMode" :onClick="() => deleteItem(product.id)" />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { type ItemCard } from '@/service/itemService'
-
+import { useEditStore } from '@/stores/edit'
+import DeleteButton from './DeleteButton.vue'
 defineProps<{
   product: ItemCard
 }>()
+
+const editStore = useEditStore()
+
+function deleteItem(id: number) {
+  console.log(id)
+}
 </script>
 
 <style scoped>
@@ -60,6 +70,7 @@ defineProps<{
   color: #333;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -70,6 +81,7 @@ defineProps<{
   margin-bottom: auto;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -85,5 +97,9 @@ defineProps<{
 .product-price {
   font-weight: bold;
   color: #2c3e50;
+}
+
+.product-container {
+  position: relative;
 }
 </style>
