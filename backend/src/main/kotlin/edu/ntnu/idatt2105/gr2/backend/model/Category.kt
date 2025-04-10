@@ -4,7 +4,7 @@ data class Category(
     val id: Int = -1,
     val name: String,
     val icon: String,
-    var description: String
+    var description: String,
 ) {
     init {
         require(name.isNotBlank()) { "Name cannot be blank" }

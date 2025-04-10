@@ -8,15 +8,15 @@ data class UserProfile(
     val email: String,
     val name: String,
     val joinedAt: Instant,
-    val isAdmin: Boolean
+    val isAdmin: Boolean,
 )
 
 data class UpdateEmailRequest(
     @field:NotBlank(message = "Email cannot be empty")
-    val email: String
+    val email: String,
 )
 
 data class UpdateNameRequest(
     @field:NotBlank(message = "Name cannot be empty")
-    val name: String
+    val name: String,
 )

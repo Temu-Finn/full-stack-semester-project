@@ -1,6 +1,5 @@
 package edu.ntnu.idatt2105.gr2.backend.model
 
-
 data class Image(
     val id: Int = -1,
     val itemId: Int,
@@ -13,10 +12,11 @@ data class Image(
         require(fileType.isNotBlank()) { "File type cannot be blank" }
     }
 
-    fun base64(): String {
-        return java.util.Base64.getEncoder().encodeToString(data)
+    fun base64(): String =
+        java.util.Base64
+            .getEncoder()
+            .encodeToString(data)
             .let { "data:$fileType;base64,$it" }
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
