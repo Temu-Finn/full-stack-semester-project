@@ -29,12 +29,18 @@
         <div class="product-price">{{ product.price }}{{ $t('productView.currencySuffix') }}</div>
 
         <button :disabled="!product.allowVippsBuy" class="buy-button">
-          {{
-            product.allowVippsBuy
-              ? $t('productView.buyNowVipps')
-              : $t('productView.buyNotAvailable')
-          }}
-        </button>
+        {{
+          product.allowVippsBuy ? $t('productView.buyNowVipps') : $t('productView.buyNotAvailable')
+        }}
+      </button>
+
+      <button
+      v-if="product.allowVippsBuy"
+      class="vipps-button"
+      @click="startVippsPayment"
+      >
+        🧡 {{ $t('productView.payWithVipps') }}
+      </button>
 
         <div class="product-details">
           <p>
@@ -87,6 +93,7 @@ import {
 import { logger } from '@/utils/logger'
 import { useI18n } from 'vue-i18n'
 import Product from '@/components/Product.vue'
+import { startVippsPayment as startVippsPaymentApi } from '@/service/vippsService'
 
 const route = useRoute()
 const product = ref<CompleteItem | null>(null)
@@ -151,6 +158,19 @@ async function fetchItems(categoryId: number) {
     isLoading.value = false
   }
 }
+
+const startVippsPayment = async () => {
+  if (!product.value) return
+
+  try {
+    const { redirectUrl, reference } = await startVippsPaymentApi(product.value.price)
+    console.log('Vipps reference:', reference)
+    window.location.href = redirectUrl
+  } catch (error) {
+    console.error('Could not start Vipps payment:', error)
+  }
+}
+
 </script>
 
 <style scoped>
@@ -281,6 +301,19 @@ async function fetchItems(categoryId: number) {
   border: 1px dashed #ccc;
   border-radius: 4px;
 }
+
+.vipps-button {
+  padding: 10px 20px;
+  background-color: #ff5b24;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.vipps-button:hover {
+  background-color: #e04e1b;
 
 @media (max-width: 960px) {
   .product {
