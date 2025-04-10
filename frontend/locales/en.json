@@ -21,7 +21,11 @@
     "results": "results",
     "for": "for",
     "acceptsVipps": "Accepts Vipps payment",
-    "loading": "Loading"
+    "loading": "Loading",
+    "categories": "Categories",
+    "mapFilter": "Map filter",
+    "location": "Location",
+    "useMapFilter": "Use map filter"
   },
   "newProduct": {
     "title": "Create New Product",

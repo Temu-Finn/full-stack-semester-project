@@ -3,15 +3,15 @@
  * SearchResults.vue
  *
  * This component fetches items for a given query, selected category, sort order,
- * and location (county/municipality). It displays them in a grid and includes a
- * side filter menu plus a top bar with controls.
+ * and location (county/municipality plus map position with optional map filter).
+ * It displays them in a grid and includes a side filter menu plus a top bar with controls.
  */
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import Product from '@/components/home/Product.vue'
 import { searchItems, type SearchItemsResponse } from '@/service/itemService'
-import Map from '@/components/Map.vue'
+import Map from '@/components/RadiusMap.vue'
 import { getCategories } from '@/service/categoryService.ts'
 
 const { t } = useI18n()
@@ -41,6 +41,27 @@ const sortOptions = [
 const sortQuery = computed(() => route.query.sort ?? sortOptions[0].value)
 const selectedSort = ref(sortQuery.value)
 
+const mapFilterEnabled = computed<boolean>({
+  get() {
+    return route.query.useMap === 'true'
+  },
+  set(value: boolean) {
+    const newQuery = { ...route.query }
+    if (value) {
+      newQuery.useMap = 'true'
+      if (!newQuery.latitude) newQuery.latitude = '63.44'
+      if (!newQuery.longitude) newQuery.longitude = '10.399'
+      if (!newQuery.maxDistanceKm) newQuery.maxDistanceKm = '10'
+    } else {
+      delete newQuery.useMap
+      delete newQuery.latitude
+      delete newQuery.longitude
+      delete newQuery.maxDistanceKm
+    }
+    router.push({ query: newQuery })
+  },
+})
+
 const selectedCountyQuery = computed(() => (route.query.county ? String(route.query.county) : null))
 const selectedMunicipalityQuery = computed(() =>
   route.query.municipality ? String(route.query.municipality) : null,
@@ -63,6 +84,18 @@ watch(selectedCountyQuery, () => {
 watch(selectedMunicipalityQuery, () => {
   fetchItems()
 })
+watch(
+  () => [route.query.latitude, route.query.longitude, route.query.maxDistanceKm],
+  () => {
+    fetchItems()
+  },
+)
+watch(
+  () => mapFilterEnabled.value,
+  () => {
+    fetchItems()
+  },
+)
 
 const currentPage = computed(() => (route.query.page ? Number(route.query.page) : 1))
 watch(currentPage, () => {
@@ -81,6 +114,14 @@ async function fetchItems() {
       size: 9,
       county: selectedCountyQuery.value ? selectedCountyQuery.value : undefined,
       municipality: selectedMunicipalityQuery.value ? selectedMunicipalityQuery.value : undefined,
+      latitude:
+        mapFilterEnabled.value && route.query.latitude ? Number(route.query.latitude) : undefined,
+      longitude:
+        mapFilterEnabled.value && route.query.longitude ? Number(route.query.longitude) : undefined,
+      maxDistanceKm:
+        mapFilterEnabled.value && route.query.maxDistanceKm
+          ? Number(route.query.maxDistanceKm)
+          : undefined,
     })
     console.log('Total elements: ' + searchResponse.value.result.page.totalElements)
   } catch (error) {
@@ -171,6 +212,18 @@ function toggleMunicipality(municipalityName: string) {
   }
 }
 
+function handleMapUpdate(payload: { latitude: number; longitude: number; maxDistanceKm: number }) {
+  router.push({
+    query: {
+      ...route.query,
+      useMap: 'true',
+      latitude: payload.latitude,
+      longitude: payload.longitude,
+      maxDistanceKm: payload.maxDistanceKm,
+    },
+  })
+}
+
 const totalPagesRange = computed(() => {
   if (
     searchResponse.value &&
@@ -236,6 +289,7 @@ onMounted(async () => {
     <div class="search-main">
       <aside class="search-filters">
         <div class="category-section">
+          <h3 class="filter-title">{{ t('search.categories') }}</h3>
           <div
             :class="{ selected: selectedCategory == null }"
             class="category-card"
@@ -256,21 +310,21 @@ onMounted(async () => {
           </div>
         </div>
 
-        <hr />
-
-        <div class="vipps-section">
-          <input type="checkbox" />
-          <p>{{ $t('search.acceptsVipps') }}</p>
-        </div>
-
-        <hr />
-
         <div class="map-section">
-          <Map :location="{ latitude: 63.44, longitude: 10.399 }" />
+          <h3 class="filter-title">{{ t('search.mapFilter') }}</h3>
+          <!-- Map Filter Toggle -->
+          <div class="map-toggle">
+            <input id="useMapFilter" v-model="mapFilterEnabled" type="checkbox" />
+            <label for="useMapFilter">{{ t('search.useMapFilter') }}</label>
+          </div>
+          <Map
+            :location="{ latitude: 63.44, longitude: 10.399 }"
+            @update:locationFilter="handleMapUpdate"
+          />
         </div>
 
         <div v-if="!isLoading" class="location-filters">
-          <h3 class="location-title">{{ t('search.location') }}</h3>
+          <h3 class="filter-title">{{ t('search.location') }}</h3>
           <div class="county-list">
             <div v-for="county in searchResponse.counties" :key="county.name">
               <div
@@ -428,7 +482,7 @@ onMounted(async () => {
   min-width: 240px;
   max-width: 280px;
   border-right: 1px solid #ddd;
-  padding: 1rem;
+  padding: 0.5rem 1rem;
   background-color: #fff;
   display: flex;
   flex-direction: column;
@@ -510,12 +564,12 @@ onMounted(async () => {
 }
 
 .location-filters {
-  margin-top: 1rem;
+  margin-top: 2rem;
 }
-.location-title {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
+.filter-title {
+  font-size: 1rem;
   font-weight: bold;
+  margin-bottom: 0.5rem;
 }
 .county-list {
   display: flex;
@@ -549,6 +603,15 @@ onMounted(async () => {
   width: 100%;
   height: 300px;
   border-radius: 6px;
+}
+
+.map-toggle {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+.map-toggle input[type='checkbox'] {
+  margin-right: 0.5rem;
 }
 
 @media (max-width: 768px) {

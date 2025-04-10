@@ -21,7 +21,11 @@
     "results": "resultater",
     "for": "for",
     "acceptsVipps": "Aksepterer Vipps-betaling",
-    "loading": "Laster"
+    "loading": "Laster",
+    "categories": "Kategorier",
+    "mapFilter": "Kartfilter",
+    "location": "Område",
+    "useMapFilter": "Bruk kartfilter"
   },
   "newProduct": {
     "title": "Legg ut nytt produkt",
