@@ -77,7 +77,7 @@ export async function getConversation(
       logger.error('Invalid conversation response format from server', { errors: error.errors })
       throw new Error('Invalid conversation response format from server')
     }
-    logger.error('Failed to fetch conversation', error)
+     logger.error('Failed to fetch conversation', error)
     throw new Error('Failed to load conversation. Please try again later.')
   }
 
