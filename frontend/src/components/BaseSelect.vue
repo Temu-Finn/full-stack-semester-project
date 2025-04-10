@@ -39,7 +39,6 @@ const selectId = computed(() => props.id || `select-${Math.random().toString(36)
 
 const updateValue = (event: Event) => {
   const target = event.target as HTMLSelectElement
-  // Handle potential number conversion if needed, though v-model handles it
   emit('update:modelValue', target.value)
 }
 </script>
@@ -59,7 +58,7 @@ label {
 
 select {
   width: 100%;
-  padding: 12px 40px 12px 15px; /* Adjusted padding for arrow */
+  padding: 12px 40px 12px 15px;
   border: 1px solid #dcdcdc;
   border-radius: 8px;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
