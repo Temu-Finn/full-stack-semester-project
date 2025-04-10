@@ -1,18 +1,19 @@
 <script lang="ts" setup>
 /**
- * searchResults.vue
+ * SearchResults.vue
  *
  * This component fetches items for a given query, selected category, sort order,
- * location filters (county/municipality and map filter), and pagination.
- * It displays a side filter menu, a top bar with controls, and renders the search results
- * through a separate component.
+ * location filters (county/municipality, and optionally a map filter) and pagination.
+ * It displays a side filter menu, a top bar with controls, and toggles between
+ * a grid view (SearchResultsContent) and a map view (Map component) when the "Show on map"
+ * button is clicked.
  */
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SearchResultsContent from '@/components/searchResults/SearchResultsContent.vue'
 import { searchItems, type SearchItemsResponse } from '@/service/itemService'
-import Map from '@/components/searchResults/RadiusMap.vue'
+import Map from '@/components/Map.vue'
 import { getCategories } from '@/service/categoryService.ts'
 
 const { t } = useI18n()
@@ -101,6 +102,11 @@ watch(currentPage, () => {
   fetchItems()
 })
 
+const isMapView = ref(false)
+function toggleViewMode() {
+  isMapView.value = !isMapView.value
+}
+
 async function fetchItems() {
   isLoading.value = true
   try {
@@ -143,7 +149,7 @@ function handleSortChange(newSortValue: string) {
 }
 
 function showMap() {
-  console.log('Showing map view...')
+  toggleViewMode()
 }
 
 function handleSearchSubmit() {
@@ -223,18 +229,6 @@ function handleMapUpdate(payload: { latitude: number; longitude: number; maxDist
   })
 }
 
-const totalPagesRange = computed(() => {
-  if (
-    searchResponse.value &&
-    searchResponse.value.result &&
-    searchResponse.value.result.page.totalPages
-  ) {
-    const total = searchResponse.value.result.page.totalPages
-    return Array.from({ length: total }, (_, i) => i + 1)
-  }
-  return []
-})
-
 function handlePageClick(newPage: number) {
   router.push({
     query: {
@@ -280,7 +274,7 @@ onMounted(async () => {
         </div>
 
         <button class="show-on-map" @click="showMap">
-          {{ t('search.showOnMap') }}
+          {{ isMapView ? t('search.showGrid') : t('search.showOnMap') }}
         </button>
       </div>
     </header>
@@ -311,7 +305,6 @@ onMounted(async () => {
 
         <div class="map-section">
           <h3 class="filter-title">{{ t('search.mapFilter') }}</h3>
-          <!-- Map Filter Toggle -->
           <div class="map-toggle">
             <input id="useMapFilter" v-model="mapFilterEnabled" type="checkbox" />
             <label for="useMapFilter">{{ t('search.useMapFilter') }}</label>
@@ -326,7 +319,6 @@ onMounted(async () => {
           <h3 class="filter-title">{{ t('search.location') }}</h3>
           <div class="county-list">
             <div v-for="county in searchResponse.counties" :key="county.name">
-              <!-- County item -->
               <div
                 :class="{ selected: selectedCountyQuery === county.name }"
                 class="county-item"
@@ -334,7 +326,6 @@ onMounted(async () => {
               >
                 {{ county.name }} ({{ county.count }})
               </div>
-              <!-- Municipality list appears directly beneath this county -->
               <div v-if="selectedCountyQuery === county.name" class="municipality-list">
                 <div
                   v-for="municipality in county.municipalities"
@@ -351,14 +342,26 @@ onMounted(async () => {
         </div>
       </aside>
 
-      <!-- Search results area moved to a separate component -->
-      <SearchResultsContent
-        :currentPage="currentPage"
-        :isLoading="isLoading"
-        :searchQuery="searchQuery"
-        :searchResponse="searchResponse"
-        @pageChange="handlePageClick"
-      />
+      <section class="search-results">
+        <div v-if="isLoading" class="loading-spinner">{{ t('search.loading') }}...</div>
+        <div v-else>
+          <div v-if="!isMapView">
+            <SearchResultsContent
+              :currentPage="currentPage"
+              :isLoading="isLoading"
+              :searchQuery="searchQuery"
+              :searchResponse="searchResponse"
+              @pageChange="handlePageClick"
+            />
+          </div>
+          <div v-else>
+            <Map
+              :items="searchResponse.result.content"
+              :location="{ latitude: 63.44, longitude: 10.399 }"
+            />
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -479,7 +482,11 @@ onMounted(async () => {
   color: #333;
   background-color: #d0eaff;
 }
-
+.vipps-section {
+  padding: 0 0.5rem;
+  display: flex;
+  gap: 10px;
+}
 .map-section {
   margin-top: 1rem;
 }
@@ -492,11 +499,12 @@ onMounted(async () => {
   margin-right: 0.5rem;
 }
 .location-filters {
-  margin-top: 4rem;
+  margin-top: 2rem;
 }
 .filter-title {
   font-size: 1rem;
   font-weight: bold;
+  margin-bottom: 0.5rem;
 }
 .county-list {
   display: flex;
@@ -521,15 +529,10 @@ onMounted(async () => {
   background-color: #d0eaff;
   color: #333;
 }
-
-.map-section {
-  height: 300px;
-  width: 100%;
-}
-.map-container {
-  width: 100%;
-  height: 300px;
-  border-radius: 6px;
+.search-results {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  background-color: #fff;
 }
 
 @media (max-width: 768px) {
