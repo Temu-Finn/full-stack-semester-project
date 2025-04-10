@@ -39,3 +39,12 @@ data class UserResponse(
     val token: String,
     val expiresIn: Long,
 )
+
+data class ChangePasswordRequest(
+    @field:NotBlank(message = "Current password cannot be empty")
+    val currentPassword: String,
+
+    @field:NotBlank(message = "New password cannot be empty")
+    @field:Size(min = 8, message = "Password must be at least 8 characters")
+    val newPassword: String
+)
