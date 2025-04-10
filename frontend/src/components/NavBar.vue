@@ -44,7 +44,7 @@ const closeSidebar = () => {
           <img
             :class="authStore.user ? '' : 'hidden'"
             alt="profile-icon"
-            src="../assets/logo.svg"
+            src="/profile-avatar.png"
             width="36"
           />
           <p>{{ authStore.user?.name ?? 'Log in' }}</p>
@@ -62,7 +62,7 @@ const closeSidebar = () => {
           <img
             :class="authStore.user ? '' : 'hidden'"
             alt="profile-icon"
-            src="../assets/logo.svg"
+            src="/profile-avatar.png"
             width="36"
           />
           <span>{{ authStore.user?.name ?? 'Log in' }}</span>
