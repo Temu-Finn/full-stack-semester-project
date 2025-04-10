@@ -140,7 +140,9 @@
     "descriptionLabel": "Beskrivelse:",
     "notFound": "Produkt ikke funnet.",
     "errorInvalidId": "Ugyldig produkt-ID.",
-    "errorFetchFailed": "Kunne ikke laste produktdetaljer. Vennligst prøv igjen senere."
+    "errorFetchFailed": "Kunne ikke laste produktdetaljer. Vennligst prøv igjen senere.",
+    "reservedByUser": "Reservert av deg",
+    "reservedByOtherUser": "Reservert av andre"
   },
   "createListing": {
     "title": "Opprett ny annonse",

@@ -141,7 +141,9 @@
     "descriptionLabel": "Description:",
     "notFound": "Product not found.",
     "errorInvalidId": "Invalid Product ID.",
-    "errorFetchFailed": "Could not load product details. Please try again later."
+    "errorFetchFailed": "Could not load product details. Please try again later.",
+    "reservedByUser": "Reserved by you",
+    "reservedByOtherUser": "Reserved by other user"
   },
   "createListing": {
     "title": "Create New Listing",

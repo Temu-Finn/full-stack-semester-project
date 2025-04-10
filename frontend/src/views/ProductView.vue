@@ -43,11 +43,18 @@
           <BaseButton
             v-else
             class="outline-button"
+            :disabled="product.status === 'reserved' || product.status === 'reserved_by_user'"
             text-color="#007bff"
             background-color="#ffffff"
             @click="reserveItemHandle"
           >
-            {{ $t('productView.reserveItem') }}
+            {{
+              product.status === 'reserved_by_user'
+                ? $t('productView.reservedByUser')
+                : product.status === 'reserved'
+                  ? $t('productView.reservedByOtherUser')
+                  : $t('productView.reserveItem')
+            }}
           </BaseButton>
           <BaseButton :disabled="!product.sellerId">
             {{ $t('productView.sendMessage') }}
@@ -105,12 +112,15 @@ import Product from '@/components/Product.vue'
 import { startVippsPayment as startVippsPaymentApi } from '@/service/vippsService'
 import { reserveItem } from '@/service/itemService'
 import BaseButton from '@/components/BaseButton.vue'
+import { useSessionStore } from '@/stores/session.ts'
+
 const route = useRoute()
 const product = ref<CompleteItem | null>(null)
 const selectedImage = ref<string>('')
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const { t } = useI18n()
+const sessionStore = useSessionStore()
 
 const searchResponse = ref<SearchItemsResponse>({
   counties: [],
@@ -185,6 +195,7 @@ async function fetchItems(categoryId: number) {
 const reserveItemHandle = async () => {
   if (!product.value) return
   product.value = await reserveItem(product.value.id)
+  console.log('Reserved: ', product.value)
 }
 
 const startVippsPayment = async () => {
@@ -323,6 +334,10 @@ const startVippsPayment = async () => {
 
 .outline-button {
   border: 2px solid #007bff;
+}
+
+.outline-button:disabled {
+  border: 2px solid #ccc;
 }
 
 @media (max-width: 960px) {
