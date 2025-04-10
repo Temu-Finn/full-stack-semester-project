@@ -122,19 +122,9 @@
 
       <!-- Allow Vipps -->
       <div class="form-group toggle-group">
-        <input
-          id="vipps"
-          v-model="product.allowVippsBuy"
-          type="checkbox"
-          class="vipps-checkbox-hidden"
-        />
-        <!-- The visual switch part -->
-        <label for="vipps" class="vipps-toggle-label">
-          <span class="vipps-toggle-switch"></span>
-          <!-- The sliding part -->
-          <!-- Logo and Text moved out -->
-        </label>
-        <!-- Logo and Text now outside the label -->
+        <!-- Replace old checkbox/label with ToggleButton -->
+        <ToggleButton v-model="product.allowVippsBuy" active-color="#ff5b24" :scale="1.4" />
+        <!-- Keep the Vipps logo and text -->
         <div class="vipps-logo-text">
           <img src="/Vipps.svg" alt="Vipps Logo" class="vipps-logo-inline" />
           <span class="vipps-label-text">{{ $t('newProduct.vipps') }}</span>
@@ -159,6 +149,7 @@ import { createItem } from '@/service/itemService'
 import { getCategories } from '@/service/categoryService'
 import { logger } from '@/utils/logger'
 import { useI18n } from 'vue-i18n' // Import useI18n for translations
+import ToggleButton from '@/components/ToggleButton.vue' // Import the component
 
 // Define reactive state
 const product = ref({
@@ -588,48 +579,9 @@ select:focus {
   gap: 6px; /* Slightly increased gap */
 }
 
-/* Hide the actual checkbox input */
-.vipps-checkbox-hidden {
-  opacity: 0;
-  position: absolute;
-  width: 0;
-  height: 0;
-}
-
-/* Style the label to act ONLY as the toggle switch track */
-.vipps-toggle-label {
-  display: inline-block; /* No longer flex container */
-  cursor: pointer;
-  background-color: #e9ecef;
-  border-radius: 15px;
-  transition: background-color 0.2s ease;
-  position: relative; /* Still needed for absolute switch */
-  user-select: none;
-  height: 28px;
-  width: calc(24px * 2 + 2px * 2); /* Width = 2 * handle_width + 2 * padding */
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-  flex-shrink: 0; /* Prevent switch from shrinking */
-  margin-bottom: 0;
-}
-
-/* The sliding part of the switch */
-.vipps-toggle-switch {
-  display: block;
-  width: 24px;
-  height: 24px;
-  background-color: white;
-  border-radius: 50%;
-  transition: left 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-  position: absolute;
-  left: 2px;
-  top: 2px;
-  z-index: 1;
-}
-
 /* Style the Vipps logo (now outside the label) */
 .vipps-logo-inline {
-  height: 24px;
+  height: 32px;
   width: auto;
   vertical-align: middle; /* Keep this, helps baseline alignment */
   opacity: 1;
@@ -639,29 +591,15 @@ select:focus {
 .vipps-label-text {
   color: #333;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 1rem;
   line-height: 1.2; /* Adjust line-height for better vertical centering */
 }
 
 .vipps-logo-text {
   display: flex;
   align-items: center;
-  gap: 0px;
+  gap: 2px; /* Add small gap */
 }
-
-/* --- Checked State Styles --- */
-
-/* Change background color of the switch track */
-.vipps-checkbox-hidden:checked + .vipps-toggle-label {
-  background-color: #ff5b24; /* Vipps Orange */
-}
-
-/* Move the switch handle */
-.vipps-checkbox-hidden:checked + .vipps-toggle-label .vipps-toggle-switch {
-  left: calc(100% - 24px - 2px);
-}
-
-/* REMOVED Styles affecting text/logo based on checked state */
 
 /* Button styling */
 button[type='submit'] {

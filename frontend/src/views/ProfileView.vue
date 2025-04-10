@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { getItemsOfUser, type ItemCard } from '@/service/itemService'
 import LanguageSelector from '@/components/LanguageSelector.vue'
 import { useSessionStore, type User } from '@/stores/session'
-import Product from '@/components/home/Product.vue'
+import Product from '@/components/Product.vue'
 const authStore = useSessionStore()
 
 const { t } = useI18n()

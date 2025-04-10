@@ -9,7 +9,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import Product from '@/components/home/Product.vue'
+import Product from '@/components/Product.vue'
 import { searchItems, type SearchItemsResponse } from '@/service/itemService'
 import Map from '@/components/RadiusMap.vue'
 import { getCategories } from '@/service/categoryService.ts'
