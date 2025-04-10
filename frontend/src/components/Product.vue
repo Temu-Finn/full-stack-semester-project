@@ -1,6 +1,6 @@
 <template>
   <div class="product-container">
-    <router-link
+    <a
       class="product-card"
       :class="{
         'status-reserved': product.status === 'reserved' || product.status === 'reserved_by_user',
@@ -47,12 +47,12 @@
           </div>
         </div>
       </div>
-    </router-link>
+    </a>
     <DeleteButton v-if="editStore.editMode" :onClick="confirmAndDelete" />
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { type ItemCard, deleteItem } from '@/service/itemService'
 import { useEditStore } from '@/stores/edit'
 import DeleteButton from './DeleteButton.vue'
@@ -117,6 +117,7 @@ async function confirmAndDelete() {
   text-decoration: none;
   color: inherit;
   position: relative;
+  width: 100%;
 }
 
 .product-card:hover {
@@ -225,5 +226,6 @@ async function confirmAndDelete() {
 .product-container {
   position: relative;
   height: 100%;
+  width: 100%;
 }
 </style>

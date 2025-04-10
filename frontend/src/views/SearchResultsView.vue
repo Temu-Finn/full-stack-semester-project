@@ -107,6 +107,7 @@ const isMapView = ref(false)
 
 function toggleViewMode() {
   isMapView.value = !isMapView.value
+  fetchItems()
 }
 
 const isFiltersOpen = ref(false)
@@ -123,7 +124,7 @@ async function fetchItems() {
       categoryId: selectedCategory.value ? Number(selectedCategory.value) : undefined,
       sort: [selectedSort.value],
       page: currentPage.value - 1,
-      size: 9,
+      size: isMapView.value ? 9999 : 9,
       county: selectedCountyQuery.value ? selectedCountyQuery.value : undefined,
       municipality: selectedMunicipalityQuery.value ? selectedMunicipalityQuery.value : undefined,
       latitude:

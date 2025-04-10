@@ -112,7 +112,7 @@ const selectStatus = (status: ItemStatus) => {
 .profile-view {
   width: 100%;
   min-height: calc(100vh - 60px);
-  padding: 2rem 1rem;
+  padding: 2rem 1rem 0 1rem;
   font-family: sans-serif;
   color: #333;
   background-color: #fff;
@@ -124,7 +124,7 @@ const selectStatus = (status: ItemStatus) => {
   gap: 1rem;
   margin-bottom: 2rem;
   border-bottom: 1px solid #ddd;
-  padding-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
   justify-content: space-between;
 }
 
@@ -142,8 +142,7 @@ const selectStatus = (status: ItemStatus) => {
 }
 
 .avatar-img {
-  width: 100px;
-  height: 100px;
+  height: 140px;
   object-fit: cover;
   display: block;
   border-radius: 50%;
@@ -155,7 +154,7 @@ const selectStatus = (status: ItemStatus) => {
 
 .name {
   margin: 0 0 0.25rem;
-  font-size: 1.5rem;
+  font-size: 2.5rem;
 }
 
 .email {

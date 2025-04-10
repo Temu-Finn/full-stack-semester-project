@@ -1,20 +1,17 @@
 package edu.ntnu.idatt2105.gr2.backend.controller
 
-import edu.ntnu.idatt2105.gr2.backend.dto.ConversationsResponse
-import edu.ntnu.idatt2105.gr2.backend.dto.CreateConversationRequest
-import edu.ntnu.idatt2105.gr2.backend.dto.CreateConversationResponse
+import edu.ntnu.idatt2105.gr2.backend.dto.*
 import edu.ntnu.idatt2105.gr2.backend.service.ConversationService
 import org.slf4j.LoggerFactory
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.http.ResponseEntity
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/conversations")
@@ -24,29 +21,6 @@ class ConversationController(
 ) {
 
     private val logger = LoggerFactory.getLogger(ConversationController::class.java)
-
-    @PostMapping("/create")
-    @Operation(summary = "Create a new conversation")
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Successfully created conversation"
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "Invalid request"
-            ),
-            ApiResponse(
-                responseCode = "500",
-                description = "Internal server error"
-            )
-        ]
-    )
-    fun createConversation(request: CreateConversationRequest):
-            CreateConversationResponse {
-        return conversationService.createConversation(request)
-    }
 
     //sort by latest message
     @GetMapping("/getAll")
@@ -67,17 +41,38 @@ class ConversationController(
             )
         ]
     )
-    fun getAllConversations(): ConversationsResponse {
+    fun getAllConversations(): ResponseEntity<ConversationsResponse> {
         logger.info("fetching all conversations")
         val conversations = conversationService.getAllConversationsForUser()
         logger.info("Successfully fetched all conversations")
-        return conversations
+        return ResponseEntity.ok(conversations)
     }
 
-    @MessageMapping("/getTest")
-    @SendTo("/topic/test")
-    fun test(): String {
-        return "HELLLOOOOOOOOO:)"
+    @GetMapping("/{id}")
+    @Operation(summary = "Get conversation by id")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Successfully retrieved conversation"
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Conversation not found"
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Internal server error"
+            )
+        ]
+    )
+    fun getConversation(
+        @Parameter(description = "Conversation ID") @PathVariable id: Int
+    ): ResponseEntity<GetConversationResponse> {
+        logger.info("Fetching conversation with id: $id")
+        val conversation = conversationService.getConversationById(id)
+        logger.info("Successfully fetched conversation with id: $id")
+        return ResponseEntity.ok(conversation)
     }
 
     @MessageMapping("/deleteConversation")
@@ -86,12 +81,32 @@ class ConversationController(
         conversationService.deleteConversation(id)
     }
 
-    /*
-    @MessageMapping("/updateConversation")
-    @SendTo("/topic/conversations/{conversationId}")
-    fun updateConversation(conversationId: Int, buyerId: Int) {
-        val userId = userContextService.getCurrentUserId()
-        conversationService.sendMessage(conversationId, userId, "test")
+    @PostMapping("/sendMessage")
+    @Operation(summary = "Send a message to a conversation")
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Successfully sent message"
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Invalid request"
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Internal server error"
+            )
+        ]
+    )
+    fun sendMessage(
+        @Parameter(description = "Message request")
+        @RequestBody request: SendMessageRequest
+    ): ResponseEntity<NewMessageResponse> {
+        logger.info("Sending message to conversation")
+        logger.info("itemid: ${request.itemId}")
+        val response = conversationService.sendMessage(request)
+        logger.info("Successfully sent message to conversation")
+        return ResponseEntity.ok(response)
     }
-     */
 }

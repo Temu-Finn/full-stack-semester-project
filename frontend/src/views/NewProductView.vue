@@ -1,14 +1,13 @@
 <template>
   <div class="new-product-view">
     <h1>{{ $t('newProduct.title') }}</h1>
-    <form @submit.prevent="handleSubmit" novalidate>
-      <!-- Category Select -->
+    <form novalidate @submit.prevent="handleSubmit">
       <BaseSelect
         id="categoryId"
         v-model.number="product.categoryId"
+        :error="errors.categoryId || categoryError"
         :label="$t('newProduct.category')"
         :placeholder="$t('newProduct.selectCategory')"
-        :error="errors.categoryId || categoryError"
         required
       >
         <option v-for="category in categories" :key="category.id" :value="category.id">
@@ -16,69 +15,68 @@
         </option>
       </BaseSelect>
 
-      <!-- Title -->
       <BaseInput
         id="name"
         v-model.trim="product.title"
-        :label="$t('newProduct.productTitle')"
         :error="errors.title"
+        :label="$t('newProduct.productTitle')"
         required
         type="text"
       />
 
-      <!-- Description -->
       <BaseTextarea
         id="description"
         v-model.trim="product.description"
-        :label="$t('newProduct.description')"
         :error="errors.description"
+        :label="$t('newProduct.description')"
         auto-resize
         required
       />
 
-      <!-- Price -->
       <BaseInput
         id="price"
         v-model.number="product.price"
-        :label="$t('newProduct.price')"
         :error="errors.price"
+        :label="$t('newProduct.price')"
+        min="0"
         required
         step="1"
         type="number"
-        min="0"
       />
 
-      <!-- Postal Code -->
       <BaseInput
         id="postalCode"
         v-model="product.postalCode"
-        :label="$t('newProduct.postalCode')"
         :error="errors.postalCode"
+        :label="$t('newProduct.postalCode')"
+        maxlength="4"
+        minlength="4"
+        pattern="[0-9]{4}"
+        placeholder="7032"
         required
         type="text"
-        pattern="[0-9]{4}"
-        minlength="4"
-        maxlength="4"
-        placeholder="7032"
       />
 
-      <!-- Images -->
+      <div class="form-group">
+        <label>{{ $t('newProduct.location') }}</label>
+        <NewProductMap @update:location="(loc) => (product.location = loc)" />
+        <p v-if="errors.location" class="error-message">{{ errors.location }}</p>
+      </div>
+
       <ImageUploader
         v-model:image-files="product.imageFiles"
         v-model:image-urls="product.imageUrls"
       />
 
-      <!-- Allow Vipps -->
       <div class="form-group toggle-group">
-        <ToggleButton v-model="product.allowVippsBuy" active-color="#ff5b24" :scale="1.4" />
+        <ToggleButton v-model="product.allowVippsBuy" :scale="1.4" active-color="#ff5b24" />
         <div class="vipps-logo-text">
-          <img src="/Vipps.svg" alt="Vipps Logo" class="vipps-logo-inline" />
+          <img alt="Vipps Logo" class="vipps-logo-inline" src="/Vipps.svg" />
           <span class="vipps-label-text">{{ $t('newProduct.vipps') }}</span>
         </div>
       </div>
 
-      <!-- Submit Button -->
-      <BaseButton :loading="isLoading" :disabled="isLoading" type="submit">
+      <BaseButton :disabled="isLoading" :loading="isLoading" type="submit">
         {{ isLoading ? $t('newProduct.creating') : $t('newProduct.createButton') }}
       </BaseButton>
 
@@ -87,7 +85,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { createItem } from '@/service/itemService'
@@ -100,6 +98,7 @@ import BaseTextarea from '@/components/BaseTextarea.vue'
 import BaseSelect from '@/components/BaseSelect.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import ImageUploader from '@/components/newProduct/ImageUploader.vue'
+import NewProductMap from '@/components/newProduct/NewProductMap.vue'
 
 interface Product {
   categoryId: number | null
@@ -110,6 +109,7 @@ interface Product {
   allowVippsBuy: boolean
   imageFiles: File[]
   imageUrls: string[]
+  location?: { latitude: number; longitude: number }
 }
 
 interface FormErrors {
@@ -118,6 +118,7 @@ interface FormErrors {
   description: string
   price: string
   postalCode: string
+  location: string
 }
 
 interface Category {
@@ -150,6 +151,7 @@ const errors = ref<FormErrors>({
   description: '',
   price: '',
   postalCode: '',
+  location: '',
 })
 
 onMounted(async () => {
@@ -173,6 +175,7 @@ const validateForm = (): boolean => {
     description: '',
     price: '',
     postalCode: '',
+    location: '',
   }
 
   let isValid = true
@@ -204,6 +207,15 @@ const validateForm = (): boolean => {
     isValid = false
   }
 
+  if (
+    !product.value.location ||
+    typeof product.value.location.latitude !== 'number' ||
+    typeof product.value.location.longitude !== 'number'
+  ) {
+    errors.value.location = t('validation.required', { field: t('newProduct.location') })
+    isValid = false
+  }
+
   return isValid
 }
 
@@ -226,6 +238,7 @@ const handleSubmit = async () => {
       description: product.value.description,
       price: product.value.price as number,
       allowVippsBuy: product.value.allowVippsBuy,
+      location: product.value.location,
     }
 
     const images = product.value.imageFiles
@@ -318,88 +331,6 @@ select:focus {
     0 0 0 3px rgba(0, 123, 255, 0.2);
 }
 
-.file-input-label {
-  display: block;
-  padding: 12px 15px;
-  border: 1px dashed #dcdcdc;
-  border-radius: 8px;
-  text-align: center;
-  cursor: pointer;
-  background-color: #f9f9f9;
-  color: #555;
-  transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease;
-}
-
-.file-input-label:hover {
-  border-color: #007bff;
-  background-color: #f0f8ff;
-}
-
-.file-input-label.window-dragging {
-  border-color: #007bff;
-  border-style: dashed;
-  background-color: #e6f2ff;
-  box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
-}
-
-#images {
-  display: none;
-}
-
-.image-preview-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 15px;
-  margin-top: 15px;
-}
-
-.image-preview-item {
-  position: relative;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  overflow: hidden;
-  aspect-ratio: 1 / 1;
-  background-color: #f0f0f0;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.image-preview {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.remove-image-btn {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  font-size: 14px;
-  line-height: 24px;
-  text-align: center;
-  cursor: pointer;
-  padding: 0;
-  opacity: 0.8;
-  transition:
-    background-color 0.2s ease,
-    opacity 0.2s ease;
-}
-
-.remove-image-btn:hover {
-  background-color: rgba(220, 53, 69, 0.9);
-  opacity: 1;
-}
-
 .toggle-group {
   display: flex;
   align-items: center;
@@ -432,56 +363,5 @@ select:focus {
   margin-top: 20px;
   text-align: center;
   font-size: 0.9rem;
-}
-
-.field-error-message {
-  color: #dc3545;
-  font-size: 0.875em;
-  margin-top: 6px;
-  min-height: 1.2em;
-}
-
-input.is-invalid,
-textarea.is-invalid,
-select.is-invalid {
-  border-color: #dc3545 !important;
-  box-shadow:
-    inset 0 1px 2px rgba(0, 0, 0, 0.05),
-    0 0 0 3px rgba(220, 53, 69, 0.2) !important;
-}
-
-.image-preview-item.primary-image {
-  border-color: #007bff;
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
-}
-
-.image-preview-item.primary-image .primary-indicator {
-  font-weight: bold;
-}
-
-.image-preview-item.dragging {
-  opacity: 0.5;
-  transform: scale(0.95);
-}
-
-.image-preview-item.drop-target {
-  border-style: dashed;
-  border-color: #28a745;
-  background-color: #e9f5ec;
-}
-
-.primary-indicator {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 123, 255, 0.7);
-  color: white;
-  font-size: 0.75rem;
-  text-align: center;
-  padding: 2px 0;
-  border-bottom-left-radius: 6px;
-  border-bottom-right-radius: 6px;
-  user-select: none;
 }
 </style>
