@@ -12,17 +12,23 @@
           class="delete-button"
         />
       </div>
-      <div class="add-category category-card">
+      <button class="add-category category-card" @click="handleAddCategory">
         <span class="category-icon">+</span>
         <span class="category-name">Add Category</span>
-      </div>
+      </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getCategories, deleteCategory, type Category } from '@/service/categoryService'
+import {
+  getCategories,
+  deleteCategory,
+  type Category,
+  createCategory,
+  type CreateCategory,
+} from '@/service/categoryService'
 import DeleteButton from '../DeleteButton.vue'
 import { useEditStore } from '@/stores/edit'
 
@@ -40,6 +46,20 @@ async function handleDelete(id: number) {
     categories.value = categories.value.filter((category) => category.id !== id)
   } catch (error) {
     alert('There are still items associated with this category. Please remove them first.')
+  }
+}
+
+async function handleAddCategory() {
+  const category: CreateCategory = {
+    icon: '🌟',
+    name: 'New Category',
+    description: 'New Category Description',
+  }
+  try {
+    const newCategory = await createCategory(category)
+    categories.value.push(newCategory)
+  } catch (error) {
+    alert('Failed to create category. Please try again.')
   }
 }
 </script>
@@ -119,6 +139,7 @@ async function handleDelete(id: number) {
 .add-category {
   color: #777;
   border: 2px dashed #e0e0e0;
+  background-color: transparent;
 }
 
 .add-category:hover {
