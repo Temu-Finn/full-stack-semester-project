@@ -5,6 +5,8 @@ import { getItemsOfUser, type ItemCard } from '@/service/itemService'
 import LanguageSelector from '@/components/LanguageSelector.vue'
 import { useSessionStore, type User } from '@/stores/session'
 import Product from '@/components/Product.vue'
+import BaseButton from '@/components/BaseButton.vue'
+
 const sessionStore = useSessionStore()
 
 const { t } = useI18n()
@@ -67,9 +69,9 @@ const selectStatus = (status: ItemStatus) => {
         </div>
       </div>
       <div class="header-actions">
-        <button class="logout-button" @click="sessionStore.logout">
+        <BaseButton class="logout-button" @click="sessionStore.logout">
           {{ t('profile.logout') }}
-        </button>
+        </BaseButton>
         <LanguageSelector />
       </div>
     </header>
@@ -171,21 +173,19 @@ const selectStatus = (status: ItemStatus) => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  min-width: 140px;
 }
 
 .logout-button {
   background-color: #dd4422;
-  border: none;
-  outline: none;
-  color: #fff;
   padding: 0.5rem 1rem;
   font-size: 1rem;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.1s ease;
+  width: auto;
+  max-height: 20px;
+  margin-bottom: 1rem;
 }
 
-.logout-button:hover {
+.logout-button:hover:not(:disabled) {
   background-color: #cc3311;
 }
 
@@ -235,6 +235,10 @@ const selectStatus = (status: ItemStatus) => {
   .header-actions {
     flex-direction: row;
     flex-flow: row-reverse;
+    align-items: end;
+  }
+  .logout-button {
+    margin-bottom: 1.5rem;
   }
 }
 </style>
