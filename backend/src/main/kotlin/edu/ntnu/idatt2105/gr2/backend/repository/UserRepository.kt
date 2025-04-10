@@ -36,6 +36,19 @@ class UserRepository(private val dataSource: DataSource) {
         }
     }
 
+    fun findById(id: Int): User? {
+        dataSource.connection.use { conn ->
+            val sql = "SELECT * FROM users WHERE id = ?"
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setInt(1, id)
+                stmt.executeQuery().use { rs ->
+                    if (rs.next()) return mapRowToUser(rs)
+                }
+            }
+        }
+        return null
+    }
+
     fun findByEmail(email: String): User? {
         dataSource.connection.use { conn ->
             val sql = "SELECT * FROM users WHERE email = ?"
@@ -76,5 +89,27 @@ class UserRepository(private val dataSource: DataSource) {
             }
         }
         return false
+    }
+
+    fun updateName(userId: Int, newName: String): Boolean {
+        dataSource.connection.use { conn ->
+            val sql = "UPDATE users SET name = ? WHERE id = ?"
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setString(1, newName)
+                stmt.setInt(2, userId)
+                return stmt.executeUpdate() > 0
+            }
+        }
+    }
+
+    fun updateEmail(userId: Int, newEmail: String): Boolean {
+        dataSource.connection.use { conn ->
+            val sql = "UPDATE users SET email = ? WHERE id = ?"
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setString(1, newEmail)
+                stmt.setInt(2, userId)
+                return stmt.executeUpdate() > 0
+            }
+        }
     }
 }
