@@ -69,14 +69,13 @@ const cancelEdit = (type: string) => {
 
 const logout = () => {
   sessionStore.logout()
-  router.push({ name: 'login' }) // Ensure this route exists
+  router.push({ name: 'login' })
 }
 
 const submitUpdate = async (type: string) => {
   try {
     if (!user.value) throw new Error('No user loaded.')
 
-    // Reset validation errors
     if (type === 'password') {
       errors.value.password.old = ''
       errors.value.password.new = ''
@@ -84,7 +83,6 @@ const submitUpdate = async (type: string) => {
       errors.value[type] = ''
     }
 
-    // Validation
     if (type === 'name' && !form.value.name.trim()) {
       errors.value.name = t('validation.required', { field: t('credentials.name') })
       return
@@ -106,7 +104,6 @@ const submitUpdate = async (type: string) => {
       }
     }
 
-    // Update
     if (type === 'email') {
       await updateUserEmail({ email: form.value.email })
     } else if (type === 'name') {
