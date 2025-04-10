@@ -2,6 +2,9 @@ package edu.ntnu.idatt2105.gr2.backend.dto
 
 import java.time.Instant
 
+/**
+ * Represents a conversation card with basic information about the conversation
+ */
 data class ConversationCardResponse(
     val id: Int,
     val lastMessage: String?,
@@ -9,9 +12,17 @@ data class ConversationCardResponse(
     val item: ItemCard
 )
 
+/**
+ * Represents a list of conversations with their basic information
+ */
+
 data class ConversationsResponse(
     val conversations: List<ConversationCardResponse>
 )
+
+/**
+ * Represents a new message response in a conversation
+ */
 
 data class NewMessageResponse(
     val conversationId: Int,
@@ -20,19 +31,37 @@ data class NewMessageResponse(
     val sentAt: String
 )
 
-data class Messages(
+/**
+ * Represents a detailed message response in a conversation
+ */
+
+data class MessageResponse(
     val id: Int,
     val conversationId: Int,
     val senderId: Int,
     val content: String,
-    val sentAt: String,
+    val sentAt: Instant,
     val isRead: Boolean
 )
 
-data class CreateConversationResponse(
-    val statusMessage : String
+/**
+ * Represents a request to create a new conversation
+ */
+
+data class SendMessageRequest(
+    val conversationId: Int? = null,
+    val itemId: Int,
+    val content: String
 )
 
-data class CreateConversationRequest(
-    val itemId: Int,
+/**
+ * Represents a request to create a new conversation
+ */
+
+data class GetConversationResponse(
+    val otherParticipantName: String,
+    val createdAt: Instant,
+    val updatedAt: Instant,
+    val messages: List<MessageResponse>,
+    val item: ItemCard
 )
