@@ -35,11 +35,9 @@ const props = withDefaults(defineProps<Props>(), {
   textColor: '#ffffff',
 })
 
-// Use CSS variables for dynamic styling
 const buttonStyle = computed(() => ({
   '--button-background-color': props.backgroundColor,
   '--button-text-color': props.textColor,
-  // Add more variables as needed, e.g., for hover/active states if calculated
 }))
 </script>
 
