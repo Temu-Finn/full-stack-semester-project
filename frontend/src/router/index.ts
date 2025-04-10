@@ -62,6 +62,12 @@ const router = createRouter({
       component: SearchResultsView,
       meta: { requiresAuth: false },
     },
+    {
+      path: '/vipps/processing',
+      name: 'VippsProcessing',
+      component: () => import('@/views/VippsProcessing.vue'),
+    }
+    
   ],
 })
 
