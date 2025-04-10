@@ -5,7 +5,7 @@ import { getItemsOfUser, type ItemCard } from '@/service/itemService'
 import LanguageSelector from '@/components/LanguageSelector.vue'
 import { useSessionStore, type User } from '@/stores/session'
 import Product from '@/components/Product.vue'
-const authStore = useSessionStore()
+const sessionStore = useSessionStore()
 
 const { t } = useI18n()
 
@@ -13,10 +13,10 @@ const user = ref<User | null>(null)
 
 const items = ref<ItemCard[]>([])
 onMounted(async () => {
-  if (authStore.user) {
-    user.value = authStore.user
+  if (sessionStore.user) {
+    user.value = sessionStore.user
   }
-  const response = authStore.user ? await getItemsOfUser(authStore.user.id) : []
+  const response = sessionStore.user ? await getItemsOfUser(sessionStore.user.id) : []
   items.value = response
 })
 
@@ -67,7 +67,7 @@ const selectStatus = (status: ItemStatus) => {
         </div>
       </div>
       <div class="header-actions">
-        <button class="logout-button" @click="authStore.logout">
+        <button class="logout-button" @click="sessionStore.logout">
           {{ t('profile.logout') }}
         </button>
         <LanguageSelector />
