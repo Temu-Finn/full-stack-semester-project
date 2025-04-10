@@ -112,4 +112,15 @@ class UserRepository(private val dataSource: DataSource) {
             }
         }
     }
+
+    fun updatePassword(userId: Int, hashedPassword: String): Boolean {
+        dataSource.connection.use { conn ->
+            val sql = "UPDATE users SET password = ? WHERE id = ?"
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setString(1, hashedPassword)
+                stmt.setInt(2, userId)
+                return stmt.executeUpdate() > 0
+            }
+        }
+    }
 }
