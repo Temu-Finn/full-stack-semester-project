@@ -33,6 +33,4 @@ build/
 .vscode/
 
 ### Secrets ###
-../.env
-
-/frontend/
+.env

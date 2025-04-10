@@ -58,10 +58,10 @@ data class SendMessageRequest(
  * Represents a request to create a new conversation
  */
 
-data class getConversationResponse(
+data class GetConversationResponse(
     val otherParticipantName: String,
     val createdAt: Instant,
     val updatedAt: Instant,
-    val messages: MutableList<MessageResponse>,
+    val messages: List<MessageResponse>,
     val item: ItemCard
 )

@@ -68,7 +68,7 @@ class ConversationController(
     )
     fun getConversation(
         @Parameter(description = "Conversation ID") @PathVariable id: Int
-    ): ResponseEntity<getConversationResponse> {
+    ): ResponseEntity<GetConversationResponse> {
         logger.info("Fetching conversation with id: $id")
         val conversation = conversationService.getConversationById(id)
         logger.info("Successfully fetched conversation with id: $id")

@@ -128,7 +128,7 @@ class ConversationService(
      * @return A getConversationResponse object containing the conversation details.
      */
 
-    fun getConversationById(id: Int): getConversationResponse {
+    fun getConversationById(id: Int): GetConversationResponse {
         val currentUserId = userContextService.getCurrentUserId()
         if (!hasAccessToConversation(id, currentUserId)) {
             throw IllegalArgumentException("User does not have access to this conversation")
@@ -162,7 +162,7 @@ class ConversationService(
 
         logger.info("Other participant name: $otherParticipantName")
 
-        return getConversationResponse(
+        return GetConversationResponse(
             otherParticipantName = otherParticipantName,
             createdAt = conversation.createdAt,
             updatedAt = conversation.updatedAt,
