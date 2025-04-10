@@ -482,11 +482,6 @@ onMounted(async () => {
   color: #333;
   background-color: #d0eaff;
 }
-.vipps-section {
-  padding: 0 0.5rem;
-  display: flex;
-  gap: 10px;
-}
 .map-section {
   margin-top: 1rem;
 }
@@ -531,7 +526,7 @@ onMounted(async () => {
 }
 .search-results {
   flex: 1;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
   background-color: #fff;
 }
 
