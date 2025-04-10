@@ -9,6 +9,5 @@ data class Category(
     init {
         require(name.isNotBlank()) { "Name cannot be blank" }
         require(icon.isNotBlank()) { "Icon cannot be blank" }
-        require(description.isNotBlank()) { "Description cannot be blank" }
     }
 }

@@ -168,4 +168,12 @@ class GlobalExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.message)
             .apply { setProperty("description", "You are not authorized to perform this action") }
     }
+
+    @ExceptionHandler(UserNotFoundException::class)
+    fun handleUserNotFoundException(ex: UserNotFoundException): ProblemDetail {
+        logger.warn("User not found", ex)
+        return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.message)
+            .apply { setProperty("description", "The requested user was not found") }
+    }
+
 }

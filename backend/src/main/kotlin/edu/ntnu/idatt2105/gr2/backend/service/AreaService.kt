@@ -11,7 +11,7 @@ class AreaService (
     private val areaRepository: AreaRepository,
 ) {
     fun populateCounties(request: SearchRequest): List<CountyResponse> {
-        val counties = areaRepository.getCounties(request)
+        val counties = areaRepository.getCounties(request.copy(county = null, municipality = null, city = null))
 
         data class MutableCountyResponse(
             val name: String,

@@ -25,11 +25,8 @@ class CategoryService (
             ?: throw IllegalArgumentException("Category with id $id not found")
     }
 
-    fun deleteCategory(name: String) {
-        if (name.isBlank()) {
-            throw IllegalArgumentException("Name cannot be blank")
-        }
-        categoryRepository.delete(name)
+    fun deleteCategory(id: Int) {
+        categoryRepository.delete(id)
     }
 
     fun deleteAllCategories() {

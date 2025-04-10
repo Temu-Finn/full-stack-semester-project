@@ -1,9 +1,12 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import { useSessionStore } from '@/stores/session'
+import { useEditStore } from '@/stores/edit'
 import { useI18n } from 'vue-i18n'
+import ToggleButton from './ToggleButton.vue'
 
 const authStore = useSessionStore()
+const editStore = useEditStore()
 const { t } = useI18n()
 
 const isSidebarOpen = ref(false)
@@ -28,8 +31,14 @@ const closeSidebar = () => {
           <img alt="logo" src="/TemuFinn.png" width="96" />
         </a>
         <div class="items-section">
+          <a href="/search">{{ t('navbar.browse') }}</a>
           <a href="/new">{{ t('navbar.newProduct') }}</a>
           <a href="/chat">{{ t('navbar.messages') }}</a>
+          <ToggleButton
+            v-if="authStore.isAdmin"
+            v-model="editStore.editMode"
+            :label="t('navbar.editMode')"
+          />
         </div>
         <a class="profile-section" href="/profile">
           <img
@@ -46,9 +55,10 @@ const closeSidebar = () => {
     <aside :class="{ 'mobile-open': isSidebarOpen }" class="sidebar">
       <button class="close-sidebar" @click="closeSidebar">&times;</button>
       <nav class="sidebar-nav">
+        <a href="/search" @click="closeSidebar">{{ t('navbar.browse') }}</a>
         <a href="/new" @click="closeSidebar">{{ t('navbar.newProduct') }}</a>
         <a href="/chat" @click="closeSidebar">{{ t('navbar.messages') }}</a>
-        <a href="/profile" @click="closeSidebar">
+        <a class="sidebar-profile" href="/profile" @click="closeSidebar">
           <img
             :class="authStore.user ? '' : 'hidden'"
             alt="profile-icon"
@@ -72,8 +82,8 @@ const closeSidebar = () => {
   display: flex;
   justify-content: center;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(20px);
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
   box-shadow: rgba(0, 0, 0, 0.1) 0 0 8px;
   z-index: 10;
   font-size: 15px;
@@ -155,6 +165,12 @@ const closeSidebar = () => {
   text-decoration: none;
   color: #333;
   font-size: 1.2rem;
+}
+
+.sidebar-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .overlay {
