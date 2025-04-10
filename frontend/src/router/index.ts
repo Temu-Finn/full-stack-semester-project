@@ -8,6 +8,7 @@ import SignUpView from '@/views/SignUpView.vue'
 import { useSessionStore } from '@/stores/session'
 import ChatView from '@/views/ChatView.vue'
 import ProductView from '@/views/ProductView.vue'
+import SearchResultsView from '@/views/SearchResultsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -55,6 +56,18 @@ const router = createRouter({
       component: ProductView,
       meta: { requiresAuth: false },
     },
+    {
+      path: '/search',
+      name: 'search',
+      component: SearchResultsView,
+      meta: { requiresAuth: false },
+    },
+    {
+      path: '/vipps/processing',
+      name: 'VippsProcessing',
+      component: () => import('@/views/VippsProcessing.vue'),
+    }
+    
   ],
 })
 
