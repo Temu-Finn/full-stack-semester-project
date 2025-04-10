@@ -46,7 +46,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { logger } from '@/utils/logger'
-import { useI18n } from 'vue-i18n'
 
 interface Props {
   imageFiles: File[]
@@ -55,14 +54,12 @@ interface Props {
 
 const props = defineProps<Props>()
 const emit = defineEmits(['update:imageFiles', 'update:imageUrls'])
-const { t } = useI18n() // Assuming i18n setup is global
 
 const fileInput = ref<HTMLInputElement | null>(null)
 const isWindowDragging = ref(false)
 const draggedIndex = ref<number | null>(null)
 const dropIndex = ref<number | null>(null)
 
-// Revoke URLs when component unmounts or URLs change
 watch(
   () => [...props.imageUrls],
   (newUrls, oldUrls) => {
@@ -75,7 +72,7 @@ watch(
       })
     }
   },
-  { deep: true, immediate: false }, // immediate: false to avoid revoking on initial load
+  { deep: true, immediate: false },
 )
 
 const windowDragOver = (event: DragEvent) => {
@@ -84,10 +81,9 @@ const windowDragOver = (event: DragEvent) => {
 }
 
 const windowDragLeave = (event: DragEvent) => {
-  // Check if the mouse left the window entirely
   if (
     !event.relatedTarget ||
-    event.target === document.documentElement || // check if target is the root html element
+    event.target === document.documentElement ||
     event.clientY <= 0 ||
     event.clientX <= 0 ||
     event.clientX >= window.innerWidth ||
@@ -120,7 +116,6 @@ onUnmounted(() => {
   window.removeEventListener('dragover', windowDragOver)
   window.removeEventListener('dragleave', windowDragLeave)
   window.removeEventListener('drop', windowDrop)
-  // Clean up all remaining object URLs
   props.imageUrls.forEach((url) => URL.revokeObjectURL(url))
   logger.debug('ImageUploader: Window drag/drop listeners removed and URLs revoked')
 })
@@ -131,14 +126,27 @@ const processFiles = (files: FileList | null) => {
   let addedCount = 0
   const newImageFiles = [...props.imageFiles]
   const newImageUrls = [...props.imageUrls]
+  const availableSlots = 10 - newImageFiles.length
 
+  if (availableSlots <= 0) {
+    logger.warn('Maximum number of images (10) already reached.')
+    return
+  }
+
+  let filesProcessed = 0
   for (const file of files) {
+    if (filesProcessed >= availableSlots) {
+      logger.warn(`Skipped file ${file.name} as the maximum limit of 10 images would be exceeded.`)
+      continue
+    }
+
     if (file.type.startsWith('image/')) {
       newImageFiles.push(file)
       const url = URL.createObjectURL(file)
       newImageUrls.push(url)
       logger.debug(`Created object URL: ${url} for file: ${file.name}`)
       addedCount++
+      filesProcessed++
     } else {
       logger.warn(`Skipped non-image file: ${file.name}`)
     }
@@ -152,9 +160,13 @@ const processFiles = (files: FileList | null) => {
 }
 
 const handleInputChange = (event: Event) => {
+  if (props.imageFiles.length >= 10) {
+    return
+  }
+
   const target = event.target as HTMLInputElement
   processFiles(target.files)
-  target.value = '' // Reset input value to allow selecting the same file again
+  target.value = ''
 }
 
 const triggerFileInput = () => {
@@ -182,13 +194,13 @@ const handleDragStart = (index: number) => {
 }
 
 const handleDragOver = (event: DragEvent, index: number) => {
-  event.preventDefault() // Necessary to allow drop
+  event.preventDefault()
   dropIndex.value = index
 }
 
 const handleDrop = (index: number) => {
   if (draggedIndex.value === null || draggedIndex.value === index) {
-    dropIndex.value = null // Reset drop index if dropping on self or no drag started
+    dropIndex.value = null
     return
   }
 
@@ -198,7 +210,6 @@ const handleDrop = (index: number) => {
   const itemToMove = newImageFiles[draggedIndex.value]
   const urlToMove = newImageUrls[draggedIndex.value]
 
-  // Remove the item from its original position
   newImageFiles.splice(draggedIndex.value, 1)
   newImageUrls.splice(draggedIndex.value, 1)
 
