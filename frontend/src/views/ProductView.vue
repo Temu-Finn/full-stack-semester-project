@@ -33,6 +33,15 @@
         }}
       </button>
 
+      <!-- Only visible if vipps is avaliable-->
+      <button
+      v-if="product.allowVippsBuy"
+      class="vipps-button"
+      @click="startVippsPayment"
+      >
+        🧡 {{ $t('productView.payWithVipps') }}
+      </button>
+
       <div class="product-details">
         <p>
           <strong>{{ $t('productView.statusLabel') }}</strong> {{ product.status }}
@@ -113,6 +122,21 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
+
+import { startVippsPayment as startVippsPaymentApi } from '@/service/vippsService'
+
+const startVippsPayment = async () => {
+  if (!product.value) return
+
+  try {
+    const { redirectUrl, reference } = await startVippsPaymentApi(product.value.price)
+    console.log('Vipps reference:', reference)
+    window.location.href = redirectUrl
+  } catch (error) {
+    console.error('Could not start Vipps payment:', error)
+  }
+}
+
 </script>
 
 <style scoped>
@@ -223,5 +247,19 @@ onMounted(async () => {
   padding: 20px;
   border: 1px dashed #ccc;
   border-radius: 4px;
+}
+
+.vipps-button {
+  padding: 10px 20px;
+  background-color: #ff5b24;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.vipps-button:hover {
+  background-color: #e04e1b;
 }
 </style>
