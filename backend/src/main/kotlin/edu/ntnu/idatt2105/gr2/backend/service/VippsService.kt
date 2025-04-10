@@ -1,10 +1,10 @@
 package edu.ntnu.idatt2105.gr2.backend.service
 
+import io.github.cdimascio.dotenv.Dotenv
 import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import java.util.*
-import io.github.cdimascio.dotenv.Dotenv
 
 /**
  * Service class for handling communication with the Vipps ePayment API.
@@ -18,7 +18,6 @@ import io.github.cdimascio.dotenv.Dotenv
  */
 @Service
 class VippsService {
-
     private val dotenv = Dotenv.load()
 
     private val baseUrl = "https://apitest.vipps.no"
@@ -37,20 +36,22 @@ class VippsService {
      * @return The access token as a string, or `null` if the request failed.
      */
     fun getAccessToken(): String? {
-        val headers = HttpHeaders().apply {
-            contentType = MediaType.APPLICATION_JSON
-            set("client_id", clientId)
-            set("client_secret", clientSecret)
-            set("Ocp-Apim-Subscription-Key", subscriptionKey)
-        }
+        val headers =
+            HttpHeaders().apply {
+                contentType = MediaType.APPLICATION_JSON
+                set("client_id", clientId)
+                set("client_secret", clientSecret)
+                set("Ocp-Apim-Subscription-Key", subscriptionKey)
+            }
         val request = HttpEntity(null, headers)
 
-        val response = restTemplate.exchange(
-            "$baseUrl/accesstoken/get",
-            HttpMethod.POST,
-            request,
-            Map::class.java
-        )
+        val response =
+            restTemplate.exchange(
+                "$baseUrl/accesstoken/get",
+                HttpMethod.POST,
+                request,
+                Map::class.java,
+            )
 
         return response.body?.get("access_token") as? String
     }
@@ -67,38 +68,43 @@ class VippsService {
     fun initiatePayment(price: Double): Map<*, *>? {
         val accessToken = getAccessToken() ?: throw RuntimeException("Failed to get access token")
 
-        val headers = HttpHeaders().apply {
-            contentType = MediaType.APPLICATION_JSON
-            setBearerAuth(accessToken)
-            set("Ocp-Apim-Subscription-Key", subscriptionKey)
-            set("X-Request-Id", UUID.randomUUID().toString())
-            set("Idempotency-Key", UUID.randomUUID().toString())
-            set("Merchant-Serial-Number", merchantSerialNumber)
-        }
+        val headers =
+            HttpHeaders().apply {
+                contentType = MediaType.APPLICATION_JSON
+                setBearerAuth(accessToken)
+                set("Ocp-Apim-Subscription-Key", subscriptionKey)
+                set("X-Request-Id", UUID.randomUUID().toString())
+                set("Idempotency-Key", UUID.randomUUID().toString())
+                set("Merchant-Serial-Number", merchantSerialNumber)
+            }
 
         val reference = UUID.randomUUID().toString()
 
-        val requestBody = mapOf(
-            "amount" to mapOf(
-                "currency" to "NOK",
-                "value" to price * 100
-            ),
-            "reference" to reference,
-            "returnUrl" to "http://localhost:5173/vipps/processing?ref=$reference",
-            "userFlow" to "WEB_REDIRECT",
-            "paymentMethod" to mapOf(
-                "type" to "WALLET"
+        val requestBody =
+            mapOf(
+                "amount" to
+                    mapOf(
+                        "currency" to "NOK",
+                        "value" to price * 100,
+                    ),
+                "reference" to reference,
+                "returnUrl" to "http://localhost:5173/vipps/processing?ref=$reference",
+                "userFlow" to "WEB_REDIRECT",
+                "paymentMethod" to
+                    mapOf(
+                        "type" to "WALLET",
+                    ),
             )
-        )
 
         val request = HttpEntity(requestBody, headers)
 
-        val response = restTemplate.exchange(
-            "$baseUrl/epayment/v1/payments",
-            HttpMethod.POST,
-            request,
-            Map::class.java
-        )
+        val response =
+            restTemplate.exchange(
+                "$baseUrl/epayment/v1/payments",
+                HttpMethod.POST,
+                request,
+                Map::class.java,
+            )
 
         return response.body
     }
@@ -115,27 +121,24 @@ class VippsService {
     fun getPayment(reference: String): Map<*, *>? {
         val accessToken = getAccessToken() ?: throw RuntimeException("Failed to get access token")
 
-        val headers = HttpHeaders().apply {
-            setBearerAuth(accessToken)
-            set("Ocp-Apim-Subscription-Key", subscriptionKey)
-            set("Merchant-Serial-Number", merchantSerialNumber)
-            set("X-Request-Id", UUID.randomUUID().toString())
-        }
+        val headers =
+            HttpHeaders().apply {
+                setBearerAuth(accessToken)
+                set("Ocp-Apim-Subscription-Key", subscriptionKey)
+                set("Merchant-Serial-Number", merchantSerialNumber)
+                set("X-Request-Id", UUID.randomUUID().toString())
+            }
 
         val entity = HttpEntity<Void>(headers)
 
-        val response = restTemplate.exchange(
-            "$baseUrl/epayment/v1/payments/$reference",
-            HttpMethod.GET,
-            entity,
-            Map::class.java
-        )
-
+        val response =
+            restTemplate.exchange(
+                "$baseUrl/epayment/v1/payments/$reference",
+                HttpMethod.GET,
+                entity,
+                Map::class.java,
+            )
 
         return response.body
     }
-
-
-
-
 }

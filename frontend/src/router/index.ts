@@ -66,6 +66,11 @@ const router = createRouter({
       path: '/vipps/processing',
       name: 'VippsProcessing',
       component: () => import('@/views/VippsProcessing.vue'),
+    },
+    {
+      path: '/receipt/:id',
+      name: 'Receipt',
+      component: () => import('@/views/Receipt.vue'),
     }
     
   ],

@@ -6,17 +6,18 @@ import javax.sql.DataSource
 
 // SQL repository for categories
 @Repository
-class CategoryRepository (private val dataSource: DataSource) {
-
+class CategoryRepository(
+    private val dataSource: DataSource,
+) {
     // Saves a category
-    fun save(category: Category) : Category {
+    fun save(category: Category): Category {
         val name = category.name
         val icon = category.icon
         val description = category.description
 
         dataSource.connection.use { conn ->
             val sql = "INSERT INTO categories (name, icon, description) VALUES (?, ?, ?)"
-            conn.prepareStatement(sql,  java.sql.Statement.RETURN_GENERATED_KEYS).use { stmt ->
+            conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS).use { stmt ->
                 stmt.setString(1, name)
                 stmt.setString(2, icon)
                 stmt.setString(3, description)
@@ -30,8 +31,10 @@ class CategoryRepository (private val dataSource: DataSource) {
                     if (keys.next()) {
                         return category.copy(id = keys.getInt(1))
                     } else {
-                        throw RuntimeException("Creating category failed," +
-                                " no ID could be obtained.")
+                        throw RuntimeException(
+                            "Creating category failed," +
+                                " no ID could be obtained.",
+                        )
                     }
                 }
             }
@@ -55,10 +58,14 @@ class CategoryRepository (private val dataSource: DataSource) {
                 stmt.executeQuery().use { rows ->
                     val categories = mutableListOf<Category>()
                     while (rows.next()) {
-                        categories.add(Category(rows.getInt("id"),
-                            rows.getString("name"),
-                            rows.getString("icon"),
-                            rows.getString("description")))
+                        categories.add(
+                            Category(
+                                rows.getInt("id"),
+                                rows.getString("name"),
+                                rows.getString("icon"),
+                                rows.getString("description"),
+                            ),
+                        )
                     }
                     return categories
                 }
@@ -78,7 +85,7 @@ class CategoryRepository (private val dataSource: DataSource) {
                             rows.getInt("id"),
                             rows.getString("name"),
                             rows.getString("icon"),
-                            rows.getString("description")
+                            rows.getString("description"),
                         )
                     }
                 }

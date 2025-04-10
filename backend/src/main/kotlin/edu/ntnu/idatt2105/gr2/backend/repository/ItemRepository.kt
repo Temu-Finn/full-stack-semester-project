@@ -11,14 +11,16 @@ import java.sql.Statement
 import javax.sql.DataSource
 
 @Repository
-class ItemRepository(private val dataSource: DataSource) {
-
+class ItemRepository(
+    private val dataSource: DataSource,
+) {
     fun create(item: Item): Item {
         dataSource.connection.use { conn ->
-            val sql = """
+            val sql =
+                """
                 INSERT INTO items (seller_id, category_id, postal_code, title, description, price, location, allow_vipps_buy, status) 
                 VALUES(?, ?, ?, ?, ?, ?, ST_PointFromText(?, 4326), ?, ?)
-            """.trimIndent()
+                """.trimIndent()
             conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS).use { stmt ->
                 stmt.setInt(1, item.sellerId)
                 stmt.setInt(2, item.categoryId)
@@ -45,7 +47,10 @@ class ItemRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun setPrimaryImage(itemId: Int, imageId: Int) {
+    fun setPrimaryImage(
+        itemId: Int,
+        imageId: Int,
+    ) {
         val sql = "UPDATE items SET primary_image_id = ? WHERE id = ?"
 
         dataSource.connection.use { conn ->
@@ -57,33 +62,34 @@ class ItemRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun getItemById(id: Int): Item? {
-        return queryItemsWhere("id = ?") { it.setInt(1, id) }
+    fun getItemById(id: Int): Item? =
+        queryItemsWhere("id = ?") { it.setInt(1, id) }
             .firstOrNull()
-    }
 
-    fun findAllBySellerId(sellerId: Int, isOwnUser: Boolean): List<Item> {
-        return if (isOwnUser) {
+    fun findAllBySellerId(
+        sellerId: Int,
+        isOwnUser: Boolean,
+    ): List<Item> =
+        if (isOwnUser) {
             queryItemsWhere("seller_id = ?") { it.setInt(1, sellerId) }
         } else {
-            queryItemsWhere("seller_id = ? AND status = ?") { it.setInt(1, sellerId); it.setString(2, ItemStatus.Available.toString()) }
+            queryItemsWhere("seller_id = ? AND status = ?") {
+                it.setInt(1, sellerId)
+                it.setString(2, ItemStatus.Available.toString())
+            }
         }
-    }
 
-    fun deleteById(id: Int): Boolean =
-        executeUpdateAndReturnCount("DELETE FROM items WHERE id = ?") { it.setInt(1, id) } > 0
+    fun deleteById(id: Int): Boolean = executeUpdateAndReturnCount("DELETE FROM items WHERE id = ?") { it.setInt(1, id) } > 0
 
     fun findRecommendedItems(): List<Item> {
-        val sql = """
-            SELECT id, seller_id, category_id, i.postal_code, title, description, price, purchase_price, buyer_id, 
-                   ST_X(location) AS longitude, ST_Y(location) AS latitude, allow_vipps_buy, primary_image_id, 
-                   status, created_at, updated_at, municipality
-            FROM items i
-            JOIN postal_codes pc ON i.postal_code = pc.postal_code
+        val sql =
+            """
+            $selectSql
+            $tablesSql
             WHERE i.status = ?
             ORDER BY RAND()
             LIMIT 10
-        """.trimIndent()
+            """.trimIndent()
 
         val cards = mutableListOf<Item>()
         dataSource.connection.use { conn ->
@@ -99,61 +105,72 @@ class ItemRepository(private val dataSource: DataSource) {
         return cards
     }
 
-    fun searchItems(request: SearchRequest, pageable: Pageable): Page<Item> {
+    fun searchItems(
+        request: SearchRequest,
+        pageable: Pageable,
+    ): Page<Item> {
         val whereClause = request.whereClause()
-        val baseSql = """
-            FROM items i
-            JOIN postal_codes pc ON i.postal_code = pc.postal_code
+        val baseSql =
+            """
+            $tablesSql
             WHERE $whereClause
-        """.trimIndent()
+            """.trimIndent()
 
         // Query for total count
         val countSql = "SELECT COUNT(i.id) $baseSql"
-        val totalCount = dataSource.connection.use { conn ->
-            conn.prepareStatement(countSql).use { stmt ->
-                request.prepareWhereClause(stmt)
-                stmt.executeQuery().use { rs ->
-                    if (rs.next()) rs.getLong(1) else 0L
+        val totalCount =
+            dataSource.connection.use { conn ->
+                conn.prepareStatement(countSql).use { stmt ->
+                    request.prepareWhereClause(stmt)
+                    stmt.executeQuery().use { rs ->
+                        if (rs.next()) rs.getLong(1) else 0L
+                    }
                 }
             }
-        }
 
         // Query for page content
-        val sortClause = pageable.sort.map { "${it.property} ${it.direction}" }.joinToString(", ").ifBlank { "i.updated_at DESC" }
-        val contentSql = """
-            SELECT id, seller_id, category_id, i.postal_code, title, description, price, purchase_price, buyer_id, 
-                   ST_X(location) AS longitude, ST_Y(location) AS latitude, allow_vipps_buy, primary_image_id, 
-                   status, created_at, updated_at, municipality
+        val sortClause =
+            pageable.sort
+                .map { "${it.property} ${it.direction}" }
+                .joinToString(", ")
+                .ifBlank { "i.updated_at DESC" }
+        val contentSql =
+            """
+            $selectSql
             $baseSql
             ORDER BY $sortClause
             LIMIT ? OFFSET ? 
-        """.trimIndent()
-        
-        val content = dataSource.connection.use { conn ->
-            conn.prepareStatement(contentSql).use { stmt ->
-                var paramIndex = request.prepareWhereClause(stmt)
-                stmt.setInt(paramIndex++, pageable.pageSize)
-                stmt.setLong(paramIndex, pageable.offset)
-                
-                stmt.executeQuery().use { rs ->
-                    buildList { while (rs.next()) { add(mapRowToItem(rs)) } }
+            """.trimIndent()
+
+        val content =
+            dataSource.connection.use { conn ->
+                conn.prepareStatement(contentSql).use { stmt ->
+                    var paramIndex = request.prepareWhereClause(stmt)
+                    stmt.setInt(paramIndex++, pageable.pageSize)
+                    stmt.setLong(paramIndex, pageable.offset)
+
+                    stmt.executeQuery().use { rs ->
+                        buildList {
+                            while (rs.next()) {
+                                add(mapRowToItem(rs))
+                            }
+                        }
+                    }
                 }
             }
-        }
 
         return PageImpl(content, pageable, totalCount)
     }
 
     fun findFavoriteByUserId(userId: Int): List<Item> {
-        val sql = """
-        SELECT i.id, i.seller_id, i.category_id, i.postal_code, i.title, i.description, i.price, 
-               i.purchase_price, i.buyer_id, ST_X(i.location) AS longitude, ST_Y(i.location) AS latitude,
-               i.allow_vipps_buy, i.primary_image_id, i.status, i.created_at, i.updated_at, pc.municipality
-        FROM favorites f
-        JOIN items i ON f.item_id = i.id
-        JOIN postal_codes pc ON i.postal_code = pc.postal_code
-        WHERE f.user_id = ?
-    """.trimIndent()
+        val sql =
+            """
+            $selectSql
+            FROM favorites f
+            JOIN items i ON f.item_id = i.id
+            JOIN postal_codes pc ON i.postal_code = pc.postal_code
+            WHERE f.user_id = ?
+            """.trimIndent()
 
         return dataSource.connection.use { conn ->
             conn.prepareStatement(sql).use { stmt ->
@@ -167,29 +184,31 @@ class ItemRepository(private val dataSource: DataSource) {
 
     private fun queryItemsWhere(
         where: String,
-        setParams: (java.sql.PreparedStatement) -> Unit = {}
+        setParams: (java.sql.PreparedStatement) -> Unit = {},
     ): List<Item> {
         val effectiveWhere = if (where.isBlank()) "1=1" else where
-        val sql = """
-            SELECT id, seller_id, category_id, i.postal_code, title, description, price, purchase_price, buyer_id, 
-                   ST_X(location) AS longitude, ST_Y(location) AS latitude, allow_vipps_buy, primary_image_id, 
-                   status, created_at, updated_at, municipality
-            FROM items i
-            JOIN postal_codes pc ON i.postal_code = pc.postal_code
+        val sql =
+            """
+            $selectSql
+            $tablesSql
             WHERE $effectiveWhere
-        """.trimIndent()
+            """.trimIndent()
         return dataSource.connection.use { conn ->
             conn.prepareStatement(sql).use { stmt ->
                 setParams(stmt)
                 stmt.executeQuery().use { rs ->
-                    buildList { while (rs.next()) { add(mapRowToItem(rs)) } }
+                    buildList {
+                        while (rs.next()) {
+                            add(mapRowToItem(rs))
+                        }
+                    }
                 }
             }
         }
     }
 
-    private fun mapRowToItem(rs: ResultSet): Item {
-        return Item(
+    private fun mapRowToItem(rs: ResultSet): Item =
+        Item(
             id = rs.getInt("id"),
             sellerId = rs.getInt("seller_id"),
             categoryId = rs.getInt("category_id"),
@@ -207,21 +226,51 @@ class ItemRepository(private val dataSource: DataSource) {
             updatedAt = rs.getTimestamp("updated_at").toInstant(),
             municipality = rs.getString("municipality"),
         )
-    }
 
     private fun executeUpdateAndReturnCount(
         sql: String,
-        setParams: (java.sql.PreparedStatement) -> Unit = {}
-    ): Int {
-        return dataSource.connection.use { conn ->
+        setParams: (java.sql.PreparedStatement) -> Unit = {},
+    ): Int =
+        dataSource.connection.use { conn ->
             conn.prepareStatement(sql).use { stmt ->
                 setParams(stmt)
                 stmt.executeUpdate()
             }
         }
+
+    fun findAllBought(userId: Int): List<Item> =
+        queryItemsWhere("buyer_id = ? AND status = ?") {
+            it.setInt(1, userId)
+            it.setString(2, ItemStatus.Sold.toString())
+        }
+
+    fun findAllReserved(userId: Int): List<Item> =
+        queryItemsWhere("buyer_id = ? AND status = ?") {
+            it.setInt(1, userId)
+            it.setString(2, ItemStatus.Reserved.toString())
+        }
+
+    fun reserveItem(
+        itemId: Int,
+        userId: Int,
+    ) {
+        val sql = "UPDATE items SET status = ?, buyer_id = ? WHERE id = ? AND status = ?;"
+        if (executeUpdateAndReturnCount(sql) {
+                it.setString(1, ItemStatus.Reserved.toString())
+                it.setInt(2, userId)
+                it.setInt(3, itemId)
+                it.setString(4, ItemStatus.Available.toString())
+            } == 0
+        ) {
+            throw RuntimeException("Failed to reserve item with ID $itemId. Item may not be available.")
+        }
     }
 
-    fun findAllBought(userId: Int): List<Item> {
-        return queryItemsWhere("buyer_id = ?") { it.setInt(1, userId) }
-    }
+    private val tablesSql: String =
+        """
+        FROM items i
+        JOIN postal_codes pc ON i.postal_code = pc.postal_code
+        """.trimIndent()
+
+    private val selectSql = "SELECT i.*, ST_X(location) AS longitude, ST_Y(location) AS latitude, pc.*"
 }

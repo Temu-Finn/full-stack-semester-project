@@ -21,11 +21,9 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/vipps")
 @Tag(name = "Vipps", description = "Vipps test payment API")
 class VippsController(
-    private val vippsService: VippsService
+    private val vippsService: VippsService,
 ) {
-
     private val logger = LoggerFactory.getLogger(VippsController::class.java)
-
 
     /**
      * Initiates a Vipps payment with an amount given from the frontend
@@ -38,21 +36,22 @@ class VippsController(
     @PostMapping("/payment")
     @Operation(
         summary = "Initiate Vipps payment",
-        description = "Initiates a payment in the Vipps test environment using test sales unit credentials"
+        description = "Initiates a payment in the Vipps test environment using test sales unit credentials",
     )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "Payment initiated successfully"),
-            ApiResponse(responseCode = "500", description = "Internal server error")
-        ]
+            ApiResponse(responseCode = "500", description = "Internal server error"),
+        ],
     )
-    fun initiatePayment(@RequestBody request: VippsPaymentRequest): ResponseEntity<Map<*, *>> {
+    fun initiatePayment(
+        @RequestBody request: VippsPaymentRequest,
+    ): ResponseEntity<Map<*, *>> {
         logger.info("Initiating Vipps test payment")
         val response = vippsService.initiatePayment(request.price)
         logger.info("Vipps test payment initiated: $response")
         return ResponseEntity.ok(response)
     }
-
 
     /**
      * Retrieves the status and details of a Vipps payment using its reference ID.
@@ -66,15 +65,17 @@ class VippsController(
     @GetMapping("/payment/{reference}")
     @Operation(
         summary = "Get Vipps payment",
-        description = "Gets a Vipps payment for the given reference"
+        description = "Gets a Vipps payment for the given reference",
     )
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "Payment retrieved"),
-            ApiResponse(responseCode = "500", description = "Internal server error")
-        ]
+            ApiResponse(responseCode = "500", description = "Internal server error"),
+        ],
     )
-    fun getPayment(@PathVariable reference: String): ResponseEntity<Map<*, *>> {
+    fun getPayment(
+        @PathVariable reference: String,
+    ): ResponseEntity<Map<*, *>> {
         val payment = vippsService.getPayment(reference)
         return ResponseEntity.ok(payment)
     }

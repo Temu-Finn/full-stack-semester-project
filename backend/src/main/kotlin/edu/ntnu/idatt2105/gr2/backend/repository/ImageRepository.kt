@@ -5,12 +5,15 @@ import org.springframework.stereotype.Repository
 import javax.sql.DataSource
 
 @Repository
-class ImageRepository(private val dataSource: DataSource) {
+class ImageRepository(
+    private val dataSource: DataSource,
+) {
     fun save(image: Image): Image {
-        val sql = """
+        val sql =
+            """
             INSERT INTO item_images (item_id, image_data, file_type, alt_text)
             VALUES (?, ?, ?, ?)
-        """.trimIndent()
+            """.trimIndent()
 
         dataSource.connection.use { conn ->
             conn.prepareStatement(sql).use { stmt ->
@@ -20,7 +23,7 @@ class ImageRepository(private val dataSource: DataSource) {
                 stmt.setString(4, image.altText)
 
                 stmt.executeUpdate()
-                
+
                 // Get the last inserted ID
                 val rs = conn.prepareStatement("SELECT LAST_INSERT_ID()").executeQuery()
                 if (rs.next()) {
@@ -46,7 +49,7 @@ class ImageRepository(private val dataSource: DataSource) {
                         itemId = rs.getInt("item_id"),
                         data = rs.getBytes("image_data"),
                         fileType = rs.getString("file_type"),
-                        altText = rs.getString("alt_text")
+                        altText = rs.getString("alt_text"),
                     )
                 } else {
                     throw IllegalArgumentException("Image with ID $id not found")
@@ -70,8 +73,8 @@ class ImageRepository(private val dataSource: DataSource) {
                             itemId = rs.getInt("item_id"),
                             data = rs.getBytes("image_data"),
                             fileType = rs.getString("file_type"),
-                            altText = rs.getString("alt_text")
-                        )
+                            altText = rs.getString("alt_text"),
+                        ),
                     )
                 }
                 return images

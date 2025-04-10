@@ -14,19 +14,17 @@ import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.servlet.HandlerExceptionResolver
 
-
 @Component
 class JwtAuthenticationFilter(
     private val jwtService: JwtService,
     private val userDetailsService: UserDetailsService,
     private val handlerExceptionResolver: HandlerExceptionResolver,
-    private val userContextService: UserContextService
-) :
-    OncePerRequestFilter() {
+    private val userContextService: UserContextService,
+) : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         val authHeader = request.getHeader("Authorization")
 
@@ -45,15 +43,17 @@ class JwtAuthenticationFilter(
                 val userDetails = userDetailsService.loadUserByUsername(email)
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
-                    val userId = jwtService.extractUserIdFromToken(jwt)
-                        ?: throw IllegalStateException("UserID not found in valid token")
+                    val userId =
+                        jwtService.extractUserIdFromToken(jwt)
+                            ?: throw IllegalStateException("UserID not found in valid token")
 
                     userContextService.setCurrentUserId(userId)
-                    val authToken = UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.authorities
-                    )
+                    val authToken =
+                        UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.authorities,
+                        )
 
                     authToken.details = WebAuthenticationDetailsSource().buildDetails(request)
                     SecurityContextHolder.getContext().authentication = authToken
@@ -67,5 +67,4 @@ class JwtAuthenticationFilter(
             handlerExceptionResolver.resolveException(request, response, null, exception)
         }
     }
-
 }

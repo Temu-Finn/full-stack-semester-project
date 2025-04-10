@@ -10,13 +10,9 @@ data class User(
     val email: String,
     val joinedAt: Instant = Instant.now(),
     val isAdmin: Boolean = false,
-
-    private var passwordHashed: String
+    private var passwordHashed: String,
 ) : UserDetails {
-
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
-        return mutableListOf()
-    }
+    override fun getAuthorities(): MutableCollection<out GrantedAuthority> = mutableListOf()
 
     override fun getPassword(): String = passwordHashed
 
