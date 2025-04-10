@@ -306,14 +306,14 @@ onMounted(async () => {
 
         <div class="map-section">
           <h3 class="filter-title">{{ t('search.mapFilter') }}</h3>
-          <div class="map-toggle">
-            <input id="useMapFilter" v-model="mapFilterEnabled" type="checkbox" />
-            <label for="useMapFilter">{{ t('search.useMapFilter') }}</label>
-          </div>
           <MapFilter
             :location="{ latitude: 63.44, longitude: 10.399 }"
             @update:locationFilter="handleMapUpdate"
           />
+          <div class="map-toggle">
+            <input id="useMapFilter" v-model="mapFilterEnabled" type="checkbox" />
+            <label for="useMapFilter">{{ t('search.useMapFilter') }}</label>
+          </div>
         </div>
 
         <div v-if="!isLoading" class="location-filters">
@@ -487,15 +487,15 @@ onMounted(async () => {
   margin-top: 1rem;
 }
 .map-toggle {
-  margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
+  margin-top: 0.5rem;
 }
 .map-toggle input[type='checkbox'] {
   margin-right: 0.5rem;
 }
 .location-filters {
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 .filter-title {
   font-size: 1rem;

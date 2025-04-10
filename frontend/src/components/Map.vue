@@ -106,8 +106,7 @@ onUnmounted(() => {
 <style scoped>
 .map-container {
   width: 100%;
-  max-width: 400px;
-  height: 300px;
+  height: 70vh;
   border-radius: 12px;
 }
 .popup-content {
