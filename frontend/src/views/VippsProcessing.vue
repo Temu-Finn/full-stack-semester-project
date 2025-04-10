@@ -16,7 +16,6 @@
         {{ t('vipps.leave') }}
       </button>
     </div>
-    
 
     <div v-else-if="status === 'notfound'" class="status-message failed">
       {{ t('vipps.referenceNotFound') }}
@@ -64,7 +63,6 @@ const checkStatus = async (reference: string, attempt = 0) => {
         break
 
       case 'PENDING':
-        // Retry up to 10 times with delay
         if (attempt < 10) {
           setTimeout(() => checkStatus(reference, attempt + 1), 3000)
         } else {
@@ -83,7 +81,6 @@ const checkStatus = async (reference: string, attempt = 0) => {
   }
 }
 
-
 const goBackToItem = () => {
   const itemId = localStorage.getItem('vippsPurchasedItemId')
   if (itemId) {
@@ -99,7 +96,9 @@ onMounted(() => {
     return
   }
 
-  checkStatus(reference)
+  setTimeout(() => {
+    checkStatus(reference)
+  }, 5000)
 })
 </script>
 
