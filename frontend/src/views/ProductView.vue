@@ -3,7 +3,7 @@
   <div v-else-if="error" class="error-state">
     {{ $t('productView.errorLoadingPrefix') }} {{ error }}
   </div>
-  <div v-else-if="product" class="product-container">
+  <div v-else-if="product" class="product">
     <div class="left-column">
       <div class="main-image">
         <img :alt="$t('productView.altMainImage')" :src="selectedImage" />
@@ -24,16 +24,16 @@
     </div>
 
     <div class="right-column">
-      <h1 class="product-title">{{ product.title }}</h1>
-      <div class="product-price">{{ product.price }}{{ $t('productView.currencySuffix') }}</div>
+      <div class="right-column-details">
+        <h1 class="product-title">{{ product.title }}</h1>
+        <div class="product-price">{{ product.price }}{{ $t('productView.currencySuffix') }}</div>
 
-      <button :disabled="!product.allowVippsBuy" class="buy-button">
+        <button :disabled="!product.allowVippsBuy" class="buy-button">
         {{
           product.allowVippsBuy ? $t('productView.buyNowVipps') : $t('productView.buyNotAvailable')
         }}
       </button>
 
-      <!-- Only visible if vipps is avaliable-->
       <button
       v-if="product.allowVippsBuy"
       class="vipps-button"
@@ -42,22 +42,23 @@
         🧡 {{ $t('productView.payWithVipps') }}
       </button>
 
-      <div class="product-details">
-        <p>
-          <strong>{{ $t('productView.statusLabel') }}</strong> {{ product.status }}
-        </p>
-        <p>
-          <strong>{{ $t('productView.locationLabel') }}</strong> {{ product.municipality }} ({{
-            product.postalCode
-          }})
-        </p>
-        <p>
-          <strong>{{ $t('productView.categoryLabel') }}</strong> {{ product.category.icon }}
-          {{ product.category.name }}
-        </p>
-        <p>
-          <strong>{{ $t('productView.descriptionLabel') }}</strong> {{ product.description }}
-        </p>
+        <div class="product-details">
+          <p>
+            <strong>{{ $t('productView.statusLabel') }}</strong> {{ product.status }}
+          </p>
+          <p>
+            <strong>{{ $t('productView.locationLabel') }}</strong> {{ product.municipality }} ({{
+              product.postalCode
+            }})
+          </p>
+          <p>
+            <strong>{{ $t('productView.categoryLabel') }}</strong> {{ product.category.icon }}
+            {{ product.category.name }}
+          </p>
+          <p>
+            <strong>{{ $t('productView.descriptionLabel') }}</strong> {{ product.description }}
+          </p>
+        </div>
       </div>
 
       <div class="map-section">
@@ -66,16 +67,33 @@
     </div>
   </div>
   <div v-else class="not-found">{{ $t('productView.notFound') }}</div>
+  <div v-if="searchResponse && product" class="similar-items-section">
+    <h3 v-if="searchResponse.result.content.length > 1">Similar items</h3>
+    <div class="similar-items">
+      <Product
+        v-for="item in searchResponse.result.content.filter((value) => value.id != product.id)"
+        :key="item.id"
+        :product="item"
+      />
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Map from '@/components/Map.vue'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { getItem, type CompleteItem } from '@/service/itemService'
+import {
+  type CompleteItem,
+  getItem,
+  searchItems,
+  type SearchItemsResponse,
+} from '@/service/itemService'
 import { logger } from '@/utils/logger'
 import { useI18n } from 'vue-i18n'
+import Product from '@/components/Product.vue'
+import { startVippsPayment as startVippsPaymentApi } from '@/service/vippsService'
 
 const route = useRoute()
 const product = ref<CompleteItem | null>(null)
@@ -83,6 +101,8 @@ const selectedImage = ref<string>('')
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const { t } = useI18n()
+
+const searchResponse = ref<SearchItemsResponse>()
 
 const productId = computed(() => {
   const idParam = route.params.id
@@ -106,8 +126,8 @@ onMounted(async () => {
   try {
     isLoading.value = true
     error.value = null
-    const fetchedProduct = await getItem(productId.value)
-    product.value = fetchedProduct
+    product.value = await getItem(productId.value)
+    fetchItems(product.value.category.id)
     console.log(product.value)
 
     if (productImages.value.length > 0) {
@@ -123,7 +143,21 @@ onMounted(async () => {
   }
 })
 
-import { startVippsPayment as startVippsPaymentApi } from '@/service/vippsService'
+async function fetchItems(categoryId: number) {
+  isLoading.value = true
+  try {
+    searchResponse.value = await searchItems({
+      categoryId: categoryId,
+      page: 0,
+      size: 5,
+    })
+  } catch (error) {
+    console.error('Error fetching search results:', error)
+    searchResponse.value = null
+  } finally {
+    isLoading.value = false
+  }
+}
 
 const startVippsPayment = async () => {
   if (!product.value) return
@@ -140,7 +174,7 @@ const startVippsPayment = async () => {
 </script>
 
 <style scoped>
-.product-container {
+.product {
   display: flex;
   gap: 20px;
   width: 100%;
@@ -150,6 +184,7 @@ const startVippsPayment = async () => {
 }
 
 .left-column {
+  width: 100%;
   flex: 2;
   display: flex;
   flex-direction: column;
@@ -158,19 +193,21 @@ const startVippsPayment = async () => {
 
 .main-image img {
   width: 100%;
-  max-width: 600px;
   border-radius: 8px;
   object-fit: cover;
-  height: 500px;
+  aspect-ratio: 1;
 }
 
 .thumbnails {
   display: flex;
   gap: 10px;
+  width: 100%;
 }
 .thumbnails img {
-  width: 80px;
-  height: 80px;
+  width: 100%;
+  max-width: 80px;
+  min-width: 0;
+  aspect-ratio: 1;
   object-fit: cover;
   cursor: pointer;
   border-radius: 4px;
@@ -219,13 +256,29 @@ const startVippsPayment = async () => {
 
 .map-section {
   margin-top: 20px;
-  height: 300px;
+  height: 100%;
 }
 
 .map-container {
   width: 100%;
-  height: 300px;
+  height: 100%;
   border-radius: 6px;
+}
+.similar-items-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  width: 100%;
+}
+.similar-items {
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.similar-items div {
+  width: 220px;
 }
 
 .loading-state,
@@ -261,5 +314,34 @@ const startVippsPayment = async () => {
 }
 .vipps-button:hover {
   background-color: #e04e1b;
+
+@media (max-width: 960px) {
+  .product {
+    flex-direction: column;
+  }
+  .main-image img {
+    aspect-ratio: 2/1;
+  }
+  .right-column {
+    flex-direction: row;
+    align-content: stretch;
+  }
+  .right-column-details {
+    flex: 1;
+  }
+  .map-section {
+    flex: 1;
+    width: 100%;
+    height: 18rem;
+    margin-top: 0;
+  }
+  .similar-items div {
+    width: calc(50% - 1rem);
+  }
+}
+@media (max-width: 496px) {
+  .similar-items div {
+    width: 100%;
+  }
 }
 </style>
