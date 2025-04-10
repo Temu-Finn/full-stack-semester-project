@@ -8,7 +8,9 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AddCategoryForm: typeof import('./src/components/dialogs/AddCategoryForm.vue')['default']
     Categories: typeof import('./src/components/home/Categories.vue')['default']
+    ConfirmationDialogContent: typeof import('./src/components/dialogs/ConfirmationDialogContent.vue')['default']
     DeleteButton: typeof import('./src/components/DeleteButton.vue')['default']
     Dialog: typeof import('./src/components/Dialog.vue')['default']
     FloatLabel: typeof import('primevue/floatlabel')['default']

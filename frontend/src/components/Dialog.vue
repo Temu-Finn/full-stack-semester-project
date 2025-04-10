@@ -1,45 +1,32 @@
 <template>
-  <div v-if="show" class="dialog-overlay" @click.self="cancelAction">
-    <div class="dialog-box">
-      <h3 v-if="title" class="dialog-title">{{ title }}</h3>
-      <p class="dialog-message">{{ message }}</p>
-      <div class="dialog-actions">
-        <button v-if="showCancel" @click="cancelAction" class="btn btn-secondary">Cancel</button>
-        <button @click="confirmAction" class="btn btn-primary">{{ confirmText }}</button>
+  <Transition name="dialog-fade">
+    <div v-if="store.isVisible" class="dialog-overlay" @click.self="handleOverlayClick">
+      <div class="dialog-box">
+        <component
+          :is="store.component"
+          v-if="store.component"
+          v-bind="store.props"
+          @close="handleComponentClose"
+        />
+        <button @click="store.cancel()" class="close-button" aria-label="Close dialog">
+          &times;
+        </button>
       </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits, withDefaults } from 'vue'
+import { useDialogStore } from '@/stores/dialog'
 
-interface Props {
-  show: boolean
-  title?: string
-  message: string
-  showCancel?: boolean // Added optional prop to hide cancel button
-  confirmText?: string // Added optional prop for confirm button text
+const store = useDialogStore()
+
+const handleOverlayClick = () => {
+  store.cancel()
 }
 
-// Use withDefaults for default prop values
-const props = withDefaults(defineProps<Props>(), {
-  title: '',
-  showCancel: true,
-  confirmText: 'Confirm',
-})
-
-const emit = defineEmits(['confirm', 'cancel'])
-
-const confirmAction = () => {
-  emit('confirm')
-}
-
-const cancelAction = () => {
-  // Only emit cancel if the button is shown or overlay is clicked
-  if (props.showCancel) {
-    emit('cancel')
-  }
+const handleComponentClose = () => {
+  store.cancel()
 }
 </script>
 
@@ -50,96 +37,66 @@ const cancelAction = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.6); /* Slightly darker overlay */
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1050; /* High z-index */
-  backdrop-filter: blur(3px); /* Optional: Add a blur effect */
+  z-index: 1050;
+  backdrop-filter: blur(3px);
 }
 
 .dialog-box {
+  position: relative; /* Needed for absolute positioning of close button */
   background-color: white;
-  padding: 25px 30px; /* Increase padding */
-  border-radius: 12px; /* Smoother border radius */
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2); /* More pronounced shadow */
-  min-width: 320px; /* Slightly wider minimum */
-  max-width: 500px; /* Max width */
-  width: 90%; /* Responsive width */
-  text-align: center;
-  border: 1px solid #ddd; /* Subtle border */
+  padding: 30px 35px; /* Adjusted padding */
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  min-width: 300px; /* Minimum width */
+  max-width: 600px; /* Increased max width for potentially complex content */
+  width: 90%;
+  border: 1px solid #ddd;
+  /* Removed text-align: center; content component will control its alignment */
 }
 
-.dialog-title {
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: #333;
-  font-size: 1.25rem; /* Larger title */
-  font-weight: 600;
-}
-
-.dialog-message {
-  margin-bottom: 25px; /* More space before actions */
-  color: #555;
-  font-size: 1rem;
-  line-height: 1.6; /* Better readability */
-  white-space: pre-wrap; /* Allows line breaks in message */
-}
-
-.dialog-actions {
-  display: flex;
-  justify-content: flex-end; /* Align buttons to the right */
-  gap: 12px; /* Space between buttons */
-}
-
-/* Shared button styles */
-.btn {
-  padding: 10px 20px; /* Larger padding */
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
   border: none;
-  border-radius: 6px; /* Slightly more rounded */
+  font-size: 1.8rem; /* Larger close icon */
+  color: #888;
   cursor: pointer;
-  font-weight: 500;
-  font-size: 0.95rem;
-  transition: all 0.2s ease; /* Smooth transition for all properties */
-  min-width: 80px; /* Minimum button width */
+  line-height: 1;
+  padding: 5px;
+  transition: color 0.2s ease;
 }
 
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.close-button:hover {
+  color: #333;
 }
 
-/* Primary (Confirm) Button */
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+/* Basic transition for fade-in/out */
+.dialog-fade-enter-active,
+.dialog-fade-leave-active {
+  transition: opacity 0.3s ease;
 }
 
-.btn-primary:hover:not(:disabled) {
-  background-color: #0056b3;
-  box-shadow: 0 4px 8px rgba(0, 86, 179, 0.4);
-  transform: translateY(-1px); /* Slight lift effect */
+.dialog-fade-enter-from,
+.dialog-fade-leave-to {
+  opacity: 0;
 }
 
-/* Secondary (Cancel) Button */
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-  box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
+/* Optional: Add a subtle scale transition */
+.dialog-fade-enter-active .dialog-box,
+.dialog-fade-leave-active .dialog-box {
+  transition: transform 0.3s ease;
 }
 
-.btn-secondary:hover:not(:disabled) {
-  background-color: #545b62;
-  box-shadow: 0 4px 8px rgba(84, 91, 98, 0.4);
-  transform: translateY(-1px);
+.dialog-fade-enter-from .dialog-box,
+.dialog-fade-leave-to .dialog-box {
+  transform: scale(0.95);
 }
 
-/* Adjust button order visually if needed, e.g., Confirm on the right */
-.dialog-actions button.btn-primary {
-  order: 1; /* Ensure primary button is last (right-most in flex-end) */
-}
-.dialog-actions button.btn-secondary {
-  order: 0;
-}
+/* Removed styles specific to title, message, actions as they are now part of the dynamic component */
 </style>

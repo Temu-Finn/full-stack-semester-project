@@ -14,51 +14,52 @@
         </div>
       </div>
     </router-link>
-    <DeleteButton v-if="editStore.editMode" :onClick="() => handleDelete(product.id)" />
+    <DeleteButton v-if="editStore.editMode" :onClick="confirmAndDelete" />
   </div>
-
-  <Dialog
-    :show="showDialog"
-    :title="dialogTitle"
-    :message="dialogMessage"
-    :showCancel="showCancelButton"
-    :confirmText="confirmText"
-    @confirm="handleConfirm"
-    @cancel="closeDialog"
-  />
 </template>
+
 <script setup lang="ts">
 import { type ItemCard, deleteItem } from '@/service/itemService'
 import { useEditStore } from '@/stores/edit'
 import DeleteButton from './DeleteButton.vue'
-import { useDialog } from '@/composables/useDialog.ts'
+import { useDialogStore } from '@/stores/dialog'
+import ConfirmationDialogContent from '@/components/dialogs/ConfirmationDialogContent.vue'
 
-const {
-  showDialog,
-  dialogTitle,
-  dialogMessage,
-  showCancelButton,
-  confirmText,
-  openDialog,
-  closeDialog,
-  handleConfirm,
-} = useDialog()
+const props = defineProps<{
+  product: ItemCard
+}>()
 
 const emit = defineEmits<{
   (e: 'delete', id: number): void
 }>()
 
-defineProps<{
-  product: ItemCard
-}>()
-
 const editStore = useEditStore()
+const dialogStore = useDialogStore()
 
-async function handleDelete(id: number) {
-  openDialog('Delete Product', 'Are you sure you want to delete this product?', () => {
-    deleteItem(id)
-    emit('delete', id)
-  })
+async function confirmAndDelete() {
+  try {
+    await dialogStore.show(ConfirmationDialogContent, {
+      title: 'Delete Product',
+      message: `Delete "${props.product.title}"?`,
+      confirmText: 'Delete',
+      showCancel: true,
+    })
+
+    try {
+      await deleteItem(props.product.id)
+      emit('delete', props.product.id)
+    } catch (error) {
+      console.error('Failed to delete item:', error)
+      dialogStore.show(ConfirmationDialogContent, {
+        title: 'Error',
+        message: 'Could not delete product.',
+        showCancel: false,
+        confirmText: 'OK',
+      })
+    }
+  } catch {
+    console.log('Deletion cancelled')
+  }
 }
 </script>
 
@@ -74,6 +75,9 @@ async function handleDelete(id: number) {
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
+  height: 100%;
+  text-decoration: none;
+  color: inherit;
 }
 
 .product-card:hover {
@@ -91,44 +95,39 @@ async function handleDelete(id: number) {
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex-grow: 1;
 }
 
 .product-name {
   font-size: 1.1rem;
-  color: #333;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.product-description {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: auto;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 2.6em;
 }
 
 .product-meta {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 0.9rem;
-  color: #999;
-  margin-top: 0.5rem;
+  color: #777;
+  margin-top: auto;
+  padding-top: 0.5rem;
 }
 
 .product-price {
   font-weight: bold;
-  color: #2c3e50;
+  color: #007bff;
 }
 
 .product-container {
   position: relative;
+  height: 100%;
 }
 </style>
