@@ -1,7 +1,7 @@
 package edu.ntnu.idatt2105.gr2.backend.model
 
 import edu.ntnu.idatt2105.gr2.backend.dto.Location
-import java.time.LocalDateTime
+import java.time.Instant
 
 sealed class ItemStatus {
     object Available : ItemStatus()
@@ -41,8 +41,8 @@ data class Item(
     val allowVippsBuy: Boolean = false,
     val primaryImageId: Int?,
     val status: ItemStatus = ItemStatus.Available,
-    val createdAt: LocalDateTime = LocalDateTime.now(),
-    val updatedAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: Instant = Instant.now(),
+    val updatedAt: Instant = Instant.now(),
     val municipality: String = "Unknown",
 ) {
     init {

@@ -41,7 +41,7 @@ const getConversationResponseSchema = z.object({
   otherParticipantName: z.string(),
   createdAt: z.string(), // ISO 8601 string for LocalDateTime
   updatedAt: z.string(), // ISO 8601 string for LocalDateTime
-  messages: z.array(MessageSchema),
+  messages: z.array(MessageResponseSchema),
   item: ItemSchema,
 })
 

@@ -20,18 +20,13 @@ class CategoryService (
         return categoryRepository.findAll().map { it.toResponse() }
     }
 
-    fun getCategory(name: String): CategoryResponse? {
-        if (name.isBlank()) {
-            throw IllegalArgumentException("Name cannot be blank")
-        }
-        return categoryRepository.findByName(name)?.toResponse()
+    fun getCategory(id: Int): CategoryResponse {
+        return categoryRepository.getById(id)?.toResponse()
+            ?: throw IllegalArgumentException("Category with id $id not found")
     }
 
-    fun deleteCategory(name: String) {
-        if (name.isBlank()) {
-            throw IllegalArgumentException("Name cannot be blank")
-        }
-        categoryRepository.delete(name)
+    fun deleteCategory(id: Int) {
+        categoryRepository.delete(id)
     }
 
     fun deleteAllCategories() {

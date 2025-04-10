@@ -14,10 +14,6 @@ class CategoryRepository (private val dataSource: DataSource) {
         val icon = category.icon
         val description = category.description
 
-        if (existsByName(name)) {
-            throw IllegalArgumentException("Category with name $name already exists")
-        }
-
         dataSource.connection.use { conn ->
             val sql = "INSERT INTO categories (name, icon, description) VALUES (?, ?, ?)"
             conn.prepareStatement(sql,  java.sql.Statement.RETURN_GENERATED_KEYS).use { stmt ->
@@ -71,11 +67,11 @@ class CategoryRepository (private val dataSource: DataSource) {
     }
 
     // Finds a category by name
-    fun findByName(name: String): Category? {
+    fun getById(id: Int): Category? {
         dataSource.connection.use { conn ->
-            val sql = "SELECT * FROM categories WHERE name = ?"
+            val sql = "SELECT * FROM categories WHERE id = ?"
             conn.prepareStatement(sql).use { stmt ->
-                stmt.setString(1, name)
+                stmt.setInt(1, id)
                 stmt.executeQuery().use { rows ->
                     if (rows.next()) {
                         return Category(
@@ -92,14 +88,11 @@ class CategoryRepository (private val dataSource: DataSource) {
     }
 
     // Deletes a category
-    fun delete(name: String) {
-        if (!existsByName(name)) {
-            throw IllegalArgumentException("Category with name $name does not exist")
-        }
+    fun delete(id: Int) {
         dataSource.connection.use { conn ->
-            val sql = "DELETE FROM categories WHERE name = ?"
+            val sql = "DELETE FROM categories WHERE id = ?"
             conn.prepareStatement(sql).use { stmt ->
-                stmt.setString(1, name)
+                stmt.setInt(1, id)
                 val affectedRows = stmt.executeUpdate()
                 if (affectedRows == 0) {
                     throw RuntimeException("Deleting category failed, no rows affected.")
@@ -110,9 +103,6 @@ class CategoryRepository (private val dataSource: DataSource) {
 
     // Updates the description of a category
     fun updateCategory(category: Category): Category {
-        if (!existsByName(category.name)) {
-            throw IllegalArgumentException("Category with name $category.name does not exist")
-        }
         dataSource.connection.use { conn ->
             val sql = "UPDATE categories SET name = ?, description = ?, icon = ? WHERE id = ?"
             conn.prepareStatement(sql).use { stmt ->
@@ -126,19 +116,6 @@ class CategoryRepository (private val dataSource: DataSource) {
                 }
 
                 return category
-            }
-        }
-    }
-
-    // Checks if a category exists by name
-    fun existsByName(name: String): Boolean {
-        dataSource.connection.use { conn ->
-            val sql = "SELECT * FROM categories WHERE name = ?"
-            conn.prepareStatement(sql).use { stmt ->
-                stmt.setString(1, name)
-                stmt.executeQuery().use { rows ->
-                    return rows.next()
-                }
             }
         }
     }

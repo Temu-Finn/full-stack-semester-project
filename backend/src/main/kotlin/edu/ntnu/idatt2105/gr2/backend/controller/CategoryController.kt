@@ -4,7 +4,6 @@ import edu.ntnu.idatt2105.gr2.backend.dto.*
 import edu.ntnu.idatt2105.gr2.backend.service.CategoryService
 import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
 import edu.ntnu.idatt2105.gr2.backend.service.UserContextService
-import edu.ntnu.idatt2105.gr2.backend.service.toModel
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -48,10 +47,10 @@ class CategoryController(
         return ResponseEntity.status(HttpStatus.OK).body(CategoriesResponse(categories))
     }
 
-    @GetMapping("/getCategoryByName/{name}")
+    @GetMapping("/{id}")
     @Operation(
-        summary = "Get category by name",
-        description = "Returns a category by its name"
+        summary = "Get category by id",
+        description = "Returns a category by its id"
     )
     @ApiResponses(
         value = [
@@ -60,19 +59,13 @@ class CategoryController(
             ApiResponse(responseCode = "500", description = "Internal server error")
         ]
     )
-    fun getCategoryByName(
-        @Parameter(description = "Name of the category to retrieve", required = true)
-        @PathVariable name: String
+    fun getCategoryById(
+        @Parameter(description = "Id of the category to retrieve", required = true)
+        @PathVariable id: Int
     ): ResponseEntity<CategoryResponse> {
-        logger.info("Fetching category with name: $name")
-        val category = categoryService.getCategory(name)
-
-        if(category == null) {
-            logger.error("Category with name: $name not found")
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
-        }
-
-        logger.info("Successfully fetched category with name: $name")
+        logger.info("Fetching category with id: $id")
+        val category = categoryService.getCategory(id)
+        logger.info("Successfully fetched category with id: $id")
         return ResponseEntity.status(HttpStatus.OK).body(category)
     }
 
@@ -106,7 +99,7 @@ class CategoryController(
         return ResponseEntity.status(HttpStatus.CREATED).body(category)
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping("/{id}")
     @Operation(
         summary = "Delete a category",
         description = "Deletes a category by its name"
@@ -121,7 +114,7 @@ class CategoryController(
     )
     fun deleteCategory(
         @Parameter(description = "Name of the category to delete", required = true)
-        @RequestBody @Valid request: DeleteCategoryRequest
+        @PathVariable id: Int
     ): ResponseEntity<Nothing> {
         val isAuthorized = userRepository.isAdmin(userContextService.getCurrentUserId())
         if (!isAuthorized) {
@@ -129,9 +122,9 @@ class CategoryController(
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null)
         }
 
-        logger.info("Deleting category with name: ${request.name}")
-        categoryService.deleteCategory(request.name)
-        logger.info("Successfully deleted category with name: ${request.name}")
+        logger.info("Deleting category with name: ${id}")
+        categoryService.deleteCategory(id)
+        logger.info("Successfully deleted category with name: ${id}")
 
         return ResponseEntity.status(HttpStatus.OK).body(null)
     }
