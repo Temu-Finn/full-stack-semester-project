@@ -1,6 +1,6 @@
 <template>
   <div class="processing-container">
-    <h2>{{ t('Processing Vipps sale') }}</h2>
+    <h2>{{ t('vipps.processingTitle') }}</h2>
 
     <p v-if="status === 'pending'">{{ t('vipps.pleaseWait') }}</p>
     <div v-if="status === 'pending'" class="spinner" />
@@ -13,7 +13,7 @@
       {{ t('vipps.failed') }}
       <p></p>
       <button class="home-button" @click="goBackToItem">
-        {{ t('Leave') }}
+        {{ t('vipps.leave') }}
       </button>
     </div>
     
@@ -64,8 +64,8 @@ const checkStatus = async (reference: string, attempt = 0) => {
         break
 
       case 'PENDING':
-        // Retry up to 5 times with delay
-        if (attempt < 5) {
+        // Retry up to 10 times with delay
+        if (attempt < 10) {
           setTimeout(() => checkStatus(reference, attempt + 1), 3000)
         } else {
           status.value = 'failed'
