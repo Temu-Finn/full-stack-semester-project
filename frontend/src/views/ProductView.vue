@@ -28,19 +28,15 @@
         <h1 class="product-title">{{ product.title }}</h1>
         <div class="product-price">{{ product.price }}{{ $t('productView.currencySuffix') }}</div>
 
-        <button :disabled="!product.allowVippsBuy" class="buy-button">
-        {{
-          product.allowVippsBuy ? $t('productView.buyNowVipps') : $t('productView.buyNotAvailable')
-        }}
-      </button>
+        <div class="buttons">
+          <button class="buy-button">
+            {{ $t('productView.sendMessage') }}
+          </button>
 
-      <button
-      v-if="product.allowVippsBuy"
-      class="vipps-button"
-      @click="startVippsPayment"
-      >
-        🧡 {{ $t('productView.payWithVipps') }}
-      </button>
+          <button v-if="product.allowVippsBuy" class="vipps-button" @click="startVippsPayment">
+            🧡 {{ $t('productView.buyNowVipps') }}
+          </button>
+        </div>
 
         <div class="product-details">
           <p>
@@ -170,7 +166,6 @@ const startVippsPayment = async () => {
     console.error('Could not start Vipps payment:', error)
   }
 }
-
 </script>
 
 <style scoped>
@@ -302,6 +297,12 @@ const startVippsPayment = async () => {
   border-radius: 4px;
 }
 
+.buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .vipps-button {
   padding: 10px 20px;
   background-color: #ff5b24;
@@ -314,7 +315,7 @@ const startVippsPayment = async () => {
 }
 .vipps-button:hover {
   background-color: #e04e1b;
-
+}
 @media (max-width: 960px) {
   .product {
     flex-direction: column;
