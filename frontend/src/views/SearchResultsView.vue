@@ -104,8 +104,14 @@ watch(currentPage, () => {
 })
 
 const isMapView = ref(false)
+
 function toggleViewMode() {
   isMapView.value = !isMapView.value
+}
+
+const isFiltersOpen = ref(false)
+function toggleFilters() {
+  isFiltersOpen.value = !isFiltersOpen.value
 }
 
 async function fetchItems() {
@@ -277,11 +283,13 @@ onMounted(async () => {
         <button class="show-on-map" @click="showMap">
           {{ isMapView ? t('search.showGrid') : t('search.showOnMap') }}
         </button>
+
+        <button class="open-filters-button" @click="toggleFilters">Filter</button>
       </div>
     </header>
 
     <div class="search-main">
-      <aside class="search-filters">
+      <aside :class="isFiltersOpen ? 'filters-open' : ''" class="search-filters">
         <div class="category-section">
           <h3 class="filter-title">{{ t('search.categories') }}</h3>
           <div
@@ -390,7 +398,6 @@ onMounted(async () => {
 .search-form {
   display: flex;
   flex: 1;
-  min-width: 200px;
 }
 .search-bar {
   flex-grow: 1;
@@ -417,6 +424,7 @@ onMounted(async () => {
 .sort-dropdown {
   display: flex;
   align-items: center;
+  min-width: fit-content;
 }
 .sort-dropdown label {
   margin-right: 0.5rem;
@@ -443,6 +451,20 @@ onMounted(async () => {
   transition: background-color 0.2s ease;
 }
 .show-on-map:hover {
+  background-color: #f0f8ff;
+}
+
+.open-filters-button {
+  display: none;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid #007bff;
+  color: #007bff;
+  background-color: transparent;
+}
+.open-filters-button:hover {
   background-color: #f0f8ff;
 }
 
@@ -535,11 +557,20 @@ onMounted(async () => {
   .search-main {
     flex-direction: column;
   }
+
   .search-filters {
     width: 100%;
     max-width: 100%;
     border-right: none;
     border-bottom: 1px solid #ddd;
+    display: none;
+  }
+  .search-filters.filters-open {
+    display: flex;
+  }
+
+  .open-filters-button {
+    display: block;
   }
 }
 </style>

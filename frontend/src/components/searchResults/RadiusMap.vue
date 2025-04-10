@@ -127,7 +127,6 @@ onUnmounted(() => {
 .map-container {
   position: relative;
   width: 100%;
-  max-width: 400px;
   border-radius: 12px;
 }
 .map-container-inner {

@@ -1,5 +1,6 @@
 {
   "navbar": {
+    "browse": "Browse",
     "newProduct": "New product",
     "messages": "Messages"
   },
