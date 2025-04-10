@@ -102,8 +102,7 @@ class ItemRepository(private val dataSource: DataSource) {
     fun searchItems(request: SearchRequest, pageable: Pageable): Page<Item> {
         val whereClause = request.whereClause()
         val baseSql = """
-            FROM items i
-            JOIN postal_codes pc ON i.postal_code = pc.postal_code
+            $baseItemSelect
             WHERE $whereClause
         """.trimIndent()
 
@@ -171,11 +170,7 @@ class ItemRepository(private val dataSource: DataSource) {
     ): List<Item> {
         val effectiveWhere = if (where.isBlank()) "1=1" else where
         val sql = """
-            SELECT id, seller_id, category_id, i.postal_code, title, description, price, purchase_price, buyer_id, 
-                   ST_X(location) AS longitude, ST_Y(location) AS latitude, allow_vipps_buy, primary_image_id, 
-                   status, created_at, updated_at, municipality
-            FROM items i
-            JOIN postal_codes pc ON i.postal_code = pc.postal_code
+            $baseItemSelect
             WHERE $effectiveWhere
         """.trimIndent()
         return dataSource.connection.use { conn ->
@@ -241,4 +236,10 @@ class ItemRepository(private val dataSource: DataSource) {
             }
         }
     }
+
+    private val baseItemSelect: String = """
+        SELECT i.*, ST_X(location) AS longitude, ST_Y(location) AS latitude, p.*
+        FROM items i
+        JOIN postal_codes pc ON i.postal_code = pc.postal_code
+    """.trimIndent()
 }
