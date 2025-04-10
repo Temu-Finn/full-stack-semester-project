@@ -1,10 +1,9 @@
 <template>
     <div class="receipt-container" v-if="item">
-      <h2>{{ t('receipt.title') }}</h2>
+      <h2>{{ 'Sale approved!!' }}</h2>
       <img v-if="item.images?.length" :src="item.images[0].dataURL" alt="Product image" class="product-image" />
-      <p><strong>{{ t('receipt.product') }}:</strong> {{ item.title }}</p>
-      <p><strong>{{ t('receipt.price') }}:</strong> {{ item.purchasePrice ?? item.price }} kr</p>
-      <p><strong>{{ t('receipt.status') }}:</strong> {{ item.status }}</p>
+      <p><strong>{{ 'Product' }}:</strong> {{ item.title }}</p>
+      <p><strong>{{ 'Price' }}:</strong> {{ item.purchasePrice ?? item.price }} kr</p>
     </div>
   
     <div v-else class="loading">

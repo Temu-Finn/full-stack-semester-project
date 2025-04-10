@@ -1,6 +1,6 @@
 <template>
   <div class="processing-container">
-    <h2>{{ t('vipps.processingTitle') }}</h2>
+    <h2>{{ t('Processing Vipps sale') }}</h2>
 
     <p v-if="status === 'pending'">{{ t('vipps.pleaseWait') }}</p>
     <div v-if="status === 'pending'" class="spinner" />
@@ -11,10 +11,18 @@
 
     <div v-else-if="status === 'failed'" class="status-message failed">
       {{ t('vipps.failed') }}
+      <p></p>
+      <button class="home-button" @click="goBackToItem">
+        {{ t('Leave') }}
+      </button>
     </div>
+    
 
     <div v-else-if="status === 'notfound'" class="status-message failed">
       {{ t('vipps.referenceNotFound') }}
+      <button class="home-button" @click="goBackToItem">
+        {{ t('vipps.goBackToItem') }}
+      </button>
     </div>
   </div>
 </template>
@@ -34,7 +42,7 @@ const status = ref<Status>('pending')
 
 const reference = route.query.ref as string | undefined
 
-const checkStatus = async (reference: string) => {
+const checkStatus = async (reference: string, attempt = 0) => {
   try {
     const { status: vippsStatus } = await checkVippsStatus(reference)
 
@@ -55,13 +63,18 @@ const checkStatus = async (reference: string) => {
         }, 1500)
         break
 
-      case 'FAILED':
-        status.value = 'failed'
+      case 'PENDING':
+        // Retry up to 5 times with delay
+        if (attempt < 5) {
+          setTimeout(() => checkStatus(reference, attempt + 1), 3000)
+        } else {
+          status.value = 'failed'
+        }
         break
 
-      case 'PENDING':
+      case 'FAILED':
       default:
-        setTimeout(() => location.reload(), 3000)
+        status.value = 'failed'
         break
     }
   } catch (error) {
@@ -70,11 +83,22 @@ const checkStatus = async (reference: string) => {
   }
 }
 
+
+const goBackToItem = () => {
+  const itemId = localStorage.getItem('vippsPurchasedItemId')
+  if (itemId) {
+    router.push(`/product/${itemId}`)
+  } else {
+    router.push('/')
+  }
+}
+
 onMounted(() => {
   if (!reference) {
     status.value = 'notfound'
     return
   }
+
   checkStatus(reference)
 })
 </script>
@@ -113,5 +137,21 @@ onMounted(() => {
 
 .failed {
   color: red;
+}
+
+.home-button {
+  margin-top: 16px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4c8bf5;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.home-button:hover {
+  background-color: #3a71d8;
 }
 </style>
