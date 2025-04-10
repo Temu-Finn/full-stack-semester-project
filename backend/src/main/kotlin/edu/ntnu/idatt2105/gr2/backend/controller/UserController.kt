@@ -1,5 +1,6 @@
 package edu.ntnu.idatt2105.gr2.backend.controller
 
+import edu.ntnu.idatt2105.gr2.backend.dto.ChangePasswordRequest
 import edu.ntnu.idatt2105.gr2.backend.dto.UpdateEmailRequest
 import edu.ntnu.idatt2105.gr2.backend.dto.UpdateNameRequest
 import edu.ntnu.idatt2105.gr2.backend.dto.UserProfile
@@ -63,6 +64,21 @@ class UserController(
     fun updateName(@Valid @RequestBody request: UpdateNameRequest): ResponseEntity<Void> {
         logger.info("Request to update user name")
         userService.updateName(request)
+        return ResponseEntity.ok().build()
+    }
+
+    @PutMapping("/me/updatePassword")
+    @Operation(summary = "Change user password", description = "Allows authenticated users to change their password")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Password updated successfully"),
+            ApiResponse(responseCode = "400", description = "Invalid input or current password"),
+            ApiResponse(responseCode = "401", description = "Unauthorized")
+        ]
+    )
+    fun changePassword(@Valid @RequestBody request: ChangePasswordRequest): ResponseEntity<Void> {
+        logger.info("Password change requested by current user")
+        userService.changePassword(request)
         return ResponseEntity.ok().build()
     }
 }
