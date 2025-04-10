@@ -2,6 +2,8 @@ import { z } from 'zod'
 import api from '@/config/api'
 import { logger } from '@/utils/logger'
 
+export type ConversationCardsResponse = z.infer<typeof ConversationCardsResponseSchema>
+
 const ItemSchema = z.object({
   id: z.number(),
   title: z.string(),
@@ -14,13 +16,13 @@ const ItemSchema = z.object({
   }),
   status: z.string(),
   updatedAt: z.string(),
-});
+})
 
 const ConversationCardsResponseSchema = z.object({
   conversations: z.array(
     z.object({
       id: z.number(),
-      lastMessage : z.string().nullable(),
+      lastMessage: z.string().nullable(),
       lastMessageTime: z.string().nullable(),
       item: ItemSchema,
     }),
@@ -34,7 +36,7 @@ const MessageSchema = z.object({
   content: z.string(),
   sentAt: z.string().datetime(),
   isRead: z.boolean().optional(),
-});
+})
 
 const getConversationResponseSchema = z.object({
   otherParticipantName: z.string(),
@@ -42,17 +44,15 @@ const getConversationResponseSchema = z.object({
   updatedAt: z.string(), // ISO 8601 string for LocalDateTime
   messages: z.array(MessageSchema),
   item: ItemSchema,
-});
+})
 
-
-export async function getConversations(): Promise<z.infer<typeof ConversationCardsResponseSchema>> {
+export async function getConversations(): Promise<ConversationCardsResponse> {
   try {
-    logger.debug('Calling API to fetch conversations...');
+    logger.debug('Calling API to fetch conversations...')
     const response = await api.get('conversations/getAll')
     logger.debug('Received conversations response', response.data)
 
-    const validatedData = ConversationCardsResponseSchema.parse(response.data)
-    return validatedData
+    return ConversationCardsResponseSchema.parse(response.data)
   } catch (error) {
     if (error instanceof z.ZodError) {
       logger.error('Invalid conversations response format from server', { errors: error.errors })
@@ -63,7 +63,9 @@ export async function getConversations(): Promise<z.infer<typeof ConversationCar
   }
 }
 
-export async function getConversation(conversationId: number): Promise<z.infer<typeof getConversationResponseSchema>> {
+export async function getConversation(
+  conversationId: number,
+): Promise<z.infer<typeof getConversationResponseSchema>> {
   try {
     logger.debug('Calling API to fetch conversation with ID:', conversationId)
     const response = await api.get(`conversations/${conversationId}`)

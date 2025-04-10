@@ -1,24 +1,24 @@
 <template>
   <div class="container">
-    <aside :class="{ 'mobile-open': isSidebarOpen }" class="sidebar">
-      <button v-if="isSidebarOpen" class="close-sidebar" @click="closeSidebar">&times;</button>
+    <aside v-if="!isLoading" class="sidebar">
+      <button v-if="isSidebarOpen" class="close-sidebar">&times;</button>
       <div
-        v-for="contact in contacts"
-        :key="contact.id"
+        v-for="conversation in conversationCardsResponse.value.conversations || []"
+        :key="conversation.id"
         class="contact"
-        @click="handleContactClick(contact.id)"
+        @click="handleContactClick(conversation.id)"
       >
-        <div class="avatar"></div>
+        <div class="avatar">lol</div>
         <div class="details">
-          <div class="name">{{ contact.name }}</div>
-          <div class="last-text">{{ contact.lastMessage }}</div>
+          <div class="name">{{ conversation.name }}</div>
+          <div class="last-text">{{ conversation.lastMessage }}</div>
         </div>
       </div>
     </aside>
 
     <div :class="isSidebarOpen ? 'overlay' : 'overlay hidden'" @click="closeSidebar"></div>
 
-    <main v-if="currentConversation" class="chat-window">
+    <!--main v-if="currentConversation" class="chat-window">
       <button class="open-sidebar-btn" @click="openSidebar">
         {{ $t('chat.allConversations') }}
       </button>
@@ -54,85 +54,32 @@
           <button class="send-btn" @click="sendMessage">{{ $t('chat.send') }}</button>
         </div>
       </div>
-    </main>
+    </main-->
   </div>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      contacts: [
-        { id: 1, name: 'Alice', lastMessage: 'Hey, how are you?' },
-        { id: 2, name: 'Bob', lastMessage: 'Are we still on for tomorrow?' },
-        { id: 3, name: 'Charlie', lastMessage: 'Check out this link!' },
-        { id: 4, name: 'Diana', lastMessage: 'Let me know your thoughts.' },
-        { id: 5, name: 'Eve', lastMessage: 'Thanks for the update!' },
-        // ... potentially many more contacts
-      ],
-      conversations: {
-        1: {
-          name: 'Alice',
-          online: true,
-          messages: [{ type: 'sent', content: 'Hey, how are you?' }],
-        },
-        2: {
-          name: 'Bob',
-          online: false,
-          messages: [{ type: 'received', content: 'Are we still on for tomorrow?' }],
-        },
-        3: {
-          name: 'Charlie',
-          online: true,
-          messages: [
-            { type: 'received', content: 'Check out this link!' },
-            { type: 'sent', content: 'I will!' },
-          ],
-        },
-        4: {
-          name: 'Diana',
-          online: true,
-          messages: [{ type: 'received', content: 'Let me know your thoughts.' }],
-        },
-        5: {
-          name: 'Eve',
-          online: false,
-          messages: [{ type: 'sent', content: 'Thanks for the update!' }],
-        },
-      },
-      newMessage: '',
-      isSidebarOpen: false,
-    }
-  },
-  computed: {
-    currentConversation() {
-      return this.conversations[this.$route.params.id]
-    },
-  },
-  methods: {
-    handleContactClick(id) {
-      this.selectConversation(id)
-      this.closeSidebar()
-    },
-    selectConversation(id) {
-      this.$router.push({ name: 'Chat', params: { id } })
-    },
-    sendMessage() {
-      if (this.newMessage.trim() !== '') {
-        this.currentConversation.messages.push({
-          type: 'sent',
-          content: this.newMessage,
-        })
-        this.newMessage = ''
-      }
-    },
-    openSidebar() {
-      this.isSidebarOpen = true
-    },
-    closeSidebar() {
-      this.isSidebarOpen = false
-    },
-  },
+<script lang="ts" setup>
+import {getConversations, type ConversationCardsResponse} from "@/service/conversationService.js";
+import {onMounted, ref} from "vue";
+
+const isLoading = ref(true)
+const conversationCardsResponse = ref<ConversationCardsResponse>()
+
+onMounted(() => {
+  fetchConversations()
+})
+
+async function fetchConversations() {
+  isLoading.value = true
+  try {
+    conversationCardsResponse.value = await getConversations();
+    console.log('Conversations fetched:', conversationCardsResponse.value.conversations[0].id)
+  } catch(error) {
+    console.error('Error fetching conversations:', error)
+    conversationCardsResponse.value = null;
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
