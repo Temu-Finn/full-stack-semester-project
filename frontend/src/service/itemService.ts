@@ -296,3 +296,19 @@ export async function deleteItem(id: number): Promise<void> {
     throw error
   }
 }
+
+/**
+ * Reserves an item by its ID.
+ * @param id - The ID of the item to reserve.
+ * @returns Promise that resolves when the item is reserved.
+ * @throws Error if the API request fails.
+ */
+export async function reserveItem(id: number): Promise<CompleteItem> {
+  try {
+    const response = await api.post(`/item/reserve/${id}`)
+    return CompleteItemSchema.parse(response.data)
+  } catch (error) {
+    logger.error('Failed to reserve item', error)
+    throw error
+  }
+}

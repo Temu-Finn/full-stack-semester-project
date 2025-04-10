@@ -29,13 +29,25 @@
         <div class="product-price">{{ product.price }}{{ $t('productView.currencySuffix') }}</div>
 
         <div class="buttons">
-          <button class="buy-button">
-            {{ $t('productView.sendMessage') }}
-          </button>
+          <BaseButton
+            v-if="product.allowVippsBuy"
+            class="vipps-button"
+            background-color="#ff5b24"
+            @click="startVippsPayment"
+          >
+            <template #icon>
+              <img src="/VippsWhite.svg" alt="Vipps" />
+            </template>
+            {{ $t('productView.buyNowVipps') }}
+          </BaseButton>
 
-          <button v-if="product.allowVippsBuy" class="vipps-button" @click="startVippsPayment">
-            🧡 {{ $t('productView.buyNowVipps') }}
-          </button>
+          <BaseButton
+            class="message-button"
+            @click="reserveItemHandle"
+            :disabled="!product.sellerId"
+          >
+            {{ $t('productView.sendMessage') }}
+          </BaseButton>
         </div>
 
         <div class="product-details">
@@ -58,19 +70,15 @@
       </div>
 
       <div class="map-section">
-        <Map :items="[product]" :location="product.location" />
+        <Map :items="[product]" :location="product.location ?? undefined" />
       </div>
     </div>
   </div>
   <div v-else class="not-found">{{ $t('productView.notFound') }}</div>
   <div v-if="searchResponse && product" class="similar-items-section">
-    <h3 v-if="searchResponse.result.content.length > 1">Similar items</h3>
+    <h3 v-if="filteredSimilarItems.length > 0">Similar items</h3>
     <div class="similar-items">
-      <Product
-        v-for="item in searchResponse.result.content.filter((value) => value.id != product.id)"
-        :key="item.id"
-        :product="item"
-      />
+      <Product v-for="item in filteredSimilarItems" :key="item.id" :product="item" />
     </div>
   </div>
 </template>
@@ -85,12 +93,14 @@ import {
   getItem,
   searchItems,
   type SearchItemsResponse,
+  type ItemCard,
 } from '@/service/itemService'
 import { logger } from '@/utils/logger'
 import { useI18n } from 'vue-i18n'
 import Product from '@/components/Product.vue'
 import { startVippsPayment as startVippsPaymentApi } from '@/service/vippsService'
-
+import { reserveItem } from '@/service/itemService'
+import BaseButton from '@/components/BaseButton.vue'
 const route = useRoute()
 const product = ref<CompleteItem | null>(null)
 const selectedImage = ref<string>('')
@@ -98,7 +108,10 @@ const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const { t } = useI18n()
 
-const searchResponse = ref<SearchItemsResponse>()
+const searchResponse = ref<SearchItemsResponse>({
+  counties: [],
+  result: { content: [], page: { size: 0, number: 0, totalElements: 0, totalPages: 0 } },
+})
 
 const productId = computed(() => {
   const idParam = route.params.id
@@ -110,6 +123,13 @@ const productImages = computed(() => {
     return ['/placeholder.svg']
   }
   return product.value.images.map((img) => img.dataURL)
+})
+
+const filteredSimilarItems = computed((): ItemCard[] => {
+  if (!searchResponse.value || !product.value) {
+    return []
+  }
+  return searchResponse.value.result.content.filter((value) => value.id !== product.value!.id)
 })
 
 onMounted(async () => {
@@ -149,10 +169,18 @@ async function fetchItems(categoryId: number) {
     })
   } catch (error) {
     console.error('Error fetching search results:', error)
-    searchResponse.value = null
+    searchResponse.value = {
+      counties: [],
+      result: { content: [], page: { size: 0, number: 0, totalElements: 0, totalPages: 0 } },
+    }
   } finally {
     isLoading.value = false
   }
+}
+
+const reserveItemHandle = async () => {
+  if (!product.value) return
+  product.value = await reserveItem(product.value.id)
 }
 
 const startVippsPayment = async () => {
@@ -231,20 +259,6 @@ const startVippsPayment = async () => {
   font-weight: bold;
 }
 
-.buy-button {
-  padding: 10px 20px;
-  background-color: #4c8bf5;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-.buy-button:hover {
-  background-color: #3a71d8;
-}
-
 .product-details p {
   margin: 5px 0;
 }
@@ -303,19 +317,6 @@ const startVippsPayment = async () => {
   gap: 0.5rem;
 }
 
-.vipps-button {
-  padding: 10px 20px;
-  background-color: #ff5b24;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-.vipps-button:hover {
-  background-color: #e04e1b;
-}
 @media (max-width: 960px) {
   .product {
     flex-direction: column;
