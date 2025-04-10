@@ -3,8 +3,8 @@
     <label v-if="label" :for="selectId">{{ label }}</label>
     <select
       :id="selectId"
-      :value="modelValue"
       :class="{ 'is-invalid': error }"
+      :value="modelValue"
       v-bind="$attrs"
       @change="updateValue"
     >
@@ -15,7 +15,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { computed } from 'vue'
 
 interface Props {
@@ -75,6 +75,7 @@ select {
   background-repeat: no-repeat;
   background-position: right 15px center;
   background-size: 16px 16px;
+  cursor: pointer;
 }
 
 select:focus {
