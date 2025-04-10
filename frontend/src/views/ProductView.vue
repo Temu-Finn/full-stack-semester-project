@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isLoading" class="loading-state">{{ $t('productView.loading') }}</div>
+  <Spinner v-if="isLoading"></Spinner>
   <div v-else-if="error" class="error-state">
     {{ $t('productView.errorLoadingPrefix') }} {{ error }}
   </div>

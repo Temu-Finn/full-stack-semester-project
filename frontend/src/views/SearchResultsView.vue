@@ -353,7 +353,7 @@ onMounted(async () => {
       </aside>
 
       <section class="search-results">
-        <div v-if="isLoading" class="loading-spinner">{{ t('search.loading') }}...</div>
+        <Spinner v-if="isLoading"></Spinner>
         <div v-else>
           <div v-if="!isMapView">
             <SearchResultsContent

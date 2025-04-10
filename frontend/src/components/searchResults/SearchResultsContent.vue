@@ -2,6 +2,7 @@
 import { defineProps, defineEmits, computed } from 'vue'
 import Product from '@/components/Product.vue'
 import type { ItemCard } from '@/service/itemService.ts'
+import Spinner from '../Spinner.vue'
 
 interface PageMetadata {
   totalElements: number
@@ -37,7 +38,7 @@ const totalPagesRange = computed(() => {
 
 <template>
   <section class="search-results">
-    <div v-if="isLoading" class="loading-spinner">Loading...</div>
+    <Spinner v-if="isLoading"></Spinner>
     <div v-else>
       <div class="search-count">
         {{ searchResponse.result.page.totalElements }} results
