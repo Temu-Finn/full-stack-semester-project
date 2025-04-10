@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { defineProps, defineEmits, computed } from 'vue'
-import Product from '@/components/home/Product.vue'
+import Product from '@/components/Product.vue'
+import type { ItemCard } from '@/service/itemService.ts'
 
 interface PageMetadata {
   totalElements: number
@@ -10,7 +11,7 @@ interface PageMetadata {
 interface SearchResults {
   result: {
     page: PageMetadata
-    content: any[] // Use the proper type of your Product data if available
+    content: ItemCard[]
   }
 }
 
@@ -25,7 +26,6 @@ const emit = defineEmits<{
   (e: 'pageChange', newPage: number): void
 }>()
 
-// Compute an array for pagination
 const totalPagesRange = computed(() => {
   if (props.searchResponse && props.searchResponse.result.page.totalPages) {
     const total = props.searchResponse.result.page.totalPages
