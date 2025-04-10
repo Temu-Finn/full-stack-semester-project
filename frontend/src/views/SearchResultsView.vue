@@ -41,8 +41,6 @@ const sortOptions = [
 const sortQuery = computed(() => route.query.sort ?? sortOptions[0].value)
 const selectedSort = ref(sortQuery.value)
 
-// Map filter toggle with computed getter and setter.
-// Toggling it on adds the current map data (or defaults) to the URL query.
 const mapFilterEnabled = computed<boolean>({
   get() {
     return route.query.useMap === 'true'
@@ -51,10 +49,9 @@ const mapFilterEnabled = computed<boolean>({
     const newQuery = { ...route.query }
     if (value) {
       newQuery.useMap = 'true'
-      // If there is no existing map data, add default values.
       if (!newQuery.latitude) newQuery.latitude = '63.44'
       if (!newQuery.longitude) newQuery.longitude = '10.399'
-      if (!newQuery.maxDistanceKm) newQuery.maxDistanceKm = '10' // default radius in km
+      if (!newQuery.maxDistanceKm) newQuery.maxDistanceKm = '10'
     } else {
       delete newQuery.useMap
       delete newQuery.latitude
@@ -65,7 +62,6 @@ const mapFilterEnabled = computed<boolean>({
   },
 })
 
-// Location filters computed from URL.
 const selectedCountyQuery = computed(() => (route.query.county ? String(route.query.county) : null))
 const selectedMunicipalityQuery = computed(() =>
   route.query.municipality ? String(route.query.municipality) : null,
@@ -94,7 +90,6 @@ watch(
     fetchItems()
   },
 )
-// Watch the map filter toggle (on or off) to immediately refetch items.
 watch(
   () => mapFilterEnabled.value,
   () => {
@@ -102,7 +97,6 @@ watch(
   },
 )
 
-// For pagination
 const currentPage = computed(() => (route.query.page ? Number(route.query.page) : 1))
 watch(currentPage, () => {
   fetchItems()
@@ -120,7 +114,6 @@ async function fetchItems() {
       size: 9,
       county: selectedCountyQuery.value ? selectedCountyQuery.value : undefined,
       municipality: selectedMunicipalityQuery.value ? selectedMunicipalityQuery.value : undefined,
-      // Only include map parameters if mapFilterEnabled is true.
       latitude:
         mapFilterEnabled.value && route.query.latitude ? Number(route.query.latitude) : undefined,
       longitude:
@@ -334,7 +327,6 @@ onMounted(async () => {
           <h3 class="filter-title">{{ t('search.location') }}</h3>
           <div class="county-list">
             <div v-for="county in searchResponse.counties" :key="county.name">
-              <!-- County item -->
               <div
                 :class="{ selected: selectedCountyQuery === county.name }"
                 class="county-item"
@@ -342,7 +334,6 @@ onMounted(async () => {
               >
                 {{ county.name }} ({{ county.count }})
               </div>
-              <!-- Municipality list appears right beneath this county -->
               <div v-if="selectedCountyQuery === county.name" class="municipality-list">
                 <div
                   v-for="municipality in county.municipalities"
@@ -544,7 +535,6 @@ onMounted(async () => {
   padding: 2rem;
 }
 
-/* Pagination styles */
 .pagination {
   display: flex;
   justify-content: center;
@@ -573,7 +563,6 @@ onMounted(async () => {
   cursor: default;
 }
 
-/* New: Location Filters */
 .location-filters {
   margin-top: 2rem;
 }
@@ -606,7 +595,6 @@ onMounted(async () => {
   color: #333;
 }
 
-/* Map Section */
 .map-section {
   height: 300px;
   width: 100%;
@@ -617,7 +605,6 @@ onMounted(async () => {
   border-radius: 6px;
 }
 
-/* Map Filter Toggle */
 .map-toggle {
   margin-bottom: 0.5rem;
   display: flex;
