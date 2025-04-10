@@ -13,5 +13,5 @@ data class ImageResponse(
 
 data class CreateImageRequest(
     val imageFile: MultipartFile,
-    val altText: String? = null
+    val altText: String? = null,
 )

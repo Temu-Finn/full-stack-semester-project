@@ -2,12 +2,12 @@ package edu.ntnu.idatt2105.gr2.backend.controller
 
 import edu.ntnu.idatt2105.gr2.backend.dto.*
 import edu.ntnu.idatt2105.gr2.backend.service.ConversationService
-import org.slf4j.LoggerFactory
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.messaging.handler.annotation.SendTo
@@ -19,27 +19,26 @@ import org.springframework.web.bind.annotation.*
 class ConversationController(
     private val conversationService: ConversationService,
 ) {
-
     private val logger = LoggerFactory.getLogger(ConversationController::class.java)
 
-    //sort by latest message
+    // sort by latest message
     @GetMapping("/getAll")
     @Operation(summary = "Get all active conversations for a user")
     @ApiResponses(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "Successfully retrieved conversations"
+                description = "Successfully retrieved conversations",
             ),
             ApiResponse(
                 responseCode = "404",
-                description = "No conversations found"
+                description = "No conversations found",
             ),
             ApiResponse(
                 responseCode = "500",
-                description = "Internal server error"
-            )
-        ]
+                description = "Internal server error",
+            ),
+        ],
     )
     fun getAllConversations(): ResponseEntity<ConversationsResponse> {
         logger.info("fetching all conversations")
@@ -54,20 +53,20 @@ class ConversationController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "Successfully retrieved conversation"
+                description = "Successfully retrieved conversation",
             ),
             ApiResponse(
                 responseCode = "404",
-                description = "Conversation not found"
+                description = "Conversation not found",
             ),
             ApiResponse(
                 responseCode = "500",
-                description = "Internal server error"
-            )
-        ]
+                description = "Internal server error",
+            ),
+        ],
     )
     fun getConversation(
-        @Parameter(description = "Conversation ID") @PathVariable id: Int
+        @Parameter(description = "Conversation ID") @PathVariable id: Int,
     ): ResponseEntity<GetConversationResponse> {
         logger.info("Fetching conversation with id: $id")
         val conversation = conversationService.getConversationById(id)
@@ -87,21 +86,21 @@ class ConversationController(
         value = [
             ApiResponse(
                 responseCode = "200",
-                description = "Successfully sent message"
+                description = "Successfully sent message",
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "Invalid request"
+                description = "Invalid request",
             ),
             ApiResponse(
                 responseCode = "500",
-                description = "Internal server error"
-            )
-        ]
+                description = "Internal server error",
+            ),
+        ],
     )
     fun sendMessage(
         @Parameter(description = "Message request")
-        @RequestBody request: SendMessageRequest
+        @RequestBody request: SendMessageRequest,
     ): ResponseEntity<NewMessageResponse> {
         logger.info("Sending message to conversation")
         val response = conversationService.sendMessage(request)

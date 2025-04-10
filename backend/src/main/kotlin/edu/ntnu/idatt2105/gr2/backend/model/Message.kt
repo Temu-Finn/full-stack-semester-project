@@ -2,7 +2,7 @@ package edu.ntnu.idatt2105.gr2.backend.model
 
 import java.time.Instant
 
-data class Message (
+data class Message(
     val id: Int = -1,
     val conversationId: Int = -1,
     val senderId: Int = -1,
