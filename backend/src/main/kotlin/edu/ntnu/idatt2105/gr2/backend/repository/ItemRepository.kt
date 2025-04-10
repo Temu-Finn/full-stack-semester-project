@@ -222,6 +222,23 @@ class ItemRepository(private val dataSource: DataSource) {
     }
 
     fun findAllBought(userId: Int): List<Item> {
-        return queryItemsWhere("buyer_id = ?") { it.setInt(1, userId) }
+        return queryItemsWhere("buyer_id = ? AND status = ?") { it.setInt(1, userId); it.setString(2, ItemStatus.Sold.toString()) }
+    }
+
+    fun findAllReserved(userId: Int): List<Item> {
+        return queryItemsWhere("buyer_id = ? AND status = ?") { it.setInt(1, userId); it.setString(2, ItemStatus.Reserved.toString()) }
+    }
+
+    fun reserveItem(itemId: Int, userId: Int) {
+        val sql = "UPDATE items SET status = ?, buyer_id = ? WHERE id = ? AND status = ? RETURNING *"
+        dataSource.connection.use { conn ->
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setString(1, ItemStatus.Reserved.toString())
+                stmt.setInt(2, userId)
+                stmt.setInt(3, itemId)
+                stmt.setString(4, ItemStatus.Available.toString())
+                stmt.executeUpdate()
+            }
+        }
     }
 }

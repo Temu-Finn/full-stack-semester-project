@@ -9,10 +9,10 @@ import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.web.multipart.MultipartFile
+import org.springframework.web.servlet.view.InternalResourceViewResolver
 
 @Service
 class ItemService(
@@ -22,6 +22,7 @@ class ItemService(
     private val categoryService: CategoryService,
     private val areaService: AreaService,
     private val userRepository: UserRepository,
+    private val internalResourceViewResolver: InternalResourceViewResolver,
 ) {
     private val logger = LoggerFactory.getLogger(ItemService::class.java)
 
@@ -158,5 +159,12 @@ class ItemService(
             status = status.toString(),
             updatedAt = updatedAt
         )
+    }
+
+    fun reserveItem(itemId: Int): CompleteItem {
+        val userId = userContextService.getCurrentUserId()
+        logger.info("Reserving item with ID: $itemId for user ID: $userId")
+        itemRepository.reserveItem(itemId, userId)
+        return itemRepository.getItemById(itemId)?.toResponse() ?: throw ItemNotFoundException("Item with ID $itemId not found")
     }
 }
