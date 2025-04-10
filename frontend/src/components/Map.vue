@@ -41,7 +41,6 @@ function addMarkers() {
         const popupContent = `
           <div class="popup-content">
             <a href="/product/${item.id}" target="_blank">
-              ${item.image ? `<img src="${item.image.dataURL}" alt="${item.title}" class="popup-image"/>` : ''}
               <h3>${item.title}</h3>
               <p>Price: ${item.price}</p>
             </a>
@@ -80,7 +79,6 @@ onMounted(() => {
   }
 })
 
-// When the items prop changes, add markers again.
 watch(
   () => props.items,
   () => {
