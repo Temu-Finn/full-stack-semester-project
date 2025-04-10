@@ -38,7 +38,7 @@
           <div class="price-container">
             <img
               v-if="product.allowVippsBuy"
-              src="/Vipps.svg"
+              src="/VippsRound.svg"
               alt="Vipps Logo"
               class="vipps-logo"
               :title="t('product.vippsBuyAvailable')"
@@ -214,8 +214,8 @@ async function confirmAndDelete() {
 }
 
 .vipps-logo {
-  height: 24px;
-  margin-right: 2px;
+  height: 16px;
+  margin-right: 6px;
 }
 
 .product-price {
