@@ -1,29 +1,43 @@
 <template>
   <div class="category-grid-container">
     <div class="category-grid">
-      <router-link
-        v-for="category in categories"
-        :key="category.id"
-        :to="`/search?category=${category.id}`"
-        class="category-card"
-        @click.prevent
-      >
-        <span class="category-icon">{{ category.icon }}</span>
-        <span class="category-name">{{ category.name }}</span>
-      </router-link>
+      <div v-for="category in categories" :key="category.id" class="category-card-container">
+        <router-link :to="`/search?category=${category.id}`" @click.prevent class="category-card">
+          <span class="category-icon">{{ category.icon }}</span>
+          <span class="category-name">{{ category.name }}</span>
+        </router-link>
+        <DeleteButton
+          v-if="editStore.editMode"
+          :onClick="() => handleDelete(category.id)"
+          class="delete-button"
+        />
+      </div>
     </div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getCategories } from '@/service/categoryService'
+import { getCategories, deleteCategory, type Category } from '@/service/categoryService'
+import DeleteButton from '../DeleteButton.vue'
+import { useEditStore } from '@/stores/edit'
 
-const categories = ref([])
+const editStore = useEditStore()
+
+const categories = ref<Category[]>([])
 
 onMounted(async () => {
   categories.value = await getCategories()
 })
+
+async function handleDelete(id: number) {
+  try {
+    await deleteCategory(id)
+    categories.value = categories.value.filter((category) => category.id !== id)
+  } catch (error) {
+    alert('There are still items associated with this category. Please remove them first.')
+  }
+}
 </script>
 
 <style scoped>
@@ -92,5 +106,9 @@ onMounted(async () => {
   .category-name {
     font-size: 0.8rem;
   }
+}
+
+.category-card-container {
+  position: relative;
 }
 </style>

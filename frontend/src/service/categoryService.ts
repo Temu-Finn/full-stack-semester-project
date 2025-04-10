@@ -35,3 +35,18 @@ export async function getCategories(): Promise<Category[]> {
     throw new Error('Failed to load categories. Please try again later.')
   }
 }
+
+/**
+ * Deletes a category by its ID.
+ * @param id - The ID of the category to delete.
+ * @returns Promise that resolves when the category is deleted.
+ * @throws Error if the API request fails.
+ */
+export async function deleteCategory(id: number): Promise<void> {
+  try {
+    await api.delete(`/categories/${id}`)
+  } catch (error) {
+    logger.error('Failed to delete category', error)
+    throw new Error('Failed to delete category. Please try again later.')
+  }
+}
