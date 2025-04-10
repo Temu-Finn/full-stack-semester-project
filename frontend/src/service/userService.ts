@@ -3,7 +3,6 @@ import api from '@/config/api'
 import { logger } from '@/utils/logger'
 import axios from 'axios'
 
-// === Zod Schemas ===
 const UserSchema = z.object({
   id: z.number(),
   name: z.string(),
@@ -23,13 +22,10 @@ const ChangePasswordSchema = z.object({
   newPassword: z.string().min(8, 'New password must be at least 8 characters'),
 })
 
-// === Types ===
 export type User = z.infer<typeof UserSchema>
 export type UpdateNameRequest = z.infer<typeof UpdateNameSchema>
 export type UpdateEmailRequest = z.infer<typeof UpdateEmailSchema>
 export type ChangePasswordRequest = z.infer<typeof ChangePasswordSchema>
-
-// === Service Methods ===
 
 export async function updateUserName(data: UpdateNameRequest): Promise<void> {
   try {
@@ -58,7 +54,6 @@ export async function changeUserPassword(data: ChangePasswordRequest): Promise<v
   }
 }
 
-// === Central Error Handling ===
 function handleError(error: unknown, action: string): never {
   if (error instanceof z.ZodError) {
     logger.error(`Validation failed while ${action}`, { errors: error.errors })
