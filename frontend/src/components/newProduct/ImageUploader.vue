@@ -126,36 +126,40 @@ const processFiles = (files: FileList | null) => {
   let addedCount = 0
   const newImageFiles = [...props.imageFiles]
   const newImageUrls = [...props.imageUrls]
-  const availableSlots = 10 - newImageFiles.length
 
-  if (availableSlots <= 0) {
-    logger.warn('Maximum number of images (10) already reached.')
-    return
-  }
-
-  let filesProcessed = 0
   for (const file of files) {
-    if (filesProcessed >= availableSlots) {
-      logger.warn(`Skipped file ${file.name} as the maximum limit of 10 images would be exceeded.`)
-      continue
-    }
-
     if (file.type.startsWith('image/')) {
+      const duplicateIndex = newImageFiles.findIndex(
+        (existingFile) =>
+          existingFile.name === file.name &&
+          existingFile.size === file.size &&
+          existingFile.type === file.type &&
+          existingFile.lastModified === file.lastModified,
+      )
+
+      if (duplicateIndex !== -1) {
+        const urlToRemove = newImageUrls[duplicateIndex]
+        URL.revokeObjectURL(urlToRemove)
+        logger.debug(`Duplicate found. Revoking old object URL: ${urlToRemove}`)
+        newImageFiles.splice(duplicateIndex, 1)
+        newImageUrls.splice(duplicateIndex, 1)
+        logger.debug(`Removed duplicate file: ${file.name} at index ${duplicateIndex}`)
+      }
+
       newImageFiles.push(file)
       const url = URL.createObjectURL(file)
       newImageUrls.push(url)
       logger.debug(`Created object URL: ${url} for file: ${file.name}`)
       addedCount++
-      filesProcessed++
     } else {
       logger.warn(`Skipped non-image file: ${file.name}`)
     }
   }
 
-  if (addedCount > 0) {
+  if (addedCount > 0 || newImageFiles.length !== props.imageFiles.length) {
     emit('update:imageFiles', newImageFiles)
     emit('update:imageUrls', newImageUrls)
-    logger.debug(`${addedCount} image(s) added.`)
+    logger.debug(`${addedCount} image(s) processed (added/replaced).`)
   }
 }
 
