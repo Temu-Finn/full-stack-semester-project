@@ -14,6 +14,7 @@ import { useI18n } from 'vue-i18n'
 import SearchResultsContent from '@/components/searchResults/SearchResultsContent.vue'
 import { searchItems, type SearchItemsResponse } from '@/service/itemService'
 import Map from '@/components/Map.vue'
+import MapFilter from '@/components/searchResults/RadiusMap.vue'
 import { getCategories } from '@/service/categoryService.ts'
 
 const { t } = useI18n()
@@ -309,7 +310,7 @@ onMounted(async () => {
             <input id="useMapFilter" v-model="mapFilterEnabled" type="checkbox" />
             <label for="useMapFilter">{{ t('search.useMapFilter') }}</label>
           </div>
-          <Map
+          <MapFilter
             :location="{ latitude: 63.44, longitude: 10.399 }"
             @update:locationFilter="handleMapUpdate"
           />
