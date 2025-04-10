@@ -11,15 +11,18 @@
     "noItemsFound": "Ingen produkter funnet. Prøv å søke!"
   },
   "search": {
+    "searchButton": "Søk",
     "sortBy": "Sorter",
-    "lowestPrice": "Laveste pris",
-    "highestPrice": "Høyeste pris",
-    "newest": "Nyeste",
-    "oldest": "Eldste",
+    "priceAsc": "Laveste pris",
+    "priceDesc": "Høyeste pris",
+    "updatedAtDesc": "Nyeste",
+    "updatedAtAsc": "Eldste",
     "closest": "Nærmeste",
     "showOnMap": "Vis på kart",
-    "hitsFor": "resultater for",
-    "acceptsVipps": "Aksepterer Vipps-betaling"
+    "results": "resultater",
+    "for": "for",
+    "acceptsVipps": "Aksepterer Vipps-betaling",
+    "loading": "Laster"
   },
   "newProduct": {
     "title": "Legg ut nytt produkt",

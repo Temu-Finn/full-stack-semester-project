@@ -77,8 +77,8 @@ const closeSidebar = () => {
   display: flex;
   justify-content: center;
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(20px);
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
   box-shadow: rgba(0, 0, 0, 0.1) 0 0 8px;
   z-index: 10;
   font-size: 15px;
