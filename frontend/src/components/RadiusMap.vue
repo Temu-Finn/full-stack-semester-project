@@ -6,13 +6,11 @@ import type { Location } from '@/service/itemService'
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN
 
-// Props: initial map center and optional initial maxDistanceKm
 const props = defineProps<{
   location: Location
   maxDistanceKm?: number
 }>()
 
-// Emits: when the location filter is updated, emit an object with latitude, longitude and maxDistanceKm.
 const emit = defineEmits<{
   (
     e: 'update:locationFilter',
@@ -24,18 +22,15 @@ const mapContainer = ref<HTMLElement | null>(null)
 let map: mapboxgl.Map | null = null
 let marker: mapboxgl.Marker | null = null
 
-// Local state for the selected location and radius
 const selectedLat = ref(props.location.latitude)
 const selectedLng = ref(props.location.longitude)
 const radiusKm = ref(props.maxDistanceKm ?? 10) // default to 10 km
 
-// IDs for the circle source and layer
 const circleSourceId = 'circleSource'
 const circleLayerId = 'circleLayer'
 
 function updateCircle() {
   if (!map) return
-  // Use Turf.js to create a circle polygon using the current point and radius
   const center = [selectedLng.value, selectedLat.value]
   const options = { steps: 64, units: 'kilometers' }
   const circleGeoJSON = turf.circle(center, radiusKm.value, options)
@@ -59,10 +54,7 @@ function updateCircle() {
   }
 }
 
-// Called when the slider is released (change event)
 function onSliderChange() {
-  // The circle updates continuously via v-model (if you wish, you can also call updateCircle() here),
-  // then emit the new filter.
   updateCircle()
   emit('update:locationFilter', {
     latitude: selectedLat.value,
@@ -80,13 +72,11 @@ onMounted(() => {
       zoom: 9,
     })
     map.on('load', () => {
-      // Place the initial marker.
       marker = new mapboxgl.Marker({ color: '#007bff' })
         .setLngLat([selectedLng.value, selectedLat.value])
         .addTo(map)
       updateCircle()
     })
-    // Listen for click events on the map.
     map.on('click', (e) => {
       const lngLat = e.lngLat
       selectedLat.value = lngLat.lat
@@ -99,7 +89,6 @@ onMounted(() => {
           .addTo(map)
       }
       updateCircle()
-      // Immediately emit the new location when marker changes.
       emit('update:locationFilter', {
         latitude: selectedLat.value,
         longitude: selectedLng.value,
@@ -122,7 +111,6 @@ onUnmounted(() => {
     <div ref="mapContainer" class="map-container-inner"></div>
     <div class="radius-slider">
       <label for="radiusRange">Radius: {{ radiusKm }} km</label>
-      <!-- Using @change to trigger update only when slider is released -->
       <input
         id="radiusRange"
         v-model.number="radiusKm"
