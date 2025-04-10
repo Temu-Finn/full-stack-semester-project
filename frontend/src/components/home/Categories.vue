@@ -12,6 +12,10 @@
           class="delete-button"
         />
       </div>
+      <div class="add-category-container category-card">
+        <span class="category-icon">+</span>
+        <span class="category-name">Add Category</span>
+      </div>
     </div>
   </div>
 </template>
