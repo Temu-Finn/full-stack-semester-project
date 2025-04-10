@@ -213,20 +213,17 @@ const handleDrop = (index: number) => {
   newImageFiles.splice(draggedIndex.value, 1)
   newImageUrls.splice(draggedIndex.value, 1)
 
-  // Insert the item at the new position
   newImageFiles.splice(index, 0, itemToMove)
   newImageUrls.splice(index, 0, urlToMove)
 
   emit('update:imageFiles', newImageFiles)
   emit('update:imageUrls', newImageUrls)
 
-  // Reset drag/drop state immediately after update
   draggedIndex.value = null
   dropIndex.value = null
 }
 
 const handleDragEnd = () => {
-  // Reset drag/drop state regardless of drop success
   draggedIndex.value = null
   dropIndex.value = null
 }
@@ -234,7 +231,7 @@ const handleDragEnd = () => {
 
 <style scoped>
 .image-uploader {
-  margin-bottom: 25px; /* Maintain spacing similar to form-group */
+  margin-bottom: 25px;
 }
 
 .file-input-label {
@@ -249,7 +246,7 @@ const handleDragEnd = () => {
   transition:
     border-color 0.2s ease,
     background-color 0.2s ease;
-  font-weight: 500; /* Match label style */
+  font-weight: 500;
 }
 
 .file-input-label:hover {
@@ -259,7 +256,7 @@ const handleDragEnd = () => {
 
 .file-input-label.window-dragging {
   border-color: #007bff;
-  border-style: solid; /* Changed to solid for better visibility */
+  border-style: solid;
   background-color: #e6f2ff;
   box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
 }
@@ -343,8 +340,8 @@ const handleDragEnd = () => {
   font-size: 0.75rem;
   text-align: center;
   padding: 2px 0;
-  border-bottom-left-radius: 6px; /* Adjust for parent radius */
-  border-bottom-right-radius: 6px; /* Adjust for parent radius */
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
   user-select: none;
 }
 </style>
