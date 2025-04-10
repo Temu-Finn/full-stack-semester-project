@@ -209,13 +209,28 @@
     "errorTitle": "Feil",
     "genericError": "En uventet feil oppstod."
   },
+  "vipps": {
+    "processingTitle": "Behandler Vipps-salget",
+    "pleaseWait": "Vennligst vent mens vi bekrefter betalingen...",
+    "success": "Betaling godkjent!",
+    "failed": "Betalingen feilet. Prøv igjen senere.",
+    "referenceNotFound": "Fant ikke betalingsreferanse.",
+    "goBackToItem": "Tilbake til produktet",
+    "leave": "Forlat"
+  },
+  "receipt": {
+    "title": "Salg godkjent!",
+    "product": "Produkt",
+    "price": "Pris",
+    "status": "Status",
+    "loading": "Laster kvittering..."
+  }, 
   "product": {
     "status": {
       "sold": "Solgt",
       "bought": "Kjøpt",
       "reserved": "Reservert",
       "archived": "Arkivert"
-    },
-    "vippsBuyAvailable": "Vipps-kjøp tilgjengelig"
+    }
   }
 }

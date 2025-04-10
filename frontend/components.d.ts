@@ -36,6 +36,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     Search: typeof import('./src/components/home/Search.vue')['default']
     SearchResultsContent: typeof import('./src/components/searchResults/SearchResultsContent.vue')['default']
+    Spinner: typeof import('./src/components/Spinner.vue')['default']
     ToggleButton: typeof import('./src/components/ToggleButton.vue')['default']
   }
 }

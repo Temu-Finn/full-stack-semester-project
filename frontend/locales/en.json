@@ -210,13 +210,28 @@
     "errorTitle": "Error",
     "genericError": "An unexpected error occurred."
   },
+  "vipps": {
+    "processingTitle": "Processing Vipps payment",
+    "pleaseWait": "Please wait while we confirm your payment...",
+    "success": "Payment approved!",
+    "failed": "The payment failed. Please try again later.",
+    "referenceNotFound": "Payment reference not found or invalid.",
+    "goBackToItem": "Back to product",
+    "leave": "Leave"
+  },
+  "receipt": {
+    "title": "Sale approved!",
+    "product": "Product",
+    "price": "Price",
+    "status": "Status",
+    "loading": "Loading receipt..."
+  },
   "product": {
     "status": {
       "sold": "Sold",
       "bought": "Bought",
       "reserved": "Reserved",
       "archived": "Archived"
-    },
-    "vippsBuyAvailable": "Vipps purchase available"
+    }
   }
 }

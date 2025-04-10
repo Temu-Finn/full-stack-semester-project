@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isLoading" class="loading-state">{{ $t('productView.loading') }}</div>
+  <Spinner v-if="isLoading"></Spinner>
   <div v-else-if="error" class="error-state">
     {{ $t('productView.errorLoadingPrefix') }} {{ error }}
   </div>
@@ -33,7 +33,7 @@
             v-if="product.allowVippsBuy"
             class="vipps-button"
             background-color="#ff5b24"
-            @click="startVippsPayment"
+            @click="startVipps"
           >
             <template #icon>
               <img src="/VippsWhite.svg" alt="Vipps" />
@@ -192,23 +192,35 @@ async function fetchItems(categoryId: number) {
   }
 }
 
+
+import { startVippsPayment } from '@/service/vippsService'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
 const reserveItemHandle = async () => {
   if (!product.value) return
   product.value = await reserveItem(product.value.id)
   console.log('Reserved: ', product.value)
 }
 
-const startVippsPayment = async () => {
+const startVipps = async () => {
   if (!product.value) return
 
   try {
-    const { redirectUrl, reference } = await startVippsPaymentApi(product.value.price)
-    console.log('Vipps reference:', reference)
+    localStorage.setItem('vippsPurchasedItemId', String(product.value.id))
+
+    const { redirectUrl } = await startVippsPayment(product.value.price)
+
     window.location.href = redirectUrl
-  } catch (error) {
-    console.error('Could not start Vipps payment:', error)
+  } catch (err) {
+    console.error('Could not start Vipps payment', err)
+    alert(t('productView.paymentInitFailed'))
   }
 }
+
+
+
 </script>
 
 <style scoped>

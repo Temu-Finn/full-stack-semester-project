@@ -2,7 +2,6 @@ import { z } from 'zod'
 import api from '@/config/api'
 import { logger } from '@/utils/logger'
 
-// Schema for starting payment
 const StartVippsPaymentResponseSchema = z.object({
   redirectUrl: z.string().url(),
   reference: z.string().uuid(),
@@ -10,7 +9,6 @@ const StartVippsPaymentResponseSchema = z.object({
 
 export type StartVippsPaymentResponse = z.infer<typeof StartVippsPaymentResponseSchema>
 
-// Schema for checking payment status
 const VippsPaymentStatusSchema = z.object({
   amount: z.object({
     currency: z.string(),
@@ -34,16 +32,12 @@ const VippsPaymentStatusSchema = z.object({
       value: z.number(),
     }),
   }),
-  reference: z.string().uuid(),
   state: z.string(),
+  reference: z.string().uuid(),
 })
 
 export type VippsPaymentStatus = z.infer<typeof VippsPaymentStatusSchema>
 
-/**
- * Starts a Vipps payment session with the given price.
- * @param price - The price (in NOK) to charge the user.
- */
 export async function startVippsPayment(price: number): Promise<StartVippsPaymentResponse> {
   try {
     const response = await api.post('/vipps/payment', { price })
@@ -61,18 +55,16 @@ export async function startVippsPayment(price: number): Promise<StartVippsPaymen
   }
 }
 
-/**
- * Checks the status of a Vipps payment using the reference.
- * A payment is considered APPROVED if amount.value === 0.
- */
-export async function checkVippsStatus(reference: string): Promise<{ status: 'APPROVED' | 'PENDING' | 'FAILED' }> {
+export async function checkVippsStatus(
+  reference: string,
+): Promise<{ status: 'APPROVED' | 'PENDING' | 'FAILED' }> {
   try {
     const response = await api.get(`/vipps/payment/${reference}`)
     const parsed = VippsPaymentStatusSchema.parse(response.data)
 
-    logger.debug('Parsed Vipps status response:', parsed)
+    logger.debug('Vipps payment status response:', parsed)
 
-    if (parsed.amount.value === 0) {
+    if (parsed.state === 'AUTHORIZED') {
       return { status: 'APPROVED' }
     }
 
