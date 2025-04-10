@@ -4,10 +4,10 @@
     <p class="dialog-message">{{ message }}</p>
     <div class="dialog-actions">
       <button v-if="showCancel !== false" @click="dialogStore.cancel()" class="btn btn-secondary">
-        {{ cancelText || 'Cancel' }}
+        {{ cancelText || $t('dialog.cancel') }}
       </button>
       <button @click="dialogStore.confirm()" class="btn btn-primary">
-        {{ confirmText || 'Confirm' }}
+        {{ confirmText || $t('dialog.confirm') }}
       </button>
     </div>
   </div>

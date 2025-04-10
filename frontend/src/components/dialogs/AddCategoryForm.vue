@@ -1,46 +1,48 @@
 <template>
   <div class="add-category-form">
-    <h3 class="dialog-title">Add New Category</h3>
+    <h3 class="dialog-title">{{ $t('dialog.addCategoryTitle') }}</h3>
 
     <form @submit.prevent="handleSubmit">
       <div class="form-group">
-        <label for="category-name">Name:</label>
+        <label for="category-name">{{ $t('dialog.addCategory.nameLabel') }}</label>
         <input
           id="category-name"
           v-model="categoryData.name"
           type="text"
           required
-          placeholder="Enter category name"
+          :placeholder="$t('dialog.addCategory.namePlaceholder')"
         />
       </div>
 
       <div class="form-group">
-        <label for="category-icon">Icon (Emoji):</label>
+        <label for="category-icon">{{ $t('dialog.addCategory.iconLabel') }}</label>
         <input
           id="category-icon"
           v-model="categoryData.icon"
           type="text"
           maxlength="2"
-          placeholder="🌟"
+          :placeholder="$t('dialog.addCategory.iconPlaceholder')"
           required
         />
       </div>
 
       <div class="form-group">
-        <label for="category-description">Description:</label>
+        <label for="category-description">{{ $t('dialog.addCategory.descriptionLabel') }}</label>
         <textarea
           id="category-description"
           v-model="categoryData.description"
           rows="3"
-          placeholder="Optional description"
+          :placeholder="$t('dialog.addCategory.descriptionPlaceholder')"
         ></textarea>
       </div>
 
       <div class="dialog-actions">
         <button type="button" @click="dialogStore.cancel()" class="btn btn-secondary">
-          Cancel
+          {{ $t('dialog.cancel') }}
         </button>
-        <button type="submit" class="btn btn-primary">Add Category</button>
+        <button type="submit" class="btn btn-primary">
+          {{ $t('dialog.addCategory.addButton') }}
+        </button>
       </div>
     </form>
   </div>

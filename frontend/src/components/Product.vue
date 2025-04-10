@@ -24,6 +24,9 @@ import { useEditStore } from '@/stores/edit'
 import DeleteButton from './DeleteButton.vue'
 import { useDialogStore } from '@/stores/dialog'
 import ConfirmationDialogContent from '@/components/dialogs/ConfirmationDialogContent.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   product: ItemCard
@@ -39,9 +42,10 @@ const dialogStore = useDialogStore()
 async function confirmAndDelete() {
   try {
     await dialogStore.show(ConfirmationDialogContent, {
-      title: 'Delete Product',
-      message: `Delete "${props.product.title}"?`,
-      confirmText: 'Delete',
+      title: t('dialog.deleteProductTitle'),
+      message: t('dialog.confirmDeleteMessage', { item: props.product.title }),
+      confirmText: t('dialog.delete'),
+      cancelText: t('dialog.cancel'),
       showCancel: true,
     })
 
@@ -51,10 +55,10 @@ async function confirmAndDelete() {
     } catch (error) {
       console.error('Failed to delete item:', error)
       dialogStore.show(ConfirmationDialogContent, {
-        title: 'Error',
-        message: 'Could not delete product.',
+        title: t('dialog.deletionFailedTitle'),
+        message: t('dialog.deletionFailedDefaultMessage'),
         showCancel: false,
-        confirmText: 'OK',
+        confirmText: t('dialog.ok'),
       })
     }
   } catch {

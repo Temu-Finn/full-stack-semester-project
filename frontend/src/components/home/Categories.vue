@@ -1,6 +1,6 @@
 <template>
   <div class="category-grid-container">
-    <div v-if="isLoading" class="loading-indicator">Loading...</div>
+    <div v-if="isLoading" class="loading-indicator">{{ $t('search.loading') }}...</div>
     <div v-else class="category-grid">
       <div v-for="category in categories" :key="category.id" class="category-card-container">
         <router-link :to="`/search?category=${category.id}`" class="category-card">
@@ -19,7 +19,7 @@
         @click="handleAddCategory"
       >
         <span class="category-icon">+</span>
-        <span class="category-name">Add Category</span>
+        <span class="category-name">{{ $t('dialog.addCategoryTitle') }}</span>
       </button>
     </div>
   </div>
@@ -39,6 +39,9 @@ import { useEditStore } from '@/stores/edit'
 import { useDialogStore } from '@/stores/dialog'
 import ConfirmationDialogContent from '@/components/dialogs/ConfirmationDialogContent.vue'
 import AddCategoryForm from '@/components/dialogs/AddCategoryForm.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const editStore = useEditStore()
 const dialogStore = useDialogStore()
@@ -53,10 +56,10 @@ onMounted(async () => {
   } catch (error) {
     console.error('Failed to load categories:', error)
     dialogStore.show(ConfirmationDialogContent, {
-      title: 'Loading Error',
-      message: 'Could not load categories.',
+      title: t('dialog.loadingErrorTitle'),
+      message: t('dialog.loadingErrorMessage'),
       showCancel: false,
-      confirmText: 'OK',
+      confirmText: t('dialog.ok'),
     })
   } finally {
     isLoading.value = false
@@ -68,10 +71,11 @@ async function handleDelete(id: number) {
 
   try {
     await dialogStore.show(ConfirmationDialogContent, {
-      title: 'Confirm Deletion',
-      message: `Delete "${categoryName}"?`,
-      confirmText: 'Delete',
+      title: t('dialog.confirmDeletionTitle'),
+      message: t('dialog.confirmDeleteMessage', { item: categoryName }),
+      confirmText: t('dialog.delete'),
       showCancel: true,
+      cancelText: t('dialog.cancel'),
     })
 
     try {
@@ -79,15 +83,15 @@ async function handleDelete(id: number) {
       categories.value = categories.value.filter((category) => category.id !== id)
     } catch (error: any) {
       console.error('Deletion failed:', error)
-      let errorDetail = 'Could not delete category.'
+      let errorDetailKey = 'dialog.deletionFailedDefaultMessage'
       if (error.response?.status === 409) {
-        errorDetail = 'Category has associated items.'
+        errorDetailKey = 'dialog.deletionFailedAssociatedItems'
       }
       dialogStore.show(ConfirmationDialogContent, {
-        title: 'Deletion Failed',
-        message: errorDetail,
+        title: t('dialog.deletionFailedTitle'),
+        message: t(errorDetailKey),
         showCancel: false,
-        confirmText: 'OK',
+        confirmText: t('dialog.ok'),
       })
     }
   } catch {
@@ -105,15 +109,15 @@ async function handleAddCategory() {
       categories.value.push(createdCategory)
     } catch (error: any) {
       console.error('Add category failed:', error)
-      let errorDetail = 'Could not add category.'
+      let errorDetailKey = 'dialog.errorAddingDefaultMessage'
       if (error.response?.status === 409) {
-        errorDetail = 'Category name already exists.'
+        errorDetailKey = 'dialog.errorAddingNameExists'
       }
       dialogStore.show(ConfirmationDialogContent, {
-        title: 'Error Adding Category',
-        message: errorDetail,
+        title: t('dialog.errorAddingTitle'),
+        message: t(errorDetailKey),
         showCancel: false,
-        confirmText: 'OK',
+        confirmText: t('dialog.ok'),
       })
     } finally {
       isLoading.value = false
