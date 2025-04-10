@@ -9,6 +9,10 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AddCategoryForm: typeof import('./src/components/dialogs/AddCategoryForm.vue')['default']
+    BaseButton: typeof import('./src/components/BaseButton.vue')['default']
+    BaseInput: typeof import('./src/components/BaseInput.vue')['default']
+    BaseSelect: typeof import('./src/components/BaseSelect.vue')['default']
+    BaseTextarea: typeof import('./src/components/BaseTextarea.vue')['default']
     Categories: typeof import('./src/components/home/Categories.vue')['default']
     ConfirmationDialogContent: typeof import('./src/components/dialogs/ConfirmationDialogContent.vue')['default']
     DeleteButton: typeof import('./src/components/DeleteButton.vue')['default']
@@ -17,6 +21,7 @@ declare module 'vue' {
     Globe: typeof import('./src/components/Globe.vue')['default']
     HeroSection: typeof import('./src/components/home/HeroSection.vue')['default']
     IconField: typeof import('primevue/iconfield')['default']
+    ImageUploader: typeof import('./src/components/newProduct/ImageUploader.vue')['default']
     InputIcon: typeof import('primevue/inputicon')['default']
     InputText: typeof import('primevue/inputtext')['default']
     LanguageSelector: typeof import('./src/components/LanguageSelector.vue')['default']
@@ -29,6 +34,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Search: typeof import('./src/components/home/Search.vue')['default']
+    SearchResultsContent: typeof import('./src/components/searchResults/SearchResultsContent.vue')['default']
     ToggleButton: typeof import('./src/components/ToggleButton.vue')['default']
   }
 }
