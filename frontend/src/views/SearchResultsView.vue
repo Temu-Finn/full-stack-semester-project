@@ -26,10 +26,8 @@ const selectedCategory = computed(() =>
   route.query.category ? String(route.query.category) : null,
 )
 
-// For the search form's local binding
 const localSearch = ref(searchQuery.value)
 
-// Sort options
 const sortOptions = [
   { value: 'price,asc', label: t('search.priceAsc') },
   { value: 'price,desc', label: t('search.priceDesc') },
@@ -564,12 +562,11 @@ onMounted(async () => {
 }
 
 .location-filters {
-  margin-top: 2rem;
+  margin-top: 4rem;
 }
 .filter-title {
   font-size: 1rem;
   font-weight: bold;
-  margin-bottom: 0.5rem;
 }
 .county-list {
   display: flex;
