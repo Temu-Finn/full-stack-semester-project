@@ -1,14 +1,8 @@
 {
   "navbar": {
-    "home": "Home",
-    "search": "Search",
+    "browse": "Browse",
     "newProduct": "New Product",
     "login": "Login",
-    "register": "Register",
-    "logout": "Logout",
-    "profile": "Profile",
-    "listings": "My Listings",
-    "admin": "Admin",
     "editMode": "Edit Mode",
     "messages": "Messages"
   },
@@ -28,7 +22,8 @@
     "updatedAtDesc": "Newest",
     "updatedAtAsc": "Oldest",
     "closest": "Closest",
-    "showOnMap": "Show on map",
+    "showOnMap": "Open map",
+    "showGrid": "Close map",
     "results": "results",
     "for": "for",
     "acceptsVipps": "Accepts Vipps payment",

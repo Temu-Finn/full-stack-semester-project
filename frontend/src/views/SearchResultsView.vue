@@ -3,15 +3,18 @@
  * SearchResults.vue
  *
  * This component fetches items for a given query, selected category, sort order,
- * and location (county/municipality plus map position with optional map filter).
- * It displays them in a grid and includes a side filter menu plus a top bar with controls.
+ * location filters (county/municipality, and optionally a map filter) and pagination.
+ * It displays a side filter menu, a top bar with controls, and toggles between
+ * a grid view (SearchResultsContent) and a map view (Map component) when the "Show on map"
+ * button is clicked.
  */
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import Product from '@/components/Product.vue'
+import SearchResultsContent from '@/components/searchResults/SearchResultsContent.vue'
 import { searchItems, type SearchItemsResponse } from '@/service/itemService'
-import Map from '@/components/RadiusMap.vue'
+import Map from '@/components/Map.vue'
+import MapFilter from '@/components/searchResults/RadiusMap.vue'
 import { getCategories } from '@/service/categoryService.ts'
 
 const { t } = useI18n()
@@ -100,6 +103,17 @@ watch(currentPage, () => {
   fetchItems()
 })
 
+const isMapView = ref(false)
+
+function toggleViewMode() {
+  isMapView.value = !isMapView.value
+}
+
+const isFiltersOpen = ref(false)
+function toggleFilters() {
+  isFiltersOpen.value = !isFiltersOpen.value
+}
+
 async function fetchItems() {
   isLoading.value = true
   try {
@@ -142,7 +156,7 @@ function handleSortChange(newSortValue: string) {
 }
 
 function showMap() {
-  console.log('Showing map view...')
+  toggleViewMode()
 }
 
 function handleSearchSubmit() {
@@ -222,18 +236,6 @@ function handleMapUpdate(payload: { latitude: number; longitude: number; maxDist
   })
 }
 
-const totalPagesRange = computed(() => {
-  if (
-    searchResponse.value &&
-    searchResponse.value.result &&
-    searchResponse.value.result.page.totalPages
-  ) {
-    const total = searchResponse.value.result.page.totalPages
-    return Array.from({ length: total }, (_, i) => i + 1)
-  }
-  return []
-})
-
 function handlePageClick(newPage: number) {
   router.push({
     query: {
@@ -279,13 +281,15 @@ onMounted(async () => {
         </div>
 
         <button class="show-on-map" @click="showMap">
-          {{ t('search.showOnMap') }}
+          {{ isMapView ? t('search.showGrid') : t('search.showOnMap') }}
         </button>
+
+        <button class="open-filters-button" @click="toggleFilters">Filter</button>
       </div>
     </header>
 
     <div class="search-main">
-      <aside class="search-filters">
+      <aside :class="isFiltersOpen ? 'filters-open' : ''" class="search-filters">
         <div class="category-section">
           <h3 class="filter-title">{{ t('search.categories') }}</h3>
           <div
@@ -310,15 +314,14 @@ onMounted(async () => {
 
         <div class="map-section">
           <h3 class="filter-title">{{ t('search.mapFilter') }}</h3>
-          <!-- Map Filter Toggle -->
+          <MapFilter
+            :location="{ latitude: 63.44, longitude: 10.399 }"
+            @update:locationFilter="handleMapUpdate"
+          />
           <div class="map-toggle">
             <input id="useMapFilter" v-model="mapFilterEnabled" type="checkbox" />
             <label for="useMapFilter">{{ t('search.useMapFilter') }}</label>
           </div>
-          <Map
-            :location="{ latitude: 63.44, longitude: 10.399 }"
-            @update:locationFilter="handleMapUpdate"
-          />
         </div>
 
         <div v-if="!isLoading" class="location-filters">
@@ -351,39 +354,20 @@ onMounted(async () => {
       <section class="search-results">
         <div v-if="isLoading" class="loading-spinner">{{ t('search.loading') }}...</div>
         <div v-else>
-          <div class="search-count">
-            {{ searchResponse.result.page.totalElements }} {{ t('search.results') }}
-            {{ searchQuery.length !== 0 ? t('search.for') : '' }} {{ searchQuery }}
+          <div v-if="!isMapView">
+            <SearchResultsContent
+              :currentPage="currentPage"
+              :isLoading="isLoading"
+              :searchQuery="searchQuery"
+              :searchResponse="searchResponse"
+              @pageChange="handlePageClick"
+            />
           </div>
-          <div class="results-grid">
-            <Product v-for="item in searchResponse.result.content" :key="item.id" :product="item" />
-          </div>
-          <div v-if="totalPagesRange.length > 1" class="pagination">
-            <button
-              :disabled="currentPage === 1"
-              class="pagination-button"
-              @click="handlePageClick(currentPage - 1)"
-            >
-              Prev
-            </button>
-
-            <button
-              v-for="page in totalPagesRange"
-              :key="page"
-              :class="{ active: page === currentPage }"
-              class="pagination-button"
-              @click="handlePageClick(page)"
-            >
-              {{ page }}
-            </button>
-
-            <button
-              :disabled="currentPage === searchResponse.result.page.totalPages"
-              class="pagination-button"
-              @click="handlePageClick(currentPage + 1)"
-            >
-              Next
-            </button>
+          <div v-else>
+            <Map
+              :items="searchResponse.result.content"
+              :location="{ latitude: 63.44, longitude: 10.399 }"
+            />
           </div>
         </div>
       </section>
@@ -414,7 +398,6 @@ onMounted(async () => {
 .search-form {
   display: flex;
   flex: 1;
-  min-width: 200px;
 }
 .search-bar {
   flex-grow: 1;
@@ -441,6 +424,7 @@ onMounted(async () => {
 .sort-dropdown {
   display: flex;
   align-items: center;
+  min-width: fit-content;
 }
 .sort-dropdown label {
   margin-right: 0.5rem;
@@ -467,6 +451,20 @@ onMounted(async () => {
   transition: background-color 0.2s ease;
 }
 .show-on-map:hover {
+  background-color: #f0f8ff;
+}
+
+.open-filters-button {
+  display: none;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid #007bff;
+  color: #007bff;
+  background-color: transparent;
+}
+.open-filters-button:hover {
   background-color: #f0f8ff;
 }
 
@@ -507,66 +505,24 @@ onMounted(async () => {
   color: #333;
   background-color: #d0eaff;
 }
-.vipps-section {
-  padding: 0 0.5rem;
-  display: flex;
-  gap: 10px;
-}
-.search-results {
-  flex: 1;
-  padding: 0.5rem 1rem;
-  background-color: #fff;
-}
-.results-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-.search-count {
-  font-size: 1.1rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-.loading-spinner {
-  text-align: center;
-  padding: 2rem;
-}
-
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
+.map-section {
   margin-top: 1rem;
 }
-.pagination-button {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+.map-toggle {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
 }
-.pagination-button:hover:not(:disabled) {
-  background-color: #f0f8ff;
+.map-toggle input[type='checkbox'] {
+  margin-right: 0.5rem;
 }
-.pagination-button.active {
-  background-color: #007bff;
-  color: #fff;
-  border-color: #007bff;
-}
-.pagination-button:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
 .location-filters {
-  margin-top: 4rem;
+  margin-top: 1rem;
 }
 .filter-title {
   font-size: 1rem;
   font-weight: bold;
+  margin-bottom: 0.5rem;
 }
 .county-list {
   display: flex;
@@ -591,38 +547,30 @@ onMounted(async () => {
   background-color: #d0eaff;
   color: #333;
 }
-
-.map-section {
-  height: 300px;
-  width: 100%;
-}
-.map-container {
-  width: 100%;
-  height: 300px;
-  border-radius: 6px;
-}
-
-.map-toggle {
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-}
-.map-toggle input[type='checkbox'] {
-  margin-right: 0.5rem;
+.search-results {
+  flex: 1;
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  background-color: #fff;
 }
 
 @media (max-width: 768px) {
   .search-main {
     flex-direction: column;
   }
+
   .search-filters {
     width: 100%;
     max-width: 100%;
     border-right: none;
     border-bottom: 1px solid #ddd;
+    display: none;
   }
-  .results-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  .search-filters.filters-open {
+    display: flex;
+  }
+
+  .open-filters-button {
+    display: block;
   }
 }
 </style>

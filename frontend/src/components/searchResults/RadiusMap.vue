@@ -2,7 +2,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import mapboxgl from 'mapbox-gl'
 import * as turf from '@turf/turf'
-import type { Location } from '@/service/itemService'
+import type { Location } from '@/service/itemService.ts'
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN
 
@@ -127,7 +127,6 @@ onUnmounted(() => {
 .map-container {
   position: relative;
   width: 100%;
-  max-width: 400px;
   border-radius: 12px;
 }
 .map-container-inner {

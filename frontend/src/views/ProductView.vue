@@ -6,15 +6,15 @@
   <div v-else-if="product" class="product-container">
     <div class="left-column">
       <div class="main-image">
-        <img :src="selectedImage" :alt="$t('productView.altMainImage')" />
+        <img :alt="$t('productView.altMainImage')" :src="selectedImage" />
       </div>
       <div v-if="productImages.length > 1" class="thumbnails">
         <img
           v-for="(img, index) in productImages"
           :key="index"
+          :alt="$t('productView.altThumbnail')"
           :class="{ active: selectedImage === img }"
           :src="img"
-          :alt="$t('productView.altThumbnail')"
           @click="selectedImage = img"
         />
       </div>
@@ -27,7 +27,7 @@
       <h1 class="product-title">{{ product.title }}</h1>
       <div class="product-price">{{ product.price }}{{ $t('productView.currencySuffix') }}</div>
 
-      <button class="buy-button" :disabled="!product.allowVippsBuy">
+      <button :disabled="!product.allowVippsBuy" class="buy-button">
         {{
           product.allowVippsBuy ? $t('productView.buyNowVipps') : $t('productView.buyNotAvailable')
         }}
@@ -52,14 +52,14 @@
       </div>
 
       <div class="map-section">
-        <Map :location="product.location" />
+        <Map :items="[product]" :location="product.location" />
       </div>
     </div>
   </div>
   <div v-else class="not-found">{{ $t('productView.notFound') }}</div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import Map from '@/components/Map.vue'
