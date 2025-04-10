@@ -68,10 +68,11 @@ class ConversationService(
     fun sendMessage(request: SendMessageRequest): NewMessageResponse {
         val senderId = userContextService.getCurrentUserId()
         val item = itemService.getItemById(request.itemId)
+        val itemBuyer = senderId
         val itemOwnerId = item.sellerId
 
         val existingConversation = conversationRepository.findConversationByParticipants(
-            senderId, itemOwnerId, request.itemId)
+            itemBuyer, itemOwnerId, request.itemId)
 
         if (existingConversation == null) {
             return createConversation(request)
