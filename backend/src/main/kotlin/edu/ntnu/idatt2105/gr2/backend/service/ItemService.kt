@@ -110,7 +110,7 @@ class ItemService(
         }
 
         val boughtItems = itemRepository.findAllBought(userId).map { it.toCard().copy(status = "bought") }
-        val reservedItems = itemRepository.findAllReserved(userId).map {  it.toCard() }
+        val reservedItems = itemRepository.findAllReserved(userId).map {  it.toCard().copy(status = "reserved_by_user") }
 
         return items.plus(boughtItems).plus(reservedItems)
     }
@@ -158,7 +158,8 @@ class ItemService(
             image = primaryImageId?.let { imageService.getImageById(primaryImageId)},
             location = location,
             status = status.toString(),
-            updatedAt = updatedAt
+            updatedAt = updatedAt,
+            allowVippsBuy = allowVippsBuy
         )
     }
 

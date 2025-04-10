@@ -28,9 +28,9 @@ const selectedStatus = ref<ItemStatus>('active')
 const statusMatches = (item: ItemCard, status: ItemStatus) => {
   switch (status) {
     case 'active':
-      return item.status === 'available'
+      return item.status === 'available' || item.status === 'reserved'
     case 'reserved':
-      return item.status === 'reserved'
+      return item.status === 'reserved_by_user'
     case 'sold':
       return item.status === 'sold'
     case 'archived':

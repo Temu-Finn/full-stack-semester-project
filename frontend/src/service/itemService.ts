@@ -19,7 +19,14 @@ const LocationSchema = z.object({
   longitude: z.number(),
 })
 
-const ItemStatusSchema = z.enum(['available', 'reserved', 'sold', 'archived', 'bought'])
+const ItemStatusSchema = z.enum([
+  'available',
+  'reserved',
+  'reserved_by_user',
+  'sold',
+  'archived',
+  'bought',
+])
 
 const ItemCardSchema = z.object({
   id: z.number(),
@@ -30,6 +37,7 @@ const ItemCardSchema = z.object({
   location: LocationSchema.nullish(),
   status: ItemStatusSchema,
   updatedAt: z.string().datetime(),
+  allowVippsBuy: z.boolean(),
 })
 
 const CreateItemRequestSchema = z.object({

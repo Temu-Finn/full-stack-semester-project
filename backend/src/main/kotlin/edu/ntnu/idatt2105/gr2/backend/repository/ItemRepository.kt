@@ -102,7 +102,7 @@ class ItemRepository(private val dataSource: DataSource) {
     fun searchItems(request: SearchRequest, pageable: Pageable): Page<Item> {
         val whereClause = request.whereClause()
         val baseSql = """
-            $baseItemSelect
+            $tablesSql
             WHERE $whereClause
         """.trimIndent()
 
@@ -120,9 +120,7 @@ class ItemRepository(private val dataSource: DataSource) {
         // Query for page content
         val sortClause = pageable.sort.map { "${it.property} ${it.direction}" }.joinToString(", ").ifBlank { "i.updated_at DESC" }
         val contentSql = """
-            SELECT id, seller_id, category_id, i.postal_code, title, description, price, purchase_price, buyer_id, 
-                   ST_X(location) AS longitude, ST_Y(location) AS latitude, allow_vipps_buy, primary_image_id, 
-                   status, created_at, updated_at, municipality
+            $selectSql
             $baseSql
             ORDER BY $sortClause
             LIMIT ? OFFSET ? 
@@ -145,9 +143,7 @@ class ItemRepository(private val dataSource: DataSource) {
 
     fun findFavoriteByUserId(userId: Int): List<Item> {
         val sql = """
-        SELECT i.id, i.seller_id, i.category_id, i.postal_code, i.title, i.description, i.price, 
-               i.purchase_price, i.buyer_id, ST_X(i.location) AS longitude, ST_Y(i.location) AS latitude,
-               i.allow_vipps_buy, i.primary_image_id, i.status, i.created_at, i.updated_at, pc.municipality
+        $selectSql
         FROM favorites f
         JOIN items i ON f.item_id = i.id
         JOIN postal_codes pc ON i.postal_code = pc.postal_code
@@ -170,7 +166,8 @@ class ItemRepository(private val dataSource: DataSource) {
     ): List<Item> {
         val effectiveWhere = if (where.isBlank()) "1=1" else where
         val sql = """
-            $baseItemSelect
+            $selectSql
+            $tablesSql
             WHERE $effectiveWhere
         """.trimIndent()
         return dataSource.connection.use { conn ->
@@ -237,9 +234,10 @@ class ItemRepository(private val dataSource: DataSource) {
         }
     }
 
-    private val baseItemSelect: String = """
-        SELECT i.*, ST_X(location) AS longitude, ST_Y(location) AS latitude, p.*
+    private val tablesSql: String = """
         FROM items i
         JOIN postal_codes pc ON i.postal_code = pc.postal_code
     """.trimIndent()
+
+    private val selectSql = "SELECT i.*, ST_X(location) AS longitude, ST_Y(location) AS latitude, pc.*"
 }
