@@ -27,6 +27,14 @@ function handleDelete(id: number) {
       <p v-if="products.length == 0">{{ $t('home.noItemsFound') }}</p>
     </div>
   </div>
+
+  <Dialog
+    :show="showDialog"
+    :title="dialogTitle"
+    :message="dialogMessage"
+    :showCancel="showCancelButton"
+    :confirmText="confirmText"
+  />
 </template>
 
 <style scoped>

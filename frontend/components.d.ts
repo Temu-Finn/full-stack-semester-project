@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     Categories: typeof import('./src/components/home/Categories.vue')['default']
     DeleteButton: typeof import('./src/components/DeleteButton.vue')['default']
+    Dialog: typeof import('./src/components/Dialog.vue')['default']
     FloatLabel: typeof import('primevue/floatlabel')['default']
     Globe: typeof import('./src/components/Globe.vue')['default']
     HeroSection: typeof import('./src/components/home/HeroSection.vue')['default']
