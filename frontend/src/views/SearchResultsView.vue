@@ -46,16 +46,6 @@ const selectedMunicipalityQuery = computed(() =>
   route.query.municipality ? String(route.query.municipality) : null,
 )
 
-const selectedCountyMunicipalities = computed(() => {
-  if (searchResponse.value && selectedCountyQuery.value) {
-    const countyObj = searchResponse.value.counties.find(
-      (c) => c.name === selectedCountyQuery.value,
-    )
-    return countyObj ? countyObj.municipalities : []
-  }
-  return []
-})
-
 watch(sortQuery, () => {
   selectedSort.value = sortQuery.value
   fetchItems()
