@@ -1,11 +1,11 @@
 package edu.ntnu.idatt2105.gr2.backend.dto
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 data class ConversationCardResponse(
     val id: Int,
     val lastMessage: String?,
-    val lastMessageTime: LocalDateTime?,
+    val lastMessageTime: Instant?,
     val item: ItemCard
 )
 

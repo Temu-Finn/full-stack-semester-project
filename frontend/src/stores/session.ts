@@ -2,11 +2,14 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import api from '@/config/api'
 import router from '@/router'
+import { loginUser, signupUser, type UserResponse } from '@/service/authService'
 
-interface User {
-  id: string
+export interface User {
+  id: number
   email: string
   name: string
+  joinedAt: string
+  admin: boolean
 }
 
 export const useSessionStore = defineStore('session', () => {
@@ -14,31 +17,33 @@ export const useSessionStore = defineStore('session', () => {
   const user = ref<User | null>(JSON.parse(localStorage.getItem('user') ?? 'null'))
 
   const isAuthenticated = computed(() => !!token.value)
+  const isAdmin = computed(() => user.value?.admin ?? false)
 
-  function setToken(newToken: string | null, newUser: User | null = null) {
-    token.value = newToken
-    if (newToken) {
-      localStorage.setItem('token', newToken)
-    } else {
+  function setToken(response: UserResponse | null) {
+    if (response === null) {
       localStorage.removeItem('token')
-    }
-    user.value = newUser
-    if (newUser) {
-      localStorage.setItem('user', JSON.stringify(newUser))
-    } else {
       localStorage.removeItem('user')
+      user.value = null
+      token.value = null
+      return
     }
+
+    token.value = response.token
+    localStorage.setItem('token', response.token)
+    user.value = {
+      id: response.userId,
+      email: response.email,
+      name: response.name,
+      joinedAt: response.joinedAt,
+      admin: response.admin,
+    }
+    localStorage.setItem('user', JSON.stringify(user.value))
   }
 
   async function login(email: string, password: string) {
     try {
-      const response = await api.post(`/auth/login`, { email, password })
-      const userData = {
-        id: response.data.userId,
-        email: response.data.email,
-        name: response.data.name,
-      }
-      setToken(response.data.token, userData)
+      const response = await loginUser(email, password)
+      setToken(response)
       return true
     } catch (error) {
       console.error('Error logging in:', error)
@@ -48,17 +53,8 @@ export const useSessionStore = defineStore('session', () => {
 
   async function signup(email: string, name: string, password: string) {
     try {
-      const response = await api.post(`/auth/signup`, {
-        email,
-        name,
-        password,
-      })
-      const userData = {
-        id: response.data.userId,
-        email: response.data.email,
-        name: response.data.name,
-      }
-      setToken(response.data.token, userData)
+      const response = await signupUser(email, name, password)
+      setToken(response)
       return true
     } catch (error) {
       console.error('Error signing up:', error)
@@ -67,9 +63,9 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   function logout() {
-    setToken(null, null)
-    router.push('/')
+    setToken(null)
+    router.push('/login')
   }
 
-  return { token, isAuthenticated, login, signup, logout, user }
+  return { token, user, isAuthenticated, isAdmin, login, signup, logout }
 })

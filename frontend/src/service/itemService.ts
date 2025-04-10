@@ -19,6 +19,8 @@ const LocationSchema = z.object({
   longitude: z.number(),
 })
 
+const ItemStatusSchema = z.enum(['available', 'reserved', 'sold', 'archived', 'bought'])
+
 const ItemCardSchema = z.object({
   id: z.number(),
   title: z.string(),
@@ -26,8 +28,8 @@ const ItemCardSchema = z.object({
   municipality: z.string(),
   image: ImageSchema.nullish(),
   location: LocationSchema.nullish(),
-  status: z.enum(['available', 'reserved', 'sold', 'archived']),
-  updatedAt: z.string(),
+  status: ItemStatusSchema,
+  updatedAt: z.string().datetime(),
 })
 
 const CreateItemRequestSchema = z.object({
@@ -52,9 +54,9 @@ const CompleteItemSchema = z.object({
   location: LocationSchema.nullable(),
   allowVippsBuy: z.boolean(),
   primaryImageId: z.number().nullable(),
-  status: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  status: ItemStatusSchema,
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
   municipality: z.string(),
   images: z.array(ImageSchema).optional(),
 })
@@ -66,7 +68,7 @@ const RecommendedItemsResponseSchema = z.object({
 const SearchItemParamsSchema = z
   .object({
     searchText: z.string().optional(),
-    categoryId: z.number().int().positive().optional(),
+    categoryId: z.number().int().nonnegative().optional(),
     county: z.string().optional(),
     municipality: z.string().optional(),
     city: z.string().optional(),
@@ -75,11 +77,7 @@ const SearchItemParamsSchema = z
     maxDistanceKm: z.number().min(0).optional(),
     page: z.number().int().min(0).optional(),
     size: z.number().int().positive().optional(),
-    sort: z
-      .string()
-      .regex(/^[a-zA-Z]+,(asc|desc)$/)
-      .array()
-      .optional(),
+    sort: z.string().array().optional(),
   })
   .refine(
     (data) => {
@@ -102,12 +100,12 @@ const PageMetadataSchema = z.object({
 
 const MunicipalitySchema = z.object({
   name: z.string(),
-  count: z.number().int().positive(),
+  count: z.number().int().nonnegative(),
 })
 
 const CountySchema = z.object({
   name: z.string(),
-  count: z.number().int().positive(),
+  count: z.number().int().nonnegative(),
   municipalities: z.array(MunicipalitySchema),
 })
 
@@ -130,6 +128,7 @@ export type SearchItemsResponse = z.infer<typeof SearchItemsResponseSchema>
 export type CreateItemRequest = z.infer<typeof CreateItemRequestSchema>
 export type CompleteItem = z.infer<typeof CompleteItemSchema>
 export type Location = z.infer<typeof LocationSchema>
+export type ItemStatus = z.infer<typeof ItemStatusSchema>
 
 export async function getItem(id: number): Promise<CompleteItem> {
   try {
@@ -259,6 +258,32 @@ export async function createItem(
       throw new Error('Invalid response format from server')
     }
     logger.error('Failed to create item', error)
+    throw error
+  }
+}
+
+/**
+ * Fetches items associated with a specific user.
+ * @param userId - The ID of the user to fetch items for.
+ * @returns Promise containing an array of ItemCard objects.
+ * @throws Error if the API request fails or response validation fails.
+ */
+export async function getItemsOfUser(userId: number): Promise<ItemCard[]> {
+  const response = await api.get(`/item/user/${userId}`)
+  return ItemCardSchema.array().parse(response.data)
+}
+
+/**
+ * Deletes an item by its ID.
+ * @param id - The ID of the item to delete.
+ * @returns Promise that resolves when the item is deleted.
+ * @throws Error if the API request fails.
+ */
+export async function deleteItem(id: number): Promise<void> {
+  try {
+    await api.delete(`/item/${id}`)
+  } catch (error) {
+    logger.error('Failed to delete item', error)
     throw error
   }
 }

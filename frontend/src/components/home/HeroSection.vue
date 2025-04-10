@@ -24,6 +24,7 @@ import Categories from '@/components/home/Categories.vue'
   justify-content: space-evenly;
   padding: 12vh 1rem;
   box-sizing: border-box;
+  gap: 1.5rem;
 }
 
 .title {

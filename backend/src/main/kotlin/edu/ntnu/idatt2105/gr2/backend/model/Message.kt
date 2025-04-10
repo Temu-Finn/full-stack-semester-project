@@ -1,13 +1,13 @@
 package edu.ntnu.idatt2105.gr2.backend.model
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 data class Message (
     val id: Int = -1,
     val conversationId: Int = -1,
     val senderId: Int = -1,
     var content: String = "",
-    var sentAt: LocalDateTime,
+    var sentAt: Instant,
     var isRead: Boolean = false,
 ) {
     init {

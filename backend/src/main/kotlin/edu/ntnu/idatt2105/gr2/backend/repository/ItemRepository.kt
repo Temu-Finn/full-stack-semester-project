@@ -144,6 +144,27 @@ class ItemRepository(private val dataSource: DataSource) {
         return PageImpl(content, pageable, totalCount)
     }
 
+    fun findFavoriteByUserId(userId: Int): List<Item> {
+        val sql = """
+        SELECT i.id, i.seller_id, i.category_id, i.postal_code, i.title, i.description, i.price, 
+               i.purchase_price, i.buyer_id, ST_X(i.location) AS longitude, ST_Y(i.location) AS latitude,
+               i.allow_vipps_buy, i.primary_image_id, i.status, i.created_at, i.updated_at, pc.municipality
+        FROM favorites f
+        JOIN items i ON f.item_id = i.id
+        JOIN postal_codes pc ON i.postal_code = pc.postal_code
+        WHERE f.user_id = ?
+    """.trimIndent()
+
+        return dataSource.connection.use { conn ->
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setInt(1, userId)
+                stmt.executeQuery().use { rs ->
+                    buildList { while (rs.next()) add(mapRowToItem(rs)) }
+                }
+            }
+        }
+    }
+
     private fun queryItemsWhere(
         where: String,
         setParams: (java.sql.PreparedStatement) -> Unit = {}
@@ -182,8 +203,8 @@ class ItemRepository(private val dataSource: DataSource) {
             allowVippsBuy = rs.getBoolean("allow_vipps_buy"),
             primaryImageId = rs.getIntOrNull("primary_image_id"),
             status = rs.getItemStatus(),
-            createdAt = rs.getTimestamp("created_at").toLocalDateTime(),
-            updatedAt = rs.getTimestamp("updated_at").toLocalDateTime(),
+            createdAt = rs.getTimestamp("created_at").toInstant(),
+            updatedAt = rs.getTimestamp("updated_at").toInstant(),
             municipality = rs.getString("municipality"),
         )
     }
@@ -198,5 +219,9 @@ class ItemRepository(private val dataSource: DataSource) {
                 stmt.executeUpdate()
             }
         }
+    }
+
+    fun findAllBought(userId: Int): List<Item> {
+        return queryItemsWhere("buyer_id = ?") { it.setInt(1, userId) }
     }
 }

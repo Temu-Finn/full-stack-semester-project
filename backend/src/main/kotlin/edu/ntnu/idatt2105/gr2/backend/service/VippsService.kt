@@ -84,7 +84,7 @@ class VippsService {
                 "value" to price * 100
             ),
             "reference" to reference,
-            "returnUrl" to "https://vg.no",
+            "returnUrl" to "http://localhost:5173/vipps/processing?ref=$reference",
             "userFlow" to "WEB_REDIRECT",
             "paymentMethod" to mapOf(
                 "type" to "WALLET"
