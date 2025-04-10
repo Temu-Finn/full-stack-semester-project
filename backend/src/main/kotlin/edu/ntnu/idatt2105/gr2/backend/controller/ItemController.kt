@@ -158,4 +158,19 @@ class ItemController (
         logger.info("Item with ID $id deleted")
         return ResponseEntity.noContent().build()
     }
+
+    @GetMapping("/favorites")
+    @Operation(summary = "Get favorite items", description = "Retrieves all favorited items for the current user")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Favorites retrieved"),
+            ApiResponse(responseCode = "401", description = "Unauthorized")
+        ]
+    )
+    fun getFavoriteItems(): ResponseEntity<List<ItemCard>> {
+        logger.info("Request to get current user's favorite items")
+        val favorites = itemService.getFavoriteItemsOfCurrentUser()
+        return ResponseEntity.ok(favorites)
+    }
+
 }
