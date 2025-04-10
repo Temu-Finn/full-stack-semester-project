@@ -18,13 +18,32 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+/**
+ * Controller for setting up authentication-related endpoints receiving requests from client.
+ * Controller includes user registration and login.
+ *
+ * @constructor                   Creates a new instance of AuthenticationController.
+ * @param authenticationService   The service for handling authentication-related operations.
+ */
+
 @RestController
 @RequestMapping("/api/auth")
 @Tag(name = "Authentication", description = "Authentication management APIs")
 class AuthenticationController(
     private val authenticationService: AuthenticationService,
 ) {
+
     private val logger = LoggerFactory.getLogger(AuthenticationController::class.java)
+
+    /**
+     * Handles user registration requests from client. It delegates the request to the
+     * service layer and returns created user details and user JWT token to the client
+     * from service layer,  as well as a status code.
+     *
+     * @param request     CreateUserRequest                The user registration details.
+     * @return            ResponseEntity UserResponse      contains the created user
+     *                                                     details and a status code.
+     */
 
     @PostMapping("/signup")
     @Operation(
@@ -50,6 +69,15 @@ class AuthenticationController(
         return ResponseEntity.status(HttpStatus.CREATED).body(user)
     }
 
+    /**
+     * Handles login requests from client and delegates the request to the service layer.
+     * It returns the user details and a JWT token to the client, as well as a status code.
+     *
+     * @param request       LoginRequest                    The user login credentials.
+     * @return              ResponseEntity UserResponse     containing the user details and
+     *                                                      a status code.
+     */
+
     @PostMapping("/login")
     @Operation(
         summary = "Authenticate user",
@@ -59,7 +87,7 @@ class AuthenticationController(
         value = [
             ApiResponse(responseCode = "200", description = "Successfully authenticated"),
             ApiResponse(responseCode = "400", description = "Invalid input data"),
-            ApiResponse(responseCode = "401", description = "Invalid credentials")
+            ApiResponse(responseCode = "40|1", description = "Invalid credentials")
         ]
     )
     fun login(
