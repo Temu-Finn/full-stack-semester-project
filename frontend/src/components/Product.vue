@@ -8,7 +8,7 @@
         'status-bought': product.status === 'bought',
         'status-archived': product.status === 'archived',
       }"
-      :to="`/product/${product.id}`"
+      :href="`/product/${product.id}`"
     >
       <div class="image-container">
         <img
