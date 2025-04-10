@@ -113,7 +113,7 @@
     "logout": "Logg ut",
     "joinedOn": "Ble med",
     "active": "Til salgs",
-    "reserved": "Reservert",
+    "reserved": "Reservert av deg",
     "sold": "Solgt",
     "archived": "Arkivert",
     "bought": "Kjøpt"
@@ -132,14 +132,17 @@
     "noImages": "Ingen bilder tilgjengelig.",
     "currencySuffix": " kr",
     "sendMessage": "Send melding",
-    "buyNowVipps": "Kjøp nå (Vipps)",
+    "buyNowVipps": "Kjøp nå",
+    "reserveItem": "Reserver",
     "statusLabel": "Status:",
     "locationLabel": "Sted:",
     "categoryLabel": "Kategori:",
     "descriptionLabel": "Beskrivelse:",
     "notFound": "Produkt ikke funnet.",
     "errorInvalidId": "Ugyldig produkt-ID.",
-    "errorFetchFailed": "Kunne ikke laste produktdetaljer. Vennligst prøv igjen senere."
+    "errorFetchFailed": "Kunne ikke laste produktdetaljer. Vennligst prøv igjen senere.",
+    "reservedByUser": "Reservert av deg",
+    "reservedByOtherUser": "Reservert av andre"
   },
   "createListing": {
     "title": "Opprett ny annonse",
@@ -205,5 +208,29 @@
     "deleteProductTitle": "Slett produkt",
     "errorTitle": "Feil",
     "genericError": "En uventet feil oppstod."
+  },
+  "vipps": {
+    "processingTitle": "Behandler Vipps-salget",
+    "pleaseWait": "Vennligst vent mens vi bekrefter betalingen...",
+    "success": "Betaling godkjent!",
+    "failed": "Betalingen feilet. Prøv igjen senere.",
+    "referenceNotFound": "Fant ikke betalingsreferanse.",
+    "goBackToItem": "Tilbake til produktet",
+    "leave": "Forlat"
+  },
+  "receipt": {
+    "title": "Salg godkjent!",
+    "product": "Produkt",
+    "price": "Pris",
+    "status": "Status",
+    "loading": "Laster kvittering..."
+  }, 
+  "product": {
+    "status": {
+      "sold": "Solgt",
+      "bought": "Kjøpt",
+      "reserved": "Reservert",
+      "archived": "Arkivert"
+    }
   }
 }

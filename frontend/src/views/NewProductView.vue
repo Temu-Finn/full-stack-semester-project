@@ -57,6 +57,12 @@
         type="text"
       />
 
+      <div class="form-group">
+        <label>{{ $t('newProduct.location') }}</label>
+        <NewProductMap @update:location="(loc) => (product.location = loc)" />
+        <p v-if="errors.location" class="error-message">{{ errors.location }}</p>
+      </div>
+
       <ImageUploader
         v-model:image-files="product.imageFiles"
         v-model:image-urls="product.imageUrls"
@@ -92,6 +98,7 @@ import BaseTextarea from '@/components/BaseTextarea.vue'
 import BaseSelect from '@/components/BaseSelect.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import ImageUploader from '@/components/newProduct/ImageUploader.vue'
+import NewProductMap from '@/components/newProduct/NewProductMap.vue'
 
 interface Product {
   categoryId: number | null
@@ -102,6 +109,7 @@ interface Product {
   allowVippsBuy: boolean
   imageFiles: File[]
   imageUrls: string[]
+  location?: { latitude: number; longitude: number }
 }
 
 interface FormErrors {
@@ -110,6 +118,7 @@ interface FormErrors {
   description: string
   price: string
   postalCode: string
+  location: string
 }
 
 interface Category {
@@ -142,6 +151,7 @@ const errors = ref<FormErrors>({
   description: '',
   price: '',
   postalCode: '',
+  location: '',
 })
 
 onMounted(async () => {
@@ -165,6 +175,7 @@ const validateForm = (): boolean => {
     description: '',
     price: '',
     postalCode: '',
+    location: '',
   }
 
   let isValid = true
@@ -196,6 +207,15 @@ const validateForm = (): boolean => {
     isValid = false
   }
 
+  if (
+    !product.value.location ||
+    typeof product.value.location.latitude !== 'number' ||
+    typeof product.value.location.longitude !== 'number'
+  ) {
+    errors.value.location = t('validation.required', { field: t('newProduct.location') })
+    isValid = false
+  }
+
   return isValid
 }
 
@@ -218,6 +238,7 @@ const handleSubmit = async () => {
       description: product.value.description,
       price: product.value.price as number,
       allowVippsBuy: product.value.allowVippsBuy,
+      location: product.value.location,
     }
 
     const images = product.value.imageFiles
