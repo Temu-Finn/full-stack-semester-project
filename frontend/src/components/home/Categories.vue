@@ -59,7 +59,7 @@ async function handleAddCategory() {
     const newCategory = await createCategory(category)
     categories.value.push(newCategory)
   } catch (error) {
-    alert('Failed to create category. Please try again.')
+    alert('Category name must be unique')
   }
 }
 </script>
