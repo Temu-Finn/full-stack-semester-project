@@ -11,7 +11,7 @@
       <span v-if="$slots.icon" class="icon-wrapper">
         <slot name="icon"></slot>
       </span>
-      <slot></slot>
+      <p><slot></slot></p>
     </span>
   </button>
 </template>
@@ -46,38 +46,36 @@ const buttonStyle = computed(() => ({
 <style scoped>
 .base-button {
   width: 100%;
-  padding: 10px 16px; /* Reduced padding */
+  padding: 10px 16px;
   color: var(--button-text-color);
   background-color: var(--button-background-color);
   border: none;
-  border-radius: 6px; /* Slightly smaller radius */
-  font-size: 0.95rem; /* Slightly smaller font */
-  font-weight: bold; /* Adjusted weight */
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: bold;
   cursor: pointer;
   transition:
     background-color 0.2s ease,
     transform 0.1s ease,
     opacity 0.2s ease,
-    box-shadow 0.15s ease; /* Added box-shadow transition */
+    box-shadow 0.15s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px; /* Reduced height */
+  min-height: 44px;
   text-align: center;
-  line-height: 1.5; /* Ensure text aligns well */
-  position: relative; /* For potential pseudo-elements */
-  overflow: hidden; /* Hide potential overflow */
+  line-height: 1.5;
+  position: relative;
+  overflow: hidden;
 }
 
 .base-button:hover:not(:disabled) {
-  /* Slightly darken the background on hover */
   filter: brightness(90%);
   transform: translateY(-1px);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
 .base-button:active:not(:disabled) {
-  /* Darken more and simulate press */
   filter: brightness(80%);
   transform: translateY(0px);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -94,15 +92,14 @@ const buttonStyle = computed(() => ({
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px; /* Space between icon and text */
+  gap: 0;
 }
 
 .icon-wrapper {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* Adjust size potentially based on props or icon content */
-  height: 1.8em; /* Match roughly line height */
+  height: 1.8em;
 }
 
 .icon-wrapper :deep(svg),
@@ -115,8 +112,8 @@ const buttonStyle = computed(() => ({
 .spinner {
   border: 3px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  border-top-color: var(--button-text-color); /* Use button text color */
-  width: 18px; /* Slightly smaller spinner */
+  border-top-color: var(--button-text-color);
+  width: 18px;
   height: 18px;
   animation: spin 1s linear infinite;
 }
@@ -125,5 +122,9 @@ const buttonStyle = computed(() => ({
   to {
     transform: rotate(360deg);
   }
+}
+
+.base-button p {
+  font-weight: 600;
 }
 </style>
