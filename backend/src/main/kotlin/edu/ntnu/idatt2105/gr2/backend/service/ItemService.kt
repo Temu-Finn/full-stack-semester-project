@@ -113,6 +113,12 @@ class ItemService(
         return items.plus(boughtItems)
     }
 
+    fun getFavoriteItemsOfCurrentUser(): List<ItemCard> {
+        val userId = userContextService.getCurrentUserId()
+        logger.info("Fetching favourite items for user ID: $userId")
+        return itemRepository.findFavoriteByUserId(userId).map { it.toCard() }
+    }
+
     fun Item.toResponse(): CompleteItem {
         return CompleteItem(
             id = id,
