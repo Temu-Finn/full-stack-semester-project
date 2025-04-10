@@ -75,11 +75,8 @@ class ItemRepository(private val dataSource: DataSource) {
 
     fun findRecommendedItems(): List<Item> {
         val sql = """
-            SELECT id, seller_id, category_id, i.postal_code, title, description, price, purchase_price, buyer_id, 
-                   ST_X(location) AS longitude, ST_Y(location) AS latitude, allow_vipps_buy, primary_image_id, 
-                   status, created_at, updated_at, municipality
-            FROM items i
-            JOIN postal_codes pc ON i.postal_code = pc.postal_code
+            $selectSql
+            $tablesSql
             WHERE i.status = ?
             ORDER BY RAND()
             LIMIT 10

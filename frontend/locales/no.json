@@ -113,7 +113,7 @@
     "logout": "Logg ut",
     "joinedOn": "Ble med",
     "active": "Til salgs",
-    "reserved": "Reservert",
+    "reserved": "Reservert av deg",
     "sold": "Solgt",
     "archived": "Arkivert",
     "bought": "Kjøpt"
@@ -205,5 +205,14 @@
     "deleteProductTitle": "Slett produkt",
     "errorTitle": "Feil",
     "genericError": "En uventet feil oppstod."
+  },
+  "product": {
+    "status": {
+      "sold": "Solgt",
+      "bought": "Kjøpt",
+      "reserved": "Reservert",
+      "archived": "Arkivert"
+    },
+    "vippsBuyAvailable": "Vipps-kjøp tilgjengelig"
   }
 }

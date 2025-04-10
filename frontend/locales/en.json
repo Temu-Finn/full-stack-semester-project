@@ -113,7 +113,7 @@
     "language": "Language",
     "joinedOn": "Joined on",
     "active": "For sale",
-    "reserved": "Reserved",
+    "reserved": "Reserved by you",
     "sold": "Sold",
     "archived": "Archived",
     "bought": "Bought",
@@ -206,5 +206,14 @@
     "deleteProductTitle": "Delete Product",
     "errorTitle": "Error",
     "genericError": "An unexpected error occurred."
+  },
+  "product": {
+    "status": {
+      "sold": "Sold",
+      "bought": "Bought",
+      "reserved": "Reserved",
+      "archived": "Archived"
+    },
+    "vippsBuyAvailable": "Vipps purchase available"
   }
 }
