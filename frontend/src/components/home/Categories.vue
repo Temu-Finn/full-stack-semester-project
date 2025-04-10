@@ -12,7 +12,7 @@
           class="delete-button"
         />
       </div>
-      <div class="add-category-container category-card">
+      <div class="add-category category-card">
         <span class="category-icon">+</span>
         <span class="category-name">Add Category</span>
       </div>
@@ -114,5 +114,15 @@ async function handleDelete(id: number) {
 
 .category-card-container {
   position: relative;
+}
+
+.add-category {
+  color: #777;
+  border: 2px dashed #e0e0e0;
+}
+
+.add-category:hover {
+  color: #027bff;
+  border-color: #71b5ff;
 }
 </style>
