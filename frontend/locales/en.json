@@ -43,7 +43,11 @@
     "allMunicipalities": "All municipalities",
     "applyFilters": "Apply filters",
     "minPrice": "Min price",
-    "maxPrice": "Max price"
+    "maxPrice": "Max price",
+    "categories": "Categories",
+    "mapFilter": "Map filter",
+    "location": "Location",
+    "useMapFilter": "Use map filter"
   },
   "newProduct": {
     "title": "Create New Product",

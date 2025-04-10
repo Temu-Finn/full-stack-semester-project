@@ -43,7 +43,11 @@
     "allMunicipalities": "Alle kommuner",
     "applyFilters": "Bruk filtre",
     "minPrice": "Min pris",
-    "maxPrice": "Maks pris"
+    "maxPrice": "Maks pris",
+    "categories": "Kategorier",
+    "mapFilter": "Kartfilter",
+    "location": "Område",
+    "useMapFilter": "Bruk kartfilter"
   },
   "newProduct": {
     "title": "Legg ut nytt produkt",
