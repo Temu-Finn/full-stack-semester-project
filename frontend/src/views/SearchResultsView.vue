@@ -2,8 +2,9 @@
 /**
  * SearchResults.vue
  *
- * This component fetches items for a given query, selected category, and sort order,
- * displays them in a grid, and includes a side filter menu plus a top bar with controls.
+ * This component fetches items for a given query, selected category, sort order,
+ * and location (county/municipality). It displays them in a grid and includes a
+ * side filter menu plus a top bar with controls.
  */
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -25,8 +26,10 @@ const selectedCategory = computed(() =>
   route.query.category ? String(route.query.category) : null,
 )
 
+// For the search form's local binding
 const localSearch = ref(searchQuery.value)
 
+// Sort options
 const sortOptions = [
   { value: 'price,asc', label: t('search.priceAsc') },
   { value: 'price,desc', label: t('search.priceDesc') },
@@ -38,10 +41,11 @@ const sortOptions = [
 const sortQuery = computed(() => route.query.sort ?? sortOptions[0].value)
 const selectedSort = ref(sortQuery.value)
 
-const currentPage = computed(() => (route.query.page ? Number(route.query.page) : 1))
-watch(currentPage, () => {
-  fetchItems()
-})
+const selectedCountyQuery = computed(() => (route.query.county ? String(route.query.county) : null))
+const selectedMunicipalityQuery = computed(() =>
+  route.query.municipality ? String(route.query.municipality) : null,
+)
+
 watch(sortQuery, () => {
   selectedSort.value = sortQuery.value
   fetchItems()
@@ -53,17 +57,30 @@ watch(searchQuery, () => {
 watch(selectedCategory, () => {
   fetchItems()
 })
+watch(selectedCountyQuery, () => {
+  fetchItems()
+})
+watch(selectedMunicipalityQuery, () => {
+  fetchItems()
+})
+
+const currentPage = computed(() => (route.query.page ? Number(route.query.page) : 1))
+watch(currentPage, () => {
+  fetchItems()
+})
 
 async function fetchItems() {
   isLoading.value = true
   try {
-    console.log('Selected sort:' + selectedSort.value)
+    console.log('Selected sort: ' + selectedSort.value)
     searchResponse.value = await searchItems({
       searchText: searchQuery.value,
       categoryId: selectedCategory.value ? Number(selectedCategory.value) : undefined,
       sort: [selectedSort.value],
       page: currentPage.value - 1,
       size: 9,
+      county: selectedCountyQuery.value ? selectedCountyQuery.value : undefined,
+      municipality: selectedMunicipalityQuery.value ? selectedMunicipalityQuery.value : undefined,
     })
     console.log('Total elements: ' + searchResponse.value.result.page.totalElements)
   } catch (error) {
@@ -106,6 +123,7 @@ function handleCategoryClick(categoryId: number | string) {
     },
   })
 }
+
 function clearCategory() {
   router.push({
     query: {
@@ -113,6 +131,44 @@ function clearCategory() {
       category: null,
     },
   })
+}
+
+function toggleCounty(countyName: string) {
+  if (selectedCountyQuery.value === countyName) {
+    router.push({
+      query: {
+        ...route.query,
+        county: undefined,
+        municipality: undefined,
+      },
+    })
+  } else {
+    router.push({
+      query: {
+        ...route.query,
+        county: countyName,
+        municipality: undefined,
+      },
+    })
+  }
+}
+
+function toggleMunicipality(municipalityName: string) {
+  if (selectedMunicipalityQuery.value === municipalityName) {
+    router.push({
+      query: {
+        ...route.query,
+        municipality: undefined,
+      },
+    })
+  } else {
+    router.push({
+      query: {
+        ...route.query,
+        municipality: municipalityName,
+      },
+    })
+  }
 }
 
 const totalPagesRange = computed(() => {
@@ -189,14 +245,14 @@ onMounted(async () => {
             <span class="category-name">All</span>
           </div>
           <div
-            v-for="category in categories"
-            :key="category.id"
-            :class="{ selected: selectedCategory === String(category.id) }"
+            v-for="cat in categories"
+            :key="cat.id"
+            :class="{ selected: selectedCategory === String(cat.id) }"
             class="category-card"
-            @click.prevent="handleCategoryClick(category.id)"
+            @click.prevent="handleCategoryClick(cat.id)"
           >
-            <span class="category-icon">{{ category.icon }}</span>
-            <span class="category-name">{{ category.name }}</span>
+            <span class="category-icon">{{ cat.icon }}</span>
+            <span class="category-name">{{ cat.name }}</span>
           </div>
         </div>
 
@@ -212,6 +268,32 @@ onMounted(async () => {
         <div class="map-section">
           <Map :location="{ latitude: 63.44, longitude: 10.399 }" />
         </div>
+
+        <div v-if="!isLoading" class="location-filters">
+          <h3 class="location-title">{{ t('search.location') }}</h3>
+          <div class="county-list">
+            <div v-for="county in searchResponse.counties" :key="county.name">
+              <div
+                :class="{ selected: selectedCountyQuery === county.name }"
+                class="county-item"
+                @click.prevent="toggleCounty(county.name)"
+              >
+                {{ county.name }} ({{ county.count }})
+              </div>
+              <div v-if="selectedCountyQuery === county.name" class="municipality-list">
+                <div
+                  v-for="municipality in county.municipalities"
+                  :key="municipality.name"
+                  :class="{ selected: selectedMunicipalityQuery === municipality.name }"
+                  class="municipality-item"
+                  @click.prevent="toggleMunicipality(municipality.name)"
+                >
+                  {{ municipality.name }} ({{ municipality.count }})
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </aside>
 
       <section class="search-results">
@@ -219,7 +301,7 @@ onMounted(async () => {
         <div v-else>
           <div class="search-count">
             {{ searchResponse.result.page.totalElements }} {{ t('search.results') }}
-            {{ searchQuery.length != 0 ? t('search.for') : '' }} {{ searchQuery }}
+            {{ searchQuery.length !== 0 ? t('search.for') : '' }} {{ searchQuery }}
           </div>
           <div class="results-grid">
             <Product v-for="item in searchResponse.result.content" :key="item.id" :product="item" />
@@ -425,6 +507,38 @@ onMounted(async () => {
 .pagination-button:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+.location-filters {
+  margin-top: 1rem;
+}
+.location-title {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+.county-list {
+  display: flex;
+  flex-direction: column;
+}
+.county-item,
+.municipality-item {
+  padding: 0.3rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.municipality-list {
+  padding-left: 1rem;
+}
+.county-item:hover,
+.municipality-item:hover {
+  background-color: #f0f8ff;
+}
+.county-item.selected,
+.municipality-item.selected {
+  background-color: #d0eaff;
+  color: #333;
 }
 
 .map-section {
