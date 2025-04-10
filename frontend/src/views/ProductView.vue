@@ -33,14 +33,14 @@
         }}
       </button>
 
-      <!-- Only visible if vipps is avaliable-->
       <button
-      v-if="product.allowVippsBuy"
-      class="vipps-button"
-      @click="startVippsPayment"
-      >
-        🧡 {{ $t('productView.payWithVipps') }}
+        class="buy-button"
+        @click="startVipps"
+        :disabled="!product.allowVippsBuy"
+        >
+          {{ product.allowVippsBuy ? t('productView.buyNowVipps') : t('productView.buyNotAvailable') }}
       </button>
+
 
       <div class="product-details">
         <p>
@@ -123,19 +123,25 @@ onMounted(async () => {
   }
 })
 
-import { startVippsPayment as startVippsPaymentApi } from '@/service/vippsService'
+import { startVippsPayment } from '@/service/vippsService'
+import { useRouter } from 'vue-router'
 
-const startVippsPayment = async () => {
+const router = useRouter()
+const startVipps = async () => {
   if (!product.value) return
 
   try {
-    const { redirectUrl, reference } = await startVippsPaymentApi(product.value.price)
-    console.log('Vipps reference:', reference)
+    localStorage.setItem('vippsPurchasedItemId', String(product.value.id))
+
+    const { redirectUrl } = await startVippsPayment(product.value.price)
+
     window.location.href = redirectUrl
-  } catch (error) {
-    console.error('Could not start Vipps payment:', error)
+  } catch (err) {
+    console.error('Could not start Vipps payment', err)
+    alert(t('productView.paymentInitFailed'))
   }
 }
+
 
 </script>
 

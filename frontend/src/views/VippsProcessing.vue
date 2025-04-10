@@ -1,15 +1,19 @@
 <template>
     <div class="processing-container">
       <h2>{{ t('vipps.processingTitle') }}</h2>
+  
       <p v-if="status === 'pending'">{{ t('vipps.pleaseWait') }}</p>
       <div v-if="status === 'pending'" class="spinner" />
-      <div v-else-if="status === 'approved'" class="approved">
+  
+      <div v-else-if="status === 'approved'" class="status-message approved">
         {{ t('vipps.success') }}
       </div>
-      <div v-else-if="status === 'failed'" class="failed">
+  
+      <div v-else-if="status === 'failed'" class="status-message failed">
         {{ t('vipps.failed') }}
       </div>
-      <div v-else-if="status === 'notfound'" class="failed">
+  
+      <div v-else-if="status === 'notfound'" class="status-message failed">
         {{ t('vipps.referenceNotFound') }}
       </div>
     </div>
@@ -21,36 +25,57 @@
   import { useI18n } from 'vue-i18n'
   import { checkVippsStatus } from '@/service/vippsService'
   
-  const status = ref<'pending' | 'approved' | 'failed' | 'notfound'>('pending')
-  const route = useRoute()
-  const router = useRouter()
   const { t } = useI18n()
+  const router = useRouter()
+  const route = useRoute()
+  
+  type Status = 'pending' | 'approved' | 'failed' | 'notfound'
+  const status = ref<Status>('pending')
   
   const reference = route.query.ref as string | undefined
   
-  onMounted(async () => {
+  const checkStatus = async (reference: string) => {
+    try {
+      const { status: vippsStatus } = await checkVippsStatus(reference)
+  
+      switch (vippsStatus) {
+        case 'APPROVED':
+          status.value = 'approved'
+  
+          const itemId = localStorage.getItem('vippsPurchasedItemId')
+          localStorage.removeItem('vippsPurchasedItemId')
+  
+          if (!itemId) {
+            status.value = 'failed'
+            return
+          }
+  
+          setTimeout(() => {
+            router.push(`/receipt/${itemId}`)
+          }, 1500)
+          break
+  
+        case 'FAILED':
+          status.value = 'failed'
+          break
+  
+        case 'PENDING':
+        default:
+          setTimeout(() => location.reload(), 3000)
+          break
+      }
+    } catch (error) {
+      console.error('Vipps status check failed:', error)
+      status.value = 'failed'
+    }
+  }
+  
+  onMounted(() => {
     if (!reference) {
       status.value = 'notfound'
       return
     }
-  
-    try {
-      const { status: vippsStatus } = await checkVippsStatus(reference)
-  
-      if (vippsStatus === 'APPROVED') {
-        status.value = 'approved'
-        setTimeout(() => {
-          router.push('/order/success') // redirect to confirmation page
-        }, 1500)
-      } else if (vippsStatus === 'FAILED') {
-        status.value = 'failed'
-      } else {
-        setTimeout(() => location.reload(), 3000)
-      }
-    } catch (err) {
-      console.error('Error checking Vipps status:', err)
-      status.value = 'failed'
-    }
+    checkStatus(reference)
   })
   </script>
   
@@ -61,6 +86,7 @@
     font-size: 18px;
     padding: 20px;
   }
+  
   .spinner {
     margin: 30px auto;
     border: 5px solid #eee;
@@ -70,19 +96,23 @@
     height: 40px;
     animation: spin 1s linear infinite;
   }
+  
   @keyframes spin {
-    0% { transform: rotate(0deg) }
-    100% { transform: rotate(360deg) }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
+  
+  .status-message {
+    margin-top: 20px;
+    font-weight: bold;
+  }
+  
   .approved {
     color: green;
-    margin-top: 20px;
-    font-weight: bold;
   }
+  
   .failed {
     color: red;
-    margin-top: 20px;
-    font-weight: bold;
   }
   </style>
   
