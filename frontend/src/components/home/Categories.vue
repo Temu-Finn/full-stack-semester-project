@@ -53,14 +53,8 @@ onMounted(async () => {
   isLoading.value = true
   try {
     categories.value = await getCategories()
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to load categories:', error)
-    dialogStore.show(ConfirmationDialogContent, {
-      title: t('dialog.loadingErrorTitle'),
-      message: t('dialog.loadingErrorMessage'),
-      showCancel: false,
-      confirmText: t('dialog.ok'),
-    })
   } finally {
     isLoading.value = false
   }
