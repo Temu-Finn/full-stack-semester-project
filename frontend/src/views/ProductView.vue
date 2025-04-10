@@ -40,12 +40,16 @@
             </template>
             {{ $t('productView.buyNowVipps') }}
           </BaseButton>
-
           <BaseButton
-            class="message-button"
+            v-else
+            class="outline-button"
+            text-color="#007bff"
+            background-color="#ffffff"
             @click="reserveItemHandle"
-            :disabled="!product.sellerId"
           >
+            {{ $t('productView.reserveItem') }}
+          </BaseButton>
+          <BaseButton :disabled="!product.sellerId">
             {{ $t('productView.sendMessage') }}
           </BaseButton>
         </div>
@@ -315,6 +319,10 @@ const startVippsPayment = async () => {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+
+.outline-button {
+  border: 2px solid #007bff;
 }
 
 @media (max-width: 960px) {

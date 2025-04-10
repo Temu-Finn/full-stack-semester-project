@@ -31,7 +31,7 @@ const props = withDefaults(defineProps<Props>(), {
   type: 'button',
   disabled: false,
   loading: false,
-  backgroundColor: '#007bff', // Default blue
+  backgroundColor: '#007bff',
   textColor: '#ffffff',
 })
 

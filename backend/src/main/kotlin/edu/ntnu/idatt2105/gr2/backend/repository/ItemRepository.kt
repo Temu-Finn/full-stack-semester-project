@@ -219,15 +219,9 @@ class ItemRepository(private val dataSource: DataSource) {
     }
 
     fun reserveItem(itemId: Int, userId: Int) {
-        val sql = "UPDATE items SET status = ?, buyer_id = ? WHERE id = ? AND status = ? RETURNING *"
-        dataSource.connection.use { conn ->
-            conn.prepareStatement(sql).use { stmt ->
-                stmt.setString(1, ItemStatus.Reserved.toString())
-                stmt.setInt(2, userId)
-                stmt.setInt(3, itemId)
-                stmt.setString(4, ItemStatus.Available.toString())
-                stmt.executeUpdate()
-            }
+        val sql = "UPDATE items SET status = ?, buyer_id = ? WHERE id = ? AND status = ?;"
+        if (executeUpdateAndReturnCount(sql) { it.setString(1, ItemStatus.Reserved.toString()); it.setInt(2, userId); it.setInt(3, itemId); it.setString(4, ItemStatus.Available.toString()) } == 0) {
+            throw RuntimeException("Failed to reserve item with ID $itemId. Item may not be available.")
         }
     }
 
