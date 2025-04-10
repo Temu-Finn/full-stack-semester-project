@@ -59,10 +59,7 @@
 
       <div class="form-group">
         <label>{{ $t('newProduct.location') }}</label>
-        <NewProductMap
-          :initialLocation="product.location || { latitude: 63.44, longitude: 10.399 }"
-          @update:location="(loc) => (product.location = loc)"
-        />
+        <NewProductMap @update:location="(loc) => (product.location = loc)" />
         <p v-if="errors.location" class="error-message">{{ errors.location }}</p>
       </div>
 
@@ -172,7 +169,6 @@ onUnmounted(() => {
 })
 
 const validateForm = (): boolean => {
-  // Reset errors
   errors.value = {
     categoryId: '',
     title: '',

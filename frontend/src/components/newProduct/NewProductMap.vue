@@ -29,9 +29,11 @@ onMounted(() => {
       zoom: 9,
     })
 
-    marker = new mapboxgl.Marker({ color: '#007bff' })
-      .setLngLat([center.longitude, center.latitude])
-      .addTo(map)
+    marker = props.initialLocation
+      ? new mapboxgl.Marker({ color: '#007bff' })
+          .setLngLat([center.longitude, center.latitude])
+          .addTo(map)
+      : null
 
     map.on('click', (e) => {
       const coords = e.lngLat
