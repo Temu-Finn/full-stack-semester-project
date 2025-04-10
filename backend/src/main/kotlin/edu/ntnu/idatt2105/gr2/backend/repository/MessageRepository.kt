@@ -15,7 +15,7 @@ class MessageRepository (private val dataSource: DataSource) {
         val isRead = message.isRead
 
         dataSource.connection.use { conn ->
-            val sql = "INSERT INTO messages (conversationId, senderId, content, isRead) VALUES (?, ?, ?, ?)"
+            val sql = "INSERT INTO messages (conversation_id, sender_id, content, is_read) VALUES (?, ?, ?, ?)"
             conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS).use { stmt ->
                 stmt.setInt(1, conversationId)
                 stmt.setInt(2, senderId)
@@ -88,11 +88,11 @@ class MessageRepository (private val dataSource: DataSource) {
     fun mapRowToMessage(rs: ResultSet): Message {
         return Message(
             id = rs.getInt("id"),
-            conversationId = rs.getInt("conversationId"),
-            senderId = rs.getInt("senderId"),
+            conversationId = rs.getInt("conversation_id"),
+            senderId = rs.getInt("sender_id"),
             content = rs.getString("content"),
-            sentAt = rs.getTimestamp("sentAt").toInstant(),
-            isRead = rs.getBoolean("isRead")
+            sentAt = rs.getTimestamp("sent_at").toInstant(),
+            isRead = rs.getBoolean("is_read")
         )
     }
 }
