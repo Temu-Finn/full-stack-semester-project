@@ -72,6 +72,11 @@ const router = createRouter({
       path: '/edit-user',
       name: 'UpdateCredentials',
       component: UpdateCredentials
+    },
+    {
+      path: '/receipt/:id',
+      name: 'Receipt',
+      component: () => import('@/views/Receipt.vue'),
     }     
   ],
 })

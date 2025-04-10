@@ -1,6 +1,5 @@
 package edu.ntnu.idatt2105.gr2.backend.dto
 
-import edu.ntnu.idatt2105.gr2.backend.model.ItemStatus
 import jakarta.validation.constraints.*
 import java.time.Instant
 
@@ -39,32 +38,25 @@ data class CompleteItem(
     val createdAt: Instant,
     val updatedAt: Instant,
     val municipality: String,
-    val images: List<ImageResponse>
+    val images: List<ImageResponse>,
 )
 
-
 data class RecommendedItemsResponse(
-    val items: List<ItemCard>
+    val items: List<ItemCard>,
 )
 
 data class CreateItemRequest(
     @field:Positive(message = "Category ID must be positive")
     val categoryId: Int,
-
     @field:NotBlank(message = "Postal code cannot be empty")
     val postalCode: String,
-
     @field:NotBlank(message = "Title cannot be empty")
     val title: String,
-
     @field:NotBlank(message = "Description cannot be empty")
     val description: String,
-
     @field:DecimalMin("0.0", inclusive = true, message = "Price must be zero or positive")
     val price: Double,
-
     val location: Location? = null,
-
     @field:NotNull(message = "Allow Vipps Buy must be true or false")
     val allowVippsBuy: Boolean = false,
 )
@@ -73,5 +65,5 @@ data class Location(
     @field:DecimalMin("-90.0") @field:DecimalMax("90.0")
     val latitude: Double,
     @field:DecimalMin("-180.0") @field:DecimalMax("180.0")
-    val longitude: Double
+    val longitude: Double,
 )

@@ -2,16 +2,16 @@ package edu.ntnu.idatt2105.gr2.backend.service
 
 import edu.ntnu.idatt2105.gr2.backend.dto.*
 import edu.ntnu.idatt2105.gr2.backend.dto.toItem
-import edu.ntnu.idatt2105.gr2.backend.model.Item
-import edu.ntnu.idatt2105.gr2.backend.repository.ItemRepository
 import edu.ntnu.idatt2105.gr2.backend.exception.ItemNotFoundException
+import edu.ntnu.idatt2105.gr2.backend.model.Item
 import edu.ntnu.idatt2105.gr2.backend.model.ItemStatus
+import edu.ntnu.idatt2105.gr2.backend.repository.ItemRepository
 import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
 import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 
 @Service
@@ -26,12 +26,16 @@ class ItemService(
     private val logger = LoggerFactory.getLogger(ItemService::class.java)
 
     @Transactional
-    fun createItem(itemRequest: CreateItemRequest, images: List<MultipartFile>): CompleteItem {
+    fun createItem(
+        itemRequest: CreateItemRequest,
+        images: List<MultipartFile>,
+    ): CompleteItem {
         logger.info("Creating new item: ${itemRequest.title}")
         val item = itemRepository.create(itemRequest.toItem(userContextService.getCurrentUserId()))
-        val imagesResponse = images.map { image ->
-            imageService.upload(item.id, CreateImageRequest(image))
-        }
+        val imagesResponse =
+            images.map { image ->
+                imageService.upload(item.id, CreateImageRequest(image))
+            }
 
         var primaryImageId: Int? = null
         if (imagesResponse.isNotEmpty()) {
@@ -56,21 +60,23 @@ class ItemService(
             primaryImageId = primaryImageId,
             createdAt = item.createdAt,
             updatedAt = item.updatedAt,
-            municipality = item.municipality
+            municipality = item.municipality,
         )
     }
 
     fun getItemById(id: Int): CompleteItem {
         logger.info("Fetching item with ID: $id")
-        val item = itemRepository.getItemById(id)
-            ?: throw ItemNotFoundException("Item with ID $id not found")
+        val item =
+            itemRepository.getItemById(id)
+                ?: throw ItemNotFoundException("Item with ID $id not found")
         return item.toResponse().withImages()
     }
 
     fun getItemCardById(id: Int): ItemCard {
         logger.info("Fetching item card with ID: $id")
-        val item = itemRepository.getItemById(id)
-            ?: throw ItemNotFoundException("Item with ID $id not found")
+        val item =
+            itemRepository.getItemById(id)
+                ?: throw ItemNotFoundException("Item with ID $id not found")
         return item.toResponse().toCard()
     }
 
@@ -92,7 +98,10 @@ class ItemService(
         return itemRepository.findRecommendedItems().map { it.toResponse().toCard() }
     }
 
-    fun searchItems(request: SearchRequest, pageable: Pageable): SearchResponse {
+    fun searchItems(
+        request: SearchRequest,
+        pageable: Pageable,
+    ): SearchResponse {
         logger.info("Searching items with request: $request and pageable: $pageable")
         val itemPage = itemRepository.searchItems(request, pageable)
         val counties = areaService.populateCounties(request)
@@ -103,13 +112,13 @@ class ItemService(
     fun getItemsOfUser(userId: Int): List<ItemCard> {
         val isOwnUser = userId == userContextService.getCurrentUserId()
         logger.info("Fetching items for user ID: $userId")
-        val items = itemRepository.findAllBySellerId(userId, isOwnUser).map {  it.toResponse().toCard() }
+        val items = itemRepository.findAllBySellerId(userId, isOwnUser).map { it.toResponse().toCard() }
         if (!isOwnUser) {
             return items
         }
 
         val boughtItems = itemRepository.findAllBought(userId).map { it.toResponse().toCard().copy(status = "bought") }
-        val reservedItems = itemRepository.findAllReserved(userId).map {  it.toResponse().toCard().copy(status = "reserved_by_user") }
+        val reservedItems = itemRepository.findAllReserved(userId).map { it.toResponse().toCard().copy(status = "reserved_by_user") }
 
         return items.plus(boughtItems).plus(reservedItems)
     }
@@ -120,8 +129,8 @@ class ItemService(
         return itemRepository.findFavoriteByUserId(userId).map { it.toResponse().toCard() }
     }
 
-    fun Item.toResponse(): CompleteItem {
-        return CompleteItem(
+    fun Item.toResponse(): CompleteItem =
+        CompleteItem(
             id = id,
             sellerId = sellerId,
             category = categoryService.getCategory(categoryId),
@@ -138,9 +147,8 @@ class ItemService(
             createdAt = createdAt,
             updatedAt = updatedAt,
             municipality = municipality,
-            postalCode = postalCode
+            postalCode = postalCode,
         )
-    }
 
     fun Item.getResponseStatus(): String {
         if (buyerId == userContextService.getCurrentUserId()) {
@@ -154,25 +162,23 @@ class ItemService(
         return status.toString()
     }
 
-    fun CompleteItem.withImages(): CompleteItem {
-        return this.copy(
-            images = imageService.getImagesByItemId(this.id)
+    fun CompleteItem.withImages(): CompleteItem =
+        this.copy(
+            images = imageService.getImagesByItemId(this.id),
         )
-    }
 
-    fun CompleteItem.toCard(): ItemCard {
-        return ItemCard(
+    fun CompleteItem.toCard(): ItemCard =
+        ItemCard(
             id = id,
             title = title,
             price = price,
             municipality = municipality,
-            image = primaryImageId?.let { imageService.getImageById(primaryImageId)},
+            image = primaryImageId?.let { imageService.getImageById(primaryImageId) },
             location = location,
             status = status,
             updatedAt = updatedAt,
-            allowVippsBuy = allowVippsBuy
+            allowVippsBuy = allowVippsBuy,
         )
-    }
 
     fun reserveItem(itemId: Int): CompleteItem {
         val userId = userContextService.getCurrentUserId()

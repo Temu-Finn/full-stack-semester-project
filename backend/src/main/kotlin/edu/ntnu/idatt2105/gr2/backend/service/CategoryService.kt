@@ -8,22 +8,16 @@ import edu.ntnu.idatt2105.gr2.backend.repository.CategoryRepository
 import org.springframework.stereotype.Service
 
 @Service
-class CategoryService (
-    private val categoryRepository: CategoryRepository
-)  {
+class CategoryService(
+    private val categoryRepository: CategoryRepository,
+) {
+    fun createCategory(request: CreateCategoryRequest): CategoryResponse = categoryRepository.save(request.toModel()).toResponse()
 
-    fun createCategory(request: CreateCategoryRequest): CategoryResponse {
-        return categoryRepository.save(request.toModel()).toResponse()
-    }
+    fun getCategories(): List<CategoryResponse> = categoryRepository.findAll().map { it.toResponse() }
 
-    fun getCategories(): List<CategoryResponse> {
-        return categoryRepository.findAll().map { it.toResponse() }
-    }
-
-    fun getCategory(id: Int): CategoryResponse {
-        return categoryRepository.getById(id)?.toResponse()
+    fun getCategory(id: Int): CategoryResponse =
+        categoryRepository.getById(id)?.toResponse()
             ?: throw IllegalArgumentException("Category with id $id not found")
-    }
 
     fun deleteCategory(id: Int) {
         categoryRepository.delete(id)
@@ -33,34 +27,30 @@ class CategoryService (
         categoryRepository.deleteAll()
     }
 
-    fun updateCategory(updateCategoryRequest: UpdateCategoryRequest): CategoryResponse {
-        return categoryRepository.updateCategory(updateCategoryRequest.toModel()).toResponse()
-    }
+    fun updateCategory(updateCategoryRequest: UpdateCategoryRequest): CategoryResponse =
+        categoryRepository.updateCategory(updateCategoryRequest.toModel()).toResponse()
 }
 
-fun Category.toResponse(): CategoryResponse {
-    return CategoryResponse(
+fun Category.toResponse(): CategoryResponse =
+    CategoryResponse(
         id = this.id,
         name = this.name,
         icon = this.icon,
-        description = this.description
+        description = this.description,
     )
-}
 
-fun CreateCategoryRequest.toModel(): Category {
-    return Category(
+fun CreateCategoryRequest.toModel(): Category =
+    Category(
         id = -1,
         name = this.name,
         icon = this.icon,
-        description = this.description
+        description = this.description,
     )
-}
 
-fun UpdateCategoryRequest.toModel(): Category {
-    return Category(
+fun UpdateCategoryRequest.toModel(): Category =
+    Category(
         id = this.id,
         name = this.name,
         icon = this.icon,
-        description = this.description
+        description = this.description,
     )
-}

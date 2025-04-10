@@ -6,9 +6,9 @@ import edu.ntnu.idatt2105.gr2.backend.model.Message
 import edu.ntnu.idatt2105.gr2.backend.repository.ConversationRepository
 import edu.ntnu.idatt2105.gr2.backend.repository.MessageRepository
 import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.Instant
-import org.slf4j.LoggerFactory
 
 /**
  * Service class for managing conversations and messages.
@@ -21,10 +21,10 @@ class ConversationService(
     private val messageRepository: MessageRepository,
     private val itemService: ItemService,
     private val userContextService: UserContextService,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
 ) {
-
     private val logger = LoggerFactory.getLogger(ConversationService::class.java)
+
     /**
      * Creates a new conversation and saves it to the database.
      *
@@ -42,14 +42,14 @@ class ConversationService(
                 senderId = buyerId,
                 content = request.content,
                 sentAt = Instant.now(),
-            )
+            ),
         )
 
         return NewMessageResponse(
             conversationId = conversation.id,
             senderId = buyerId,
             content = request.content,
-            sentAt = Instant.now().toString()
+            sentAt = Instant.now().toString(),
         )
     }
 
@@ -83,8 +83,9 @@ class ConversationService(
             }
         } else {
             // Conversation ID provided - validate it
-            val conversation = conversationRepository.findConversationById(conversationId)
-                ?: throw IllegalArgumentException("Conversation with id $conversationId not found")
+            val conversation =
+                conversationRepository.findConversationById(conversationId)
+                    ?: throw IllegalArgumentException("Conversation with id $conversationId not found")
 
             if (!hasAccessToConversation(conversation.id, senderId)) {
                 throw IllegalArgumentException("User does not have access to this conversation")
@@ -102,22 +103,27 @@ class ConversationService(
      * @param content The content of the message to be sent.
      */
 
-    private fun sendToConversation(conversationId: Int, senderId: Int, content: String): NewMessageResponse {
-        val message = messageRepository.save(
-            Message(
-                id = -1,
-                conversationId = conversationId,
-                senderId = senderId,
-                content = content,
-                sentAt = Instant.now(),
+    private fun sendToConversation(
+        conversationId: Int,
+        senderId: Int,
+        content: String,
+    ): NewMessageResponse {
+        val message =
+            messageRepository.save(
+                Message(
+                    id = -1,
+                    conversationId = conversationId,
+                    senderId = senderId,
+                    content = content,
+                    sentAt = Instant.now(),
+                ),
             )
-        )
 
         return NewMessageResponse(
             conversationId = message.conversationId,
             senderId = message.senderId,
             content = message.content,
-            sentAt = message.sentAt.toString()
+            sentAt = message.sentAt.toString(),
         )
     }
 
@@ -134,31 +140,36 @@ class ConversationService(
             throw IllegalArgumentException("User does not have access to this conversation")
         }
 
-        val messages = messageRepository.getAllMessagesInConversation(id)
-            .map { message ->
-                MessageResponse(
-                    id = message.id,
-                    conversationId = message.conversationId,
-                    senderId = message.senderId,
-                    content = message.content,
-                    sentAt = message.sentAt,
-                    isRead = message.isRead
-                )
-            }
-        val conversation = conversationRepository.findConversationById(id)
-            ?: throw IllegalArgumentException("Conversation with id $id not found")
+        val messages =
+            messageRepository
+                .getAllMessagesInConversation(id)
+                .map { message ->
+                    MessageResponse(
+                        id = message.id,
+                        conversationId = message.conversationId,
+                        senderId = message.senderId,
+                        content = message.content,
+                        sentAt = message.sentAt,
+                        isRead = message.isRead,
+                    )
+                }
+        val conversation =
+            conversationRepository.findConversationById(id)
+                ?: throw IllegalArgumentException("Conversation with id $id not found")
 
         val item = itemService.getItemById(conversation.itemId)
 
-        val otherUserId = if (conversation.buyerId == currentUserId) {
-            item.sellerId
-        } else {
-            conversation.buyerId
-        }
+        val otherUserId =
+            if (conversation.buyerId == currentUserId) {
+                item.sellerId
+            } else {
+                conversation.buyerId
+            }
 
         val otherParticipant = userRepository.findUserById(otherUserId)
-        val otherParticipantName = otherParticipant?.name
-            ?: throw IllegalArgumentException("User with id $otherUserId not found")
+        val otherParticipantName =
+            otherParticipant?.name
+                ?: throw IllegalArgumentException("User with id $otherUserId not found")
 
         logger.info("Other participant name: $otherParticipantName")
 
@@ -167,7 +178,7 @@ class ConversationService(
             createdAt = conversation.createdAt,
             updatedAt = conversation.updatedAt,
             messages = messages.toMutableList(),
-            item = itemService.getItemCardById(conversation.itemId)
+            item = itemService.getItemCardById(conversation.itemId),
         )
     }
 
@@ -194,9 +205,13 @@ class ConversationService(
      * @return True if the user has access to the conversation, false otherwise.
      */
 
-    private fun hasAccessToConversation(id: Int, userId: Int): Boolean {
-        val conversation = conversationRepository.findConversationById(id)
-            ?: throw IllegalArgumentException("Access could not be granted because conversation with id $id not found")
+    private fun hasAccessToConversation(
+        id: Int,
+        userId: Int,
+    ): Boolean {
+        val conversation =
+            conversationRepository.findConversationById(id)
+                ?: throw IllegalArgumentException("Access could not be granted because conversation with id $id not found")
 
         val sellerId = itemService.getItemById(conversation.itemId).sellerId
 
@@ -208,7 +223,6 @@ class ConversationService(
      *
      * @return A ConversationCardResponse object containing the conversation details.
      */
-
 
     fun Conversation.toResponse(): ConversationCardResponse {
         val latestMessage = messageRepository.getLatestMessage(id)
@@ -229,13 +243,12 @@ class ConversationService(
      * @return A Conversation object containing the conversation details.
      */
 
-    fun SendMessageRequest.toModel(buyerId: Int): Conversation {
-        return Conversation(
+    fun SendMessageRequest.toModel(buyerId: Int): Conversation =
+        Conversation(
             id = -1,
             itemId = this.itemId,
             buyerId = buyerId,
             createdAt = Instant.now(),
-            updatedAt = Instant.now()
+            updatedAt = Instant.now(),
         )
-    }
 }

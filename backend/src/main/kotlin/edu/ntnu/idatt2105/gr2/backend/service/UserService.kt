@@ -1,22 +1,21 @@
-package edu.ntnu.idatt2105.gr2.backend.service;
+package edu.ntnu.idatt2105.gr2.backend.service
 
 import edu.ntnu.idatt2105.gr2.backend.dto.ChangePasswordRequest
 import edu.ntnu.idatt2105.gr2.backend.dto.UpdateEmailRequest
 import edu.ntnu.idatt2105.gr2.backend.dto.UpdateNameRequest
-import edu.ntnu.idatt2105.gr2.backend.dto.UserProfile
 import edu.ntnu.idatt2105.gr2.backend.exception.UserAlreadyExistsException
 import edu.ntnu.idatt2105.gr2.backend.exception.UserNotFoundException
-import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository;
-import org.springframework.stereotype.Service;
+import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.stereotype.Service
 import javax.transaction.Transactional
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
     private val userContextService: UserContextService,
-    private val passwordEncoder: BCryptPasswordEncoder
+    private val passwordEncoder: BCryptPasswordEncoder,
 ) {
     private val logger = LoggerFactory.getLogger(UserService::class.java)
 
@@ -46,8 +45,9 @@ class UserService(
     @Transactional
     fun changePassword(request: ChangePasswordRequest): Boolean {
         val userId = userContextService.getCurrentUserId()
-        val user = userRepository.findById(userId)
-            ?: throw UserNotFoundException("User not found with ID $userId")
+        val user =
+            userRepository.findById(userId)
+                ?: throw UserNotFoundException("User not found with ID $userId")
 
         if (!passwordEncoder.matches(request.currentPassword, user.password)) {
             throw IllegalArgumentException("Current password is incorrect")

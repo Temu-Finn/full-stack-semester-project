@@ -1,13 +1,13 @@
 package edu.ntnu.idatt2105.gr2.backend.repository
 
-
 import edu.ntnu.idatt2105.gr2.backend.model.Conversation
 import org.springframework.stereotype.Repository
 import javax.sql.DataSource
 
 @Repository
-class ConversationRepository(private val dataSource: DataSource) {
-
+class ConversationRepository(
+    private val dataSource: DataSource,
+) {
     fun save(conversation: Conversation): Conversation {
         dataSource.connection.use { conn ->
             val sql = "INSERT INTO conversations (item_id, buyer_id) VALUES (?, ?)"
@@ -34,7 +34,7 @@ class ConversationRepository(private val dataSource: DataSource) {
                                     itemId = rows.getInt("item_id"),
                                     buyerId = rows.getInt("buyer_id"),
                                     createdAt = rows.getTimestamp("created_at").toInstant(),
-                                    updatedAt = rows.getTimestamp("updated_at").toInstant()
+                                    updatedAt = rows.getTimestamp("updated_at").toInstant(),
                                 )
                             }
                         }
@@ -59,7 +59,7 @@ class ConversationRepository(private val dataSource: DataSource) {
                             itemId = rows.getInt("item_id"),
                             buyerId = rows.getInt("buyer_id"),
                             createdAt = rows.getTimestamp("created_at").toInstant(),
-                            updatedAt = rows.getTimestamp("updated_at").toInstant()
+                            updatedAt = rows.getTimestamp("updated_at").toInstant(),
                         )
                     }
                 }
@@ -69,7 +69,11 @@ class ConversationRepository(private val dataSource: DataSource) {
         return null
     }
 
-    fun findConversationByParticipants(userId1: Int, userId2: Int, itemId: Int): Conversation? {
+    fun findConversationByParticipants(
+        userId1: Int,
+        userId2: Int,
+        itemId: Int,
+    ): Conversation? {
         dataSource.connection.use { conn ->
             val sql = """
             SELECT c.* FROM conversations c
@@ -92,7 +96,7 @@ class ConversationRepository(private val dataSource: DataSource) {
                             itemId = rows.getInt("item_id"),
                             buyerId = rows.getInt("buyer_id"),
                             createdAt = rows.getTimestamp("created_at").toInstant(),
-                            updatedAt = rows.getTimestamp("updated_at").toInstant()
+                            updatedAt = rows.getTimestamp("updated_at").toInstant(),
                         )
                     }
                 }
@@ -100,7 +104,6 @@ class ConversationRepository(private val dataSource: DataSource) {
         }
         return null
     }
-
 
     fun findAllConversationsByUserId(userId: Int): List<Conversation> {
         dataSource.connection.use { conn ->
@@ -120,8 +123,8 @@ class ConversationRepository(private val dataSource: DataSource) {
                                 itemId = rows.getInt("item_id"),
                                 buyerId = rows.getInt("buyer_id"),
                                 createdAt = rows.getTimestamp("created_at").toInstant(),
-                                updatedAt = rows.getTimestamp("updated_at").toInstant()
-                            )
+                                updatedAt = rows.getTimestamp("updated_at").toInstant(),
+                            ),
                         )
                     }
                     return conversations

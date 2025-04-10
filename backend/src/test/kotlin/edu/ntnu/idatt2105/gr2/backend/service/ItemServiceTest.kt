@@ -3,6 +3,7 @@ package edu.ntnu.idatt2105.gr2.backend.service
 import edu.ntnu.idatt2105.gr2.backend.config.TestConfig
 import edu.ntnu.idatt2105.gr2.backend.model.Item
 import edu.ntnu.idatt2105.gr2.backend.repository.ItemRepository
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -15,35 +16,30 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
+import org.springframework.test.context.jdbc.Sql
 import org.testcontainers.containers.MariaDBContainer
 import org.testcontainers.junit.jupiter.Testcontainers
 import java.time.Instant
-import org.junit.jupiter.api.*
-import org.springframework.test.context.jdbc.Sql
 
 // Enable Testcontainers support for integration testing with a "real" db
 @Testcontainers
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-
-
 @ActiveProfiles("test")
 @Import(TestConfig::class)
 @Sql(scripts = ["classpath:testdb/testData.sql"])
 @Sql(
     scripts = ["classpath:testdb/insertTestData.sql"],
-    executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD
+    executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD,
 )
-
-
-
 class ItemServiceTest {
     companion object {
-        private val db = MariaDBContainer<Nothing>("mariadb").apply {
-            withDatabaseName("test")
-            withUsername("mariadb")
-            withPassword("mariadb")
-        }
+        private val db =
+            MariaDBContainer<Nothing>("mariadb").apply {
+                withDatabaseName("test")
+                withUsername("mariadb")
+                withPassword("mariadb")
+            }
 
         @BeforeAll
         @JvmStatic
@@ -78,41 +74,43 @@ class ItemServiceTest {
 
     @BeforeEach
     fun setUp() {
-        testItem1 = Item(
-            //id = 0,
-            sellerId = 1,
-            categoryId = 1,
-            postalCode = "7014",
-            title = "Test Item",
-            description = "Test description",
-            price = 99.95,
-            purchasePrice = null,
-            buyerId = null,
-            location = Pair(10.0, 20.0),
-            allowVippsBuy = true,
-            primaryImageId = null,
-            status = "available",
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
+        testItem1 =
+            Item(
+                // id = 0,
+                sellerId = 1,
+                categoryId = 1,
+                postalCode = "7014",
+                title = "Test Item",
+                description = "Test description",
+                price = 99.95,
+                purchasePrice = null,
+                buyerId = null,
+                location = Pair(10.0, 20.0),
+                allowVippsBuy = true,
+                primaryImageId = null,
+                status = "available",
+                createdAt = Instant.now(),
+                updatedAt = Instant.now(),
             )
 
-        testItem2 = Item(
-            //id = 1,
-            sellerId = 2,
-            categoryId = 2,
-            postalCode = "7014",
-            title = "Test Item2",
-            description = "Test description2",
-            price = 10.25,
-            purchasePrice = null,
-            buyerId = null,
-            location = Pair(2.0, 3.0),
-            allowVippsBuy = false,
-            primaryImageId = null,
-            status = "available",
-            createdAt = Instant.now(),
-            updatedAt = Instant.now()
-        )
+        testItem2 =
+            Item(
+                // id = 1,
+                sellerId = 2,
+                categoryId = 2,
+                postalCode = "7014",
+                title = "Test Item2",
+                description = "Test description2",
+                price = 10.25,
+                purchasePrice = null,
+                buyerId = null,
+                location = Pair(2.0, 3.0),
+                allowVippsBuy = false,
+                primaryImageId = null,
+                status = "available",
+                createdAt = Instant.now(),
+                updatedAt = Instant.now(),
+            )
 
         itemService.deleteAllItems()
     }
@@ -190,22 +188,23 @@ class ItemServiceTest {
         @Test
         fun `should not create item when price is negative`() {
             Assertions.assertThrows(IllegalArgumentException::class.java) {
-                val itemWithNegData = Item(
-                    sellerId = 1,
-                    categoryId = 2,
-                    postalCode = "7014",
-                    title = "Test Item2",
-                    description = "Test description2",
-                    price = -4.9, // This triggers the exception
-                    purchasePrice = null,
-                    buyerId = null,
-                    location = Pair(2.0, 3.0),
-                    allowVippsBuy = false,
-                    primaryImageId = null,
-                    status = "available",
-                    createdAt = Instant.now(),
-                    updatedAt = Instant.now()
-                )
+                val itemWithNegData =
+                    Item(
+                        sellerId = 1,
+                        categoryId = 2,
+                        postalCode = "7014",
+                        title = "Test Item2",
+                        description = "Test description2",
+                        price = -4.9, // This triggers the exception
+                        purchasePrice = null,
+                        buyerId = null,
+                        location = Pair(2.0, 3.0),
+                        allowVippsBuy = false,
+                        primaryImageId = null,
+                        status = "available",
+                        createdAt = Instant.now(),
+                        updatedAt = Instant.now(),
+                    )
 
                 itemService.createItem(itemWithNegData)
             }
@@ -237,6 +236,5 @@ class ItemServiceTest {
                 itemService.deleteItemById(999L)
             }
         }
-
     }
 }

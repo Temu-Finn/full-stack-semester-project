@@ -8,10 +8,10 @@ interface Area {
 data class CountyResponse(
     override val name: String,
     override val count: Int,
-    val municipalities: List<MunicipalityResponse>
+    val municipalities: List<MunicipalityResponse>,
 ) : Area
 
 data class MunicipalityResponse(
     override val name: String,
-    override val count: Int
+    override val count: Int,
 ) : Area

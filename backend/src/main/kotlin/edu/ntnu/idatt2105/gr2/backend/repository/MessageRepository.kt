@@ -6,8 +6,9 @@ import java.sql.ResultSet
 import javax.sql.DataSource
 
 @Repository
-class MessageRepository (private val dataSource: DataSource) {
-
+class MessageRepository(
+    private val dataSource: DataSource,
+) {
     fun save(message: Message): Message {
         val conversationId = message.conversationId
         val senderId = message.senderId
@@ -21,7 +22,6 @@ class MessageRepository (private val dataSource: DataSource) {
                 stmt.setInt(2, senderId)
                 stmt.setString(3, content)
                 stmt.setBoolean(4, isRead)
-
 
                 val affectedRows = stmt.executeUpdate()
                 if (affectedRows == 0) {
@@ -85,14 +85,13 @@ class MessageRepository (private val dataSource: DataSource) {
         }
     }
 
-    fun mapRowToMessage(rs: ResultSet): Message {
-        return Message(
+    fun mapRowToMessage(rs: ResultSet): Message =
+        Message(
             id = rs.getInt("id"),
             conversationId = rs.getInt("conversation_id"),
             senderId = rs.getInt("sender_id"),
             content = rs.getString("content"),
             sentAt = rs.getTimestamp("sent_at").toInstant(),
-            isRead = rs.getBoolean("is_read")
+            isRead = rs.getBoolean("is_read"),
         )
-    }
 }

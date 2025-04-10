@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service
 import java.util.*
 import javax.crypto.SecretKey
 
-
 @Service
 class JwtService {
     @Value("\${security.jwt.secret-key}")
@@ -24,12 +23,20 @@ class JwtService {
         val now = System.currentTimeMillis()
         val expirationTime = now + expiration
 
-        val userId = if (userDetails is User) userDetails.id else throw IllegalArgumentException("UserDetails must be an instance of custom User class")
+        val userId =
+            if (userDetails is User) {
+                userDetails.id
+            } else {
+                throw IllegalArgumentException(
+                    "UserDetails must be an instance of custom User class",
+                )
+            }
         val email = userDetails.username
 
         val claims: Map<String, Any> = mapOf("email" to email)
 
-        return Jwts.builder()
+        return Jwts
+            .builder()
             .claims(claims)
             .subject(userId.toString())
             .issuedAt(Date(now))
@@ -48,15 +55,16 @@ class JwtService {
         return claims.subject?.toIntOrNull()
     }
 
-    fun isTokenValid(token: String, userDetails: UserDetails): Boolean {
+    fun isTokenValid(
+        token: String,
+        userDetails: UserDetails,
+    ): Boolean {
         val extractedUserId: Int? = extractUserIdFromToken(token)
         val userIdFromUserDetails = if (userDetails is User) userDetails.id else null
         return extractedUserId != null && extractedUserId == userIdFromUserDetails && !isTokenExpired(token)
     }
 
-    fun getExpirationTime(): Long {
-        return expiration
-    }
+    fun getExpirationTime(): Long = expiration
 
     private fun isTokenExpired(token: String): Boolean {
         val expirationDate = getAllClaimsFromToken(token).expiration
@@ -65,13 +73,13 @@ class JwtService {
         return now.after(expirationDate)
     }
 
-    private fun getAllClaimsFromToken(token: String): Claims {
-        return Jwts.parser()
+    private fun getAllClaimsFromToken(token: String): Claims =
+        Jwts
+            .parser()
             .verifyWith(getSignInKey())
             .build()
             .parseSignedClaims(token)
             .payload
-    }
 
     private fun getSignInKey(): SecretKey {
         val keyBytes = Decoders.BASE64.decode(secret)
