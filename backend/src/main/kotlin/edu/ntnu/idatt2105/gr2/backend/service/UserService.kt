@@ -20,20 +20,6 @@ class UserService(
 ) {
     private val logger = LoggerFactory.getLogger(UserService::class.java)
 
-    fun getCurrentUserProfile(): UserProfile {
-        val userId = userContextService.getCurrentUserId()
-        val user = userRepository.findById(userId)
-            ?: throw UserNotFoundException("User not found with ID $userId")
-
-        return UserProfile(
-            id = user.id,
-            name = user.name,
-            email = user.email,
-            joinedAt = user.joinedAt,
-            isAdmin = user.isAdmin
-        )
-    }
-
     @Transactional
     fun updateEmail(request: UpdateEmailRequest): Boolean {
         val userId = userContextService.getCurrentUserId()

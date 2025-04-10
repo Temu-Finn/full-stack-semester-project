@@ -22,21 +22,7 @@ class UserController(
 ) {
     private val logger = LoggerFactory.getLogger(UserController::class.java)
 
-    @GetMapping("/me")
-    @Operation(summary = "Get current user profile", description = "Fetches profile information of the logged-in user")
-    @ApiResponses(
-        value = [
-            ApiResponse(responseCode = "200", description = "User profile fetched"),
-            ApiResponse(responseCode = "401", description = "Unauthorized"),
-            ApiResponse(responseCode = "404", description = "User not found")
-        ]
-    )
-    fun getCurrentUserProfile(): ResponseEntity<UserProfile> {
-        logger.info("Fetching current user profile")
-        return ResponseEntity.ok(userService.getCurrentUserProfile())
-    }
-
-    @PutMapping("me/updateEmail")
+    @PutMapping("/update-email")
     @Operation(summary = "Update user email", description = "Updates the email of the currently authenticated user")
     @ApiResponses(
         value = [
@@ -52,7 +38,7 @@ class UserController(
         return ResponseEntity.ok().build()
     }
 
-    @PutMapping("/me/updateName")
+    @PutMapping("/update-name")
     @Operation(summary = "Update user name", description = "Updates the name of the currently authenticated user")
     @ApiResponses(
         value = [
@@ -67,7 +53,7 @@ class UserController(
         return ResponseEntity.ok().build()
     }
 
-    @PutMapping("/me/updatePassword")
+    @PutMapping("/update-password")
     @Operation(summary = "Change user password", description = "Allows authenticated users to change their password")
     @ApiResponses(
         value = [
