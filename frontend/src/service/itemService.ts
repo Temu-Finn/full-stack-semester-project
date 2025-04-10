@@ -35,6 +35,7 @@ const ItemCardSchema = z.object({
 const CreateItemRequestSchema = z.object({
   categoryId: z.number().int().positive(),
   postalCode: z.string().min(1, 'Postal code is required'),
+  location: LocationSchema,
   title: z.string().min(1, 'Title is required'),
   description: z.string().min(1, 'Description is required'),
   price: z.number().positive('Price must be positive'),
