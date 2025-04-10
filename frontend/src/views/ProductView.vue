@@ -3,7 +3,7 @@
   <div v-else-if="error" class="error-state">
     {{ $t('productView.errorLoadingPrefix') }} {{ error }}
   </div>
-  <div v-else-if="product" class="product-container">
+  <div v-else-if="product" class="product">
     <div class="left-column">
       <div class="main-image">
         <img :alt="$t('productView.altMainImage')" :src="selectedImage" />
@@ -57,16 +57,32 @@
     </div>
   </div>
   <div v-else class="not-found">{{ $t('productView.notFound') }}</div>
+  <div v-if="searchResponse && product" class="similar-items-section">
+    <h3 v-if="searchResponse.result.content.length > 1">Similar items</h3>
+    <div class="similar-items">
+      <Product
+        v-for="item in searchResponse.result.content.filter((value) => value.id != product.id)"
+        :key="item.id"
+        :product="item"
+      />
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Map from '@/components/Map.vue'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { getItem, type CompleteItem } from '@/service/itemService'
+import {
+  type CompleteItem,
+  getItem,
+  searchItems,
+  type SearchItemsResponse,
+} from '@/service/itemService'
 import { logger } from '@/utils/logger'
 import { useI18n } from 'vue-i18n'
+import Product from '@/components/Product.vue'
 
 const route = useRoute()
 const product = ref<CompleteItem | null>(null)
@@ -74,6 +90,8 @@ const selectedImage = ref<string>('')
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const { t } = useI18n()
+
+const searchResponse = ref<SearchItemsResponse>()
 
 const productId = computed(() => {
   const idParam = route.params.id
@@ -97,8 +115,8 @@ onMounted(async () => {
   try {
     isLoading.value = true
     error.value = null
-    const fetchedProduct = await getItem(productId.value)
-    product.value = fetchedProduct
+    product.value = await getItem(productId.value)
+    fetchItems(product.value.category.id)
     console.log(product.value)
 
     if (productImages.value.length > 0) {
@@ -113,10 +131,26 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
+
+async function fetchItems(categoryId: number) {
+  isLoading.value = true
+  try {
+    searchResponse.value = await searchItems({
+      categoryId: categoryId,
+      page: 0,
+      size: 5,
+    })
+  } catch (error) {
+    console.error('Error fetching search results:', error)
+    searchResponse.value = null
+  } finally {
+    isLoading.value = false
+  }
+}
 </script>
 
 <style scoped>
-.product-container {
+.product {
   display: flex;
   gap: 20px;
   width: 100%;
@@ -126,6 +160,7 @@ onMounted(async () => {
 }
 
 .left-column {
+  width: 100%;
   flex: 2;
   display: flex;
   flex-direction: column;
@@ -134,19 +169,21 @@ onMounted(async () => {
 
 .main-image img {
   width: 100%;
-  max-width: 600px;
   border-radius: 8px;
   object-fit: cover;
-  height: 500px;
+  aspect-ratio: 1;
 }
 
 .thumbnails {
   display: flex;
   gap: 10px;
+  width: 100%;
 }
 .thumbnails img {
-  width: 80px;
-  height: 80px;
+  width: 100%;
+  max-width: 80px;
+  min-width: 0;
+  aspect-ratio: 1;
   object-fit: cover;
   cursor: pointer;
   border-radius: 4px;
@@ -195,13 +232,28 @@ onMounted(async () => {
 
 .map-section {
   margin-top: 20px;
-  height: 300px;
+  height: 100%;
 }
 
 .map-container {
   width: 100%;
-  height: 300px;
+  height: 100%;
   border-radius: 6px;
+}
+.similar-items-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  width: 100%;
+}
+.similar-items {
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+}
+.similar-items div {
+  width: 25%;
 }
 
 .loading-state,

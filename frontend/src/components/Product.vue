@@ -1,6 +1,6 @@
 <template>
   <div class="product-container">
-    <router-link class="product-card" :to="`/product/${product.id}`">
+    <a :href="`/product/${product.id}`" class="product-card">
       <img
         :alt="product.title"
         :src="product.image?.dataURL || '/placeholder.svg'"
@@ -13,12 +13,12 @@
           <span class="product-price">{{ product.price }} kr</span>
         </div>
       </div>
-    </router-link>
+    </a>
     <DeleteButton v-if="editStore.editMode" :onClick="confirmAndDelete" />
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { type ItemCard, deleteItem } from '@/service/itemService'
 import { useEditStore } from '@/stores/edit'
 import DeleteButton from './DeleteButton.vue'
@@ -82,6 +82,7 @@ async function confirmAndDelete() {
   height: 100%;
   text-decoration: none;
   color: inherit;
+  width: 100%;
 }
 
 .product-card:hover {
@@ -133,5 +134,6 @@ async function confirmAndDelete() {
 .product-container {
   position: relative;
   height: 100%;
+  width: 100%;
 }
 </style>
