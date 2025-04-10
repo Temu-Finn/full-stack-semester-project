@@ -16,12 +16,33 @@
     </router-link>
     <DeleteButton v-if="editStore.editMode" :onClick="() => handleDelete(product.id)" />
   </div>
-</template>
 
+  <Dialog
+    :show="showDialog"
+    :title="dialogTitle"
+    :message="dialogMessage"
+    :showCancel="showCancelButton"
+    :confirmText="confirmText"
+    @confirm="handleConfirm"
+    @cancel="closeDialog"
+  />
+</template>
 <script setup lang="ts">
 import { type ItemCard, deleteItem } from '@/service/itemService'
 import { useEditStore } from '@/stores/edit'
 import DeleteButton from './DeleteButton.vue'
+import { useDialog } from '@/composables/useDialog.ts'
+
+const {
+  showDialog,
+  dialogTitle,
+  dialogMessage,
+  showCancelButton,
+  confirmText,
+  openDialog,
+  closeDialog,
+  handleConfirm,
+} = useDialog()
 
 const emit = defineEmits<{
   (e: 'delete', id: number): void
@@ -34,8 +55,10 @@ defineProps<{
 const editStore = useEditStore()
 
 async function handleDelete(id: number) {
-  await deleteItem(id)
-  emit('delete', id)
+  openDialog('Delete Product', 'Are you sure you want to delete this product?', () => {
+    deleteItem(id)
+    emit('delete', id)
+  })
 }
 </script>
 
