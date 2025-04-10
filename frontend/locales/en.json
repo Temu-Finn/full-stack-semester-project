@@ -113,7 +113,7 @@
     "language": "Language",
     "joinedOn": "Joined on",
     "active": "For sale",
-    "reserved": "Reserved",
+    "reserved": "Reserved by you",
     "sold": "Sold",
     "archived": "Archived",
     "bought": "Bought",
@@ -133,14 +133,17 @@
     "noImages": "No images available.",
     "currencySuffix": " kr",
     "sendMessage": "Send message",
-    "buyNowVipps": "Buy now (Vipps)",
+    "buyNowVipps": "Buy now",
+    "reserveItem": "Reserve",
     "statusLabel": "Status:",
     "locationLabel": "Location:",
     "categoryLabel": "Category:",
     "descriptionLabel": "Description:",
     "notFound": "Product not found.",
     "errorInvalidId": "Invalid Product ID.",
-    "errorFetchFailed": "Could not load product details. Please try again later."
+    "errorFetchFailed": "Could not load product details. Please try again later.",
+    "reservedByUser": "Reserved by you",
+    "reservedByOtherUser": "Reserved by other user"
   },
   "createListing": {
     "title": "Create New Listing",
@@ -206,5 +209,14 @@
     "deleteProductTitle": "Delete Product",
     "errorTitle": "Error",
     "genericError": "An unexpected error occurred."
+  },
+  "product": {
+    "status": {
+      "sold": "Sold",
+      "bought": "Bought",
+      "reserved": "Reserved",
+      "archived": "Archived"
+    },
+    "vippsBuyAvailable": "Vipps purchase available"
   }
 }

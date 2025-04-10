@@ -173,4 +173,23 @@ class ItemController (
         return ResponseEntity.ok(favorites)
     }
 
+
+    @PostMapping("/reserve/{itemId}")
+    @Operation(summary = "Reserve an item", description = "Reserves an item for the current user")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "Item reserved successfully"),
+            ApiResponse(responseCode = "404", description = "Item not found"),
+            ApiResponse(responseCode = "500", description = "Internal server error")
+        ]
+    )
+    fun reserveItem(
+        @Parameter(description = "Item ID to reserve", required = true)
+        @PathVariable itemId: Int
+    ): ResponseEntity<CompleteItem> {
+        logger.info("Request to reserve item")
+        val reservedItem = itemService.reserveItem(itemId)
+        logger.info("Item reserved successfully")
+        return ResponseEntity.ok().body(reservedItem)
+    }
 }

@@ -5,11 +5,11 @@ import edu.ntnu.idatt2105.gr2.backend.dto.toItem
 import edu.ntnu.idatt2105.gr2.backend.model.Item
 import edu.ntnu.idatt2105.gr2.backend.repository.ItemRepository
 import edu.ntnu.idatt2105.gr2.backend.exception.ItemNotFoundException
+import edu.ntnu.idatt2105.gr2.backend.model.ItemStatus
 import edu.ntnu.idatt2105.gr2.backend.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.web.multipart.MultipartFile
@@ -71,7 +71,7 @@ class ItemService(
         logger.info("Fetching item card with ID: $id")
         val item = itemRepository.getItemById(id)
             ?: throw ItemNotFoundException("Item with ID $id not found")
-        return item.toCard()
+        return item.toResponse().toCard()
     }
 
     @Transactional
@@ -89,34 +89,35 @@ class ItemService(
 
     fun getRecommendedItems(): List<ItemCard> {
         logger.info("Fetching recommended items")
-        return itemRepository.findRecommendedItems().map { it.toCard() }
+        return itemRepository.findRecommendedItems().map { it.toResponse().toCard() }
     }
 
     fun searchItems(request: SearchRequest, pageable: Pageable): SearchResponse {
         logger.info("Searching items with request: $request and pageable: $pageable")
         val itemPage = itemRepository.searchItems(request, pageable)
         val counties = areaService.populateCounties(request)
-        val itemCards = itemPage.content.map { it.toCard() }
+        val itemCards = itemPage.content.map { it.toResponse().toCard() }
         return SearchResponse(counties, PageImpl(itemCards, pageable, itemPage.totalElements))
     }
 
     fun getItemsOfUser(userId: Int): List<ItemCard> {
         val isOwnUser = userId == userContextService.getCurrentUserId()
         logger.info("Fetching items for user ID: $userId")
-        val items = itemRepository.findAllBySellerId(userId, isOwnUser).map {  it.toCard() }
+        val items = itemRepository.findAllBySellerId(userId, isOwnUser).map {  it.toResponse().toCard() }
         if (!isOwnUser) {
             return items
         }
 
-        val boughtItems = itemRepository.findAllBought(userId).map { it.toCard().copy(status = "bought") }
+        val boughtItems = itemRepository.findAllBought(userId).map { it.toResponse().toCard().copy(status = "bought") }
+        val reservedItems = itemRepository.findAllReserved(userId).map {  it.toResponse().toCard().copy(status = "reserved_by_user") }
 
-        return items.plus(boughtItems)
+        return items.plus(boughtItems).plus(reservedItems)
     }
 
     fun getFavoriteItemsOfCurrentUser(): List<ItemCard> {
         val userId = userContextService.getCurrentUserId()
         logger.info("Fetching favourite items for user ID: $userId")
-        return itemRepository.findFavoriteByUserId(userId).map { it.toCard() }
+        return itemRepository.findFavoriteByUserId(userId).map { it.toResponse().toCard() }
     }
 
     fun Item.toResponse(): CompleteItem {
@@ -132,7 +133,7 @@ class ItemService(
             location = location,
             allowVippsBuy = allowVippsBuy,
             primaryImageId = primaryImageId,
-            status = status.toString(),
+            status = getResponseStatus(),
             images = emptyList(),
             createdAt = createdAt,
             updatedAt = updatedAt,
@@ -141,13 +142,25 @@ class ItemService(
         )
     }
 
+    fun Item.getResponseStatus(): String {
+        if (buyerId == userContextService.getCurrentUserId()) {
+            if (status == ItemStatus.Sold) {
+                return "bought"
+            } else if (status == ItemStatus.Reserved) {
+                return "reserved_by_user"
+            }
+        }
+
+        return status.toString()
+    }
+
     fun CompleteItem.withImages(): CompleteItem {
         return this.copy(
             images = imageService.getImagesByItemId(this.id)
         )
     }
 
-    fun Item.toCard(): ItemCard {
+    fun CompleteItem.toCard(): ItemCard {
         return ItemCard(
             id = id,
             title = title,
@@ -155,8 +168,16 @@ class ItemService(
             municipality = municipality,
             image = primaryImageId?.let { imageService.getImageById(primaryImageId)},
             location = location,
-            status = status.toString(),
-            updatedAt = updatedAt
+            status = status,
+            updatedAt = updatedAt,
+            allowVippsBuy = allowVippsBuy
         )
+    }
+
+    fun reserveItem(itemId: Int): CompleteItem {
+        val userId = userContextService.getCurrentUserId()
+        logger.info("Reserving item with ID: $itemId for user ID: $userId")
+        itemRepository.reserveItem(itemId, userId)
+        return itemRepository.getItemById(itemId)?.toResponse() ?: throw ItemNotFoundException("Item with ID $itemId not found")
     }
 }
