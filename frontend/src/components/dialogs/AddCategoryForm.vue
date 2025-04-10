@@ -22,6 +22,7 @@
           type="text"
           maxlength="2"
           placeholder="🌟"
+          required
         />
       </div>
 

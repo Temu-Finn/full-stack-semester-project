@@ -222,8 +222,6 @@ button.add-category:hover {
   background-color: #eef7ff;
 }
 
-/* Delete button is styled within Product.vue or globally now */
-
 @media (max-width: 768px) {
   .category-grid {
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
