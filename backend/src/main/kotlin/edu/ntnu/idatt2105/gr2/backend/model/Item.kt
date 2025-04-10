@@ -5,25 +5,30 @@ import java.time.Instant
 
 sealed class ItemStatus {
     object Available : ItemStatus()
+
     object Reserved : ItemStatus()
+
     object Sold : ItemStatus()
+
     object Archived : ItemStatus()
 
-    override fun toString(): String = when (this) {
-        is Available -> "available"
-        is Reserved -> "reserved"
-        is Sold -> "sold"
-        is Archived -> "archived"
-    }
+    override fun toString(): String =
+        when (this) {
+            is Available -> "available"
+            is Reserved -> "reserved"
+            is Sold -> "sold"
+            is Archived -> "archived"
+        }
 
     companion object {
-        fun fromString(value: String): ItemStatus = when (value) {
-            "available" -> Available
-            "reserved" -> Reserved
-            "sold" -> Sold
-            "archived" -> Archived
-            else -> throw IllegalArgumentException("Invalid status: $value")
-        }
+        fun fromString(value: String): ItemStatus =
+            when (value) {
+                "available" -> Available
+                "reserved" -> Reserved
+                "sold" -> Sold
+                "archived" -> Archived
+                else -> throw IllegalArgumentException("Invalid status: $value")
+            }
     }
 }
 

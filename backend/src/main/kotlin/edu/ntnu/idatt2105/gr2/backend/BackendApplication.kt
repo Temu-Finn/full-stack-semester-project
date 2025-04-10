@@ -10,5 +10,5 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerial
 class BackendApplication
 
 fun main(args: Array<String>) {
-	runApplication<BackendApplication>(*args)
+    runApplication<BackendApplication>(*args)
 }

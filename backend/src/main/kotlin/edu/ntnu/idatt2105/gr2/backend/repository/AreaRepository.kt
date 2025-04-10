@@ -7,10 +7,12 @@ import java.sql.ResultSet
 import javax.sql.DataSource
 
 @Repository
-class AreaRepository (private val dataSource: DataSource) {
-
+class AreaRepository(
+    private val dataSource: DataSource,
+) {
     fun getCounties(request: SearchRequest): List<CountyMunicipalityCount> {
-        val sql = """
+        val sql =
+            """
             SELECT 
                 pc.county, 
                 pc.municipality, 
@@ -24,7 +26,7 @@ class AreaRepository (private val dataSource: DataSource) {
                 pc.county, pc.municipality
             ORDER BY 
                 pc.county, pc.municipality
-        """.trimIndent()
+            """.trimIndent()
 
         return dataSource.connection.use { conn ->
             conn.prepareStatement(sql).use { stmt ->
@@ -40,11 +42,10 @@ class AreaRepository (private val dataSource: DataSource) {
         }
     }
 
-    fun mapRowToCountyMunicipalityCount(rs: ResultSet): CountyMunicipalityCount {
-        return CountyMunicipalityCount(
+    fun mapRowToCountyMunicipalityCount(rs: ResultSet): CountyMunicipalityCount =
+        CountyMunicipalityCount(
             county = rs.getString("county"),
             municipality = rs.getString("municipality"),
-            count = rs.getInt("item_count")
+            count = rs.getInt("item_count"),
         )
-    }
 }
