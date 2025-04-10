@@ -110,8 +110,9 @@ class ItemService(
         }
 
         val boughtItems = itemRepository.findAllBought(userId).map { it.toCard().copy(status = "bought") }
+        val reservedItems = itemRepository.findAllReserved(userId).map {  it.toCard() }
 
-        return items.plus(boughtItems)
+        return items.plus(boughtItems).plus(reservedItems)
     }
 
     fun getFavoriteItemsOfCurrentUser(): List<ItemCard> {
