@@ -9,6 +9,7 @@ import { useSessionStore } from '@/stores/session'
 import ChatView from '@/views/ChatView.vue'
 import ProductView from '@/views/ProductView.vue'
 import SearchResultsView from '@/views/SearchResultsView.vue'
+import UpdateCredentials from '@/views/UpdateCredentials.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -66,8 +67,12 @@ const router = createRouter({
       path: '/vipps/processing',
       name: 'VippsProcessing',
       component: () => import('@/views/VippsProcessing.vue'),
-    }
-    
+    },
+    {
+      path: '/edit-user',
+      name: 'UpdateCredentials',
+      component: UpdateCredentials
+    }     
   ],
 })
 
