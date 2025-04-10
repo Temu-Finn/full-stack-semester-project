@@ -71,12 +71,11 @@
   },
   "login": {
     "title": "Login",
-    "email": "Email",
-    "password": "Password",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
     "rememberMe": "Remember Me",
-    "button": "Login",
+    "submitButton": "Login",
     "registerPrompt": "Don't have an account?",
-    "registerLink": "Register",
     "loadingButton": "Logging in...",
     "signupLink": "Don't have an account? Sign up",
     "error": {

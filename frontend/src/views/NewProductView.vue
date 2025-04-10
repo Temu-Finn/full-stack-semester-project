@@ -83,7 +83,6 @@
       <div class="form-group">
         <label for="images">{{ $t('newProduct.images') }}</label>
         <input id="images" accept="image/*" multiple type="file" @change="handleImageUpload" />
-        <!-- Styled label acts as the file input trigger -->
         <label
           for="images"
           class="file-input-label"
@@ -122,9 +121,7 @@
 
       <!-- Allow Vipps -->
       <div class="form-group toggle-group">
-        <!-- Replace old checkbox/label with ToggleButton -->
         <ToggleButton v-model="product.allowVippsBuy" active-color="#ff5b24" :scale="1.4" />
-        <!-- Keep the Vipps logo and text -->
         <div class="vipps-logo-text">
           <img src="/Vipps.svg" alt="Vipps Logo" class="vipps-logo-inline" />
           <span class="vipps-label-text">{{ $t('newProduct.vipps') }}</span>
@@ -136,7 +133,6 @@
         {{ isLoading ? $t('newProduct.creating') : $t('newProduct.createButton') }}
       </button>
 
-      <!-- General Error Message (for API errors) -->
       <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
     </form>
   </div>
