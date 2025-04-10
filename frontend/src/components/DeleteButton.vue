@@ -17,7 +17,7 @@ function handleClick() {
   position: absolute;
   top: -0.75rem;
   right: -0.75rem;
-  background-color: #ff3c3c;
+  background-color: #ff5252;
   border: none;
   border-radius: 2.5rem;
   height: 2.5rem;
@@ -25,15 +25,19 @@ function handleClick() {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.delete-button img {
-  width: 1.5rem;
-  height: 1.5rem;
+  transition:
+    background-color 0.2s ease,
+    transform 0.1s ease;
 }
 
 .delete-button:hover {
   background-color: red;
   cursor: pointer;
+  transform: translateY(-1px) scale(1.03);
+}
+
+.delete-button img {
+  width: 1.5rem;
+  height: 1.5rem;
 }
 </style>

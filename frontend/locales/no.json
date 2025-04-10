@@ -70,12 +70,11 @@
   },
   "login": {
     "title": "Logg inn",
-    "email": "E-post",
-    "password": "Passord",
+    "emailLabel": "E-post",
+    "passwordLabel": "Passord",
     "rememberMe": "Husk meg",
-    "button": "Logg inn",
+    "submitButton": "Logg inn",
     "registerPrompt": "Har du ikke konto?",
-    "registerLink": "Registrer deg",
     "loadingButton": "Logger inn...",
     "signupLink": "Har du ikke konto? Registrer deg",
     "error": {

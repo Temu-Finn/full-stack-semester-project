@@ -23,6 +23,8 @@ export const useSessionStore = defineStore('session', () => {
     if (response === null) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
+      user.value = null
+      token.value = null
       return
     }
 
@@ -62,7 +64,7 @@ export const useSessionStore = defineStore('session', () => {
 
   function logout() {
     setToken(null)
-    router.push('/')
+    router.push('/login')
   }
 
   return { token, user, isAuthenticated, isAdmin, login, signup, logout }
