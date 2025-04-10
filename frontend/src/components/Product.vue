@@ -14,22 +14,28 @@
         </div>
       </div>
     </router-link>
-    <DeleteButton v-if="editStore.editMode" :onClick="() => deleteItem(product.id)" />
+    <DeleteButton v-if="editStore.editMode" :onClick="() => handleDelete(product.id)" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { type ItemCard } from '@/service/itemService'
+import { type ItemCard, deleteItem } from '@/service/itemService'
 import { useEditStore } from '@/stores/edit'
 import DeleteButton from './DeleteButton.vue'
+
+const emit = defineEmits<{
+  (e: 'delete', id: number): void
+}>()
+
 defineProps<{
   product: ItemCard
 }>()
 
 const editStore = useEditStore()
 
-function deleteItem(id: number) {
-  console.log(id)
+async function handleDelete(id: number) {
+  await deleteItem(id)
+  emit('delete', id)
 }
 </script>
 

@@ -5,10 +5,10 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ onClick: () => void }>()
+const props = defineProps<{ onClick: () => void }>()
 
 function handleClick() {
-  defineProps<{ onClick: () => void }>().onClick()
+  props.onClick()
 }
 </script>
 
