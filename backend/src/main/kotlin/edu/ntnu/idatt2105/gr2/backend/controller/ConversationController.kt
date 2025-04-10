@@ -104,7 +104,6 @@ class ConversationController(
         @RequestBody request: SendMessageRequest
     ): ResponseEntity<NewMessageResponse> {
         logger.info("Sending message to conversation")
-        logger.info("itemid: ${request.itemId}")
         val response = conversationService.sendMessage(request)
         logger.info("Successfully sent message to conversation")
         return ResponseEntity.ok(response)
