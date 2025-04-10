@@ -1,17 +1,18 @@
 <script lang="ts" setup>
 /**
- * SearchResults.vue
+ * searchResults.vue
  *
  * This component fetches items for a given query, selected category, sort order,
- * and location (county/municipality plus map position with optional map filter).
- * It displays them in a grid and includes a side filter menu plus a top bar with controls.
+ * location filters (county/municipality and map filter), and pagination.
+ * It displays a side filter menu, a top bar with controls, and renders the search results
+ * through a separate component.
  */
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import Product from '@/components/home/Product.vue'
+import SearchResultsContent from '@/components/searchResults/SearchResultsContent.vue'
 import { searchItems, type SearchItemsResponse } from '@/service/itemService'
-import Map from '@/components/RadiusMap.vue'
+import Map from '@/components/searchResults/RadiusMap.vue'
 import { getCategories } from '@/service/categoryService.ts'
 
 const { t } = useI18n()
@@ -325,6 +326,7 @@ onMounted(async () => {
           <h3 class="filter-title">{{ t('search.location') }}</h3>
           <div class="county-list">
             <div v-for="county in searchResponse.counties" :key="county.name">
+              <!-- County item -->
               <div
                 :class="{ selected: selectedCountyQuery === county.name }"
                 class="county-item"
@@ -332,6 +334,7 @@ onMounted(async () => {
               >
                 {{ county.name }} ({{ county.count }})
               </div>
+              <!-- Municipality list appears directly beneath this county -->
               <div v-if="selectedCountyQuery === county.name" class="municipality-list">
                 <div
                   v-for="municipality in county.municipalities"
@@ -348,45 +351,14 @@ onMounted(async () => {
         </div>
       </aside>
 
-      <section class="search-results">
-        <div v-if="isLoading" class="loading-spinner">{{ t('search.loading') }}...</div>
-        <div v-else>
-          <div class="search-count">
-            {{ searchResponse.result.page.totalElements }} {{ t('search.results') }}
-            {{ searchQuery.length !== 0 ? t('search.for') : '' }} {{ searchQuery }}
-          </div>
-          <div class="results-grid">
-            <Product v-for="item in searchResponse.result.content" :key="item.id" :product="item" />
-          </div>
-          <div v-if="totalPagesRange.length > 1" class="pagination">
-            <button
-              :disabled="currentPage === 1"
-              class="pagination-button"
-              @click="handlePageClick(currentPage - 1)"
-            >
-              Prev
-            </button>
-
-            <button
-              v-for="page in totalPagesRange"
-              :key="page"
-              :class="{ active: page === currentPage }"
-              class="pagination-button"
-              @click="handlePageClick(page)"
-            >
-              {{ page }}
-            </button>
-
-            <button
-              :disabled="currentPage === searchResponse.result.page.totalPages"
-              class="pagination-button"
-              @click="handlePageClick(currentPage + 1)"
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      </section>
+      <!-- Search results area moved to a separate component -->
+      <SearchResultsContent
+        :currentPage="currentPage"
+        :isLoading="isLoading"
+        :searchQuery="searchQuery"
+        :searchResponse="searchResponse"
+        @pageChange="handlePageClick"
+      />
     </div>
   </div>
 </template>
@@ -507,60 +479,18 @@ onMounted(async () => {
   color: #333;
   background-color: #d0eaff;
 }
-.vipps-section {
-  padding: 0 0.5rem;
-  display: flex;
-  gap: 10px;
-}
-.search-results {
-  flex: 1;
-  padding: 0.5rem 1rem;
-  background-color: #fff;
-}
-.results-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-.search-count {
-  font-size: 1.1rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
-.loading-spinner {
-  text-align: center;
-  padding: 2rem;
-}
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
+.map-section {
   margin-top: 1rem;
 }
-.pagination-button {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #ccc;
-  background-color: #fff;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+.map-toggle {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
 }
-.pagination-button:hover:not(:disabled) {
-  background-color: #f0f8ff;
+.map-toggle input[type='checkbox'] {
+  margin-right: 0.5rem;
 }
-.pagination-button.active {
-  background-color: #007bff;
-  color: #fff;
-  border-color: #007bff;
-}
-.pagination-button:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
 .location-filters {
   margin-top: 4rem;
 }
@@ -602,15 +532,6 @@ onMounted(async () => {
   border-radius: 6px;
 }
 
-.map-toggle {
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-}
-.map-toggle input[type='checkbox'] {
-  margin-right: 0.5rem;
-}
-
 @media (max-width: 768px) {
   .search-main {
     flex-direction: column;
@@ -620,9 +541,6 @@ onMounted(async () => {
     max-width: 100%;
     border-right: none;
     border-bottom: 1px solid #ddd;
-  }
-  .results-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   }
 }
 </style>
