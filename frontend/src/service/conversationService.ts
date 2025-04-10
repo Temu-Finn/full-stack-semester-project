@@ -3,6 +3,7 @@ import api from '@/config/api'
 import { logger } from '@/utils/logger'
 
 export type ConversationCardsResponse = z.infer<typeof ConversationCardsResponseSchema>
+export type MessageResponse = z.infer<typeof MessageResponseSchema>
 
 const ItemSchema = z.object({
   id: z.number(),
@@ -29,13 +30,11 @@ const ConversationCardsResponseSchema = z.object({
   ),
 })
 
-const MessageSchema = z.object({
-  id: z.number(),
-  conversationId: z.number(),
+const MessageResponseSchema = z.object({
+  conversationId: z.number().optional(),
   senderId: z.number(),
   content: z.string(),
   sentAt: z.string().datetime(),
-  isRead: z.boolean().optional(),
 })
 
 const getConversationResponseSchema = z.object({
@@ -80,5 +79,23 @@ export async function getConversation(
     }
     logger.error('Failed to fetch conversation', error)
     throw new Error('Failed to load conversation. Please try again later.')
+  }
+
+  export async function sendMessage(
+    conversationId?: number, itemId: number,  message: string
+  ): Promise<MessageResponse> {
+    try {
+      logger.debug('Sending message to conversation:', conversationId, message)
+      const payload: Record<string, any> = { content: message, itemId };
+      if (conversationId) {
+        payload.conversationId = conversationId;
+      }
+      await api.post(`conversations/sendMessage`, {
+        conversationId: conversationId, itemId: itemId, content: message })
+      logger.debug('Message sent successfully')
+    } catch (error) {
+      logger.error('Failed to send message', error)
+      throw new Error('Failed to send message. Please try again later.')
+    }
   }
 }
