@@ -71,12 +71,12 @@ export async function getConversation(
 }
 
 export async function sendMessage(
-  conversationId?: number,
+  conversationId: number,
   itemId: number,
   message: string,
-): Promise<MessageResponse> {
+): Promise<void> {
   try {
-    logger.debug('Sending message to conversation:', conversationId, message)
+    logger.debug('Sending message to conversation:', conversationId)
     const payload: Record<string, any> = { content: message, itemId }
     if (conversationId) {
       payload.conversationId = conversationId

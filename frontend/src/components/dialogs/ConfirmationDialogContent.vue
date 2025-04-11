@@ -14,7 +14,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue'
 import { useDialogStore } from '@/stores/dialog'
 
 const dialogStore = useDialogStore()
