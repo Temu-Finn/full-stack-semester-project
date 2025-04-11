@@ -2,6 +2,8 @@
 
 Temu Finn is a modern marketplace application for buying and selling used items. The platform enables users to list products, search through listings with advanced filtering options, communicate with sellers/buyers, and complete transactions securely.
 
+**Created by**: Henrik Halvorsen Kvamme, Jonas Moe Bjørnbom, Henrik Utistog Hausberg, Mathias Hølestøl
+
 ## Project Overview
 
 This is a full-stack monorepo with:

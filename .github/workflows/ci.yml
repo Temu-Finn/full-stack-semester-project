@@ -84,9 +84,9 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           working-directory: ./frontend
-          build: pnpm build
+          build: pnpm build-only
           start: pnpm preview
-          wait-on: "http://localhost:5173"
+          wait-on: "http://localhost:4173"
 
       - name: Upload Vitest report
         if: always()

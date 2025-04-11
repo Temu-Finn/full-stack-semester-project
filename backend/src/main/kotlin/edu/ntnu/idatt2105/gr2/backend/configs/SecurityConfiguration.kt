@@ -53,6 +53,7 @@ class SecurityConfiguration(
         configuration.allowedOrigins =
             listOf(
                 "http://localhost:5173",
+                "http://localhost:4173",
                 "http://localhost:63342",
             )
         configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
