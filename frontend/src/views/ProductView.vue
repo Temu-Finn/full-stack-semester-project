@@ -28,7 +28,7 @@
         <h1 class="product-title">{{ product.title }}</h1>
         <div class="product-price">{{ product.price }}{{ $t('productView.currencySuffix') }}</div>
 
-        <div class="buttons">
+        <div v-if="userId != product.sellerId" class="buttons">
           <BaseButton
             v-if="product.allowVippsBuy"
             background-color="#ff5b24"
@@ -125,7 +125,9 @@ import Product from '@/components/Product.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import { startVippsPayment } from '@/service/vippsService'
 import { sendMessage } from '@/service/conversationService.ts'
+import { useSessionStore } from '@/stores/session.ts'
 
+const userId = useSessionStore().user.id
 const route = useRoute()
 const router = useRouter()
 const product = ref<CompleteItem | null>(null)
