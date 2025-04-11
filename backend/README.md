@@ -1,92 +1,140 @@
-# Semester Project - Backend
-Backend is written in Kotlin using Spring Boot 3 framework.
+# Temu Finn - Backend
 
-### TL;DR
+The backend service for Temu Finn marketplace, built with Kotlin and Spring Boot 3.
 
-Start the application and database:
+## Overview
+
+This backend provides a robust API for the Temu Finn marketplace, handling user authentication, product management, messaging, and payment processing. It's built with Kotlin and Spring Boot 3, using MySQL for data storage.
+
+## Features
+
+- **RESTful API**: Comprehensive endpoints for all marketplace functionality
+- **Authentication**: Secure JWT-based authentication system
+- **Product Management**: Create, read, update, and delete product listings
+- **Search Engine**: Advanced product search with filtering and sorting
+- **Media Handling**: Upload and serve product images
+- **WebSockets**: Real-time messaging between users
+- **Vipps Integration**: Secure payment processing
+- **Geospatial Support**: Location-based queries using MySQL spatial extensions
+
+## Technology Stack
+
+- **Kotlin**: Primary programming language
+- **Spring Boot 3**: Application framework
+- **JDK 21**: Java runtime
+- **Spring Security**: Authentication and authorization
+- **MySQL**: Database with spatial extensions
+- **Flyway**: Database migrations
+- **Docker**: Containerization for development and deployment
+- **WebSockets**: Real-time communication (in progress)
+
+## Getting Started
+
+### Prerequisites
+
+- JDK 21
+- Docker and Docker Compose
+
+### Quick Start
+
+The project includes a Makefile that simplifies common operations:
 
 ```bash
+# Start application and database
 make
-```
 
-To reset the database and start fresh:
-
-```bash
+# Reset database and start fresh
 make fresh
-```
 
-To stop the application:
-
-```bash
+# Stop the application
 make down
+
+# Run tests
+make test
 ```
-
-### Authentication
-Spring Security is used for authentication and `io.jsonwebtoken` is used for generating JWT tokens. We store both userId and email in the JWT to work smoothly with Spring Security's standard login flow. The `DaoAuthenticationProvider`, which handles email/password login, relies on `UserDetailsService` looking up users by email (the identifier used for authentication). To keep this consistent, our JWT filter also uses the email claim from the token to validate the user via `UserDetailsService`, meaning that the email must be stored in the JWT. Meanwhile, the userId is included as the JWT's subject, serving as the stable, primary identifier for the authenticated user throughout the application.
-
-Authentication endpoints are found at `/api/auth` and are emitted by the authentication filter. For all other endpoints, the JWT is required to be sent in the `Authorization` header as a Bearer token.
-
-#### Register
-
-Registering a new user is done by sending a POST request to `/api/auth/register` with the following JSON body:
-
-```json
-{
-    "email": "test@test.com",
-    "name": "Test User",
-    "password": "password"
-}
-```
-
-The user will be created if the email is not already in use. The response will be a JWT token that can be used to access protected endpoints.
-
-#### Login
-
-Logging in is done by sending a POST request to `/api/auth/login` with the following JSON body:
-
-```json
-{
-    "email": "test@test.com",
-    "password": "password"
-}
-```
-
-The user will be logged in if the email and password are correct. The response will be a JWT token that can be used to access protected endpoints.
 
 ### Database
 
-The database is a MySQL database that is run locally using Docker. The connection details are stored in the `application.properties` file.
-
-To run the database, run in the root directory:
+The application uses MySQL with geospatial extensions. Database migrations are handled by Flyway and automatically applied on startup.
 
 ```bash
+# Start only the database
 make db
 ```
 
-To stop the database, run in the root directory:
+### API Documentation
 
-```bash
-make down
+The API is documented using OpenAPI 3.0 and Swagger UI.
+
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
+- OpenAPI JSON: http://localhost:8080/v3/api-docs
+
+## Authentication
+
+The service uses Spring Security with JWT tokens for authentication.
+
+### Register
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+    "email": "user@example.com",
+    "name": "User Name",
+    "password": "password"
+}
 ```
 
-To reset the database, run in the root directory:
+### Login
 
-```bash
-make fresh
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+    "email": "user@example.com",
+    "password": "password"
+}
 ```
 
-### API
+The response includes a JWT token to be used in subsequent requests:
 
-The API is documented using OpenAPI 3.0 and swagger.
-
-To view the API documentation, run the application and navigate to `http://localhost:8080/swagger-ui/index.html`.
-
-To view the documentation as json, navigate to `http://localhost:8080/v3/api-docs`.
-
-### Testing
-
-To run the tests, run in the root directory:
-
-```bash
-make test
+```http
+Authorization: Bearer {token}
 ```
+
+## Project Structure
+
+```
+backend/
+├── src/
+│   ├── main/
+│   │   ├── kotlin/
+│   │   │   └── edu/ntnu/idatt2105/gr2/backend/
+│   │   │       ├── configs/         # Configuration classes
+│   │   │       ├── controllers/     # REST controllers
+│   │   │       ├── dto/             # Data transfer objects
+│   │   │       ├── exception/       # Exception handling
+│   │   │       ├── model/           # Domain models
+│   │   │       ├── repository/      # Data access
+│   │   │       ├── service/         # Business logic
+│   │   │       └── Application.kt   # Application entry point
+│   │   └── resources/
+│   │       ├── application.properties  # Application configuration
+│   │       └── db/migration/           # Flyway migrations
+│   └── test/
+│       ├── kotlin/                     # Test classes
+│       └── resources/                  # Test resources
+├── docker-compose.yml                  # Docker configuration
+├── Dockerfile                          # Application container definition
+└── Makefile                            # Common commands
+```
+
+## Development Guidelines
+
+- Use Kotlin idioms and follow best practices
+- Write unit and integration tests for critical functionality
+- Use DTOs for API requests and responses
+- Document API endpoints with OpenAPI annotations
+- Implement proper error handling and validation

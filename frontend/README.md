@@ -1,61 +1,124 @@
-# frontend
+# Temu Finn - Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+The frontend application for Temu Finn marketplace, built with Vue 3, TypeScript, and Vite.
 
-## Recommended IDE Setup
+## Overview
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+This Vue 3 application provides a responsive user interface for the Temu Finn marketplace where users can buy and sell used items. The frontend communicates with the Kotlin backend API and integrates with external services like Mapbox for location visualization and Vipps for payment processing.
 
-## Type Support for `.vue` Imports in TS
+## Features
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+- **User Authentication**: Register and login with secure JWT authentication
+- **Product Management**: Create, browse, search, and purchase products
+- **Interactive Maps**: View products on a map with location-based filtering
+- **Real-time Chat**: Message sellers and buyers through WebSocket integration
+- **Responsive Design**: Mobile-friendly interface that adapts to different screen sizes
+- **Multilingual Support**: Switch between Norwegian and English interfaces
+- **Secure Payments**: Complete purchases using Vipps integration
 
-## Customize configuration
+## Technology Stack
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+- **Vue 3**: Core framework with Composition API
+- **TypeScript**: Type safety throughout the codebase
+- **Vite**: Fast development server and optimized builds
+- **Vue Router**: Client-side routing
+- **Pinia**: State management
+- **Vue I18n**: Internationalization
+- **Mapbox GL**: Interactive maps
+- **Cypress**: End-to-end testing
+- **Vitest**: Unit testing
 
-## Project Setup
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or later)
+- pnpm package manager
+
+### Installation
 
 ```sh
+# Install dependencies
 pnpm install
 ```
 
-### Compile and Hot-Reload for Development
+### Configuration
+
+Create a `.env` file based on the `.env.example` template:
+
+```
+# API configuration
+VITE_API_BASE_URL=http://localhost:8080/api
+
+# Mapbox (required for maps functionality)
+VITE_MAPBOX_TOKEN=your_mapbox_token_here
+```
+
+You'll need to obtain a Mapbox token from [mapbox.com](https://www.mapbox.com/) for the map features to work properly.
+
+### Development
 
 ```sh
+# Start the development server
 pnpm dev
 ```
 
-### Type-Check, Compile and Minify for Production
+The application will be available at http://localhost:5173.
+
+### Building for Production
 
 ```sh
+# Type-check, compile and minify
 pnpm build
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+### Testing
 
 ```sh
+# Run unit tests
 pnpm test:unit
-```
 
-### Run End-to-End Tests with [Cypress](https://www.cypress.io/)
-
-```sh
+# Run end-to-end tests in development mode
 pnpm test:e2e:dev
-```
 
-This runs the end-to-end tests against the Vite development server.
-It is much faster than the production build.
-
-But it's still recommended to test the production build with `test:e2e` before deploying (e.g. in CI environments):
-
-```sh
+# Run end-to-end tests against production build
 pnpm build
 pnpm test:e2e
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+### Linting
 
 ```sh
+# Lint the codebase
 pnpm lint
 ```
+
+## Project Structure
+
+```
+frontend/
+├── locales/             # Translation files (en.json, no.json)
+├── public/              # Static assets
+├── src/
+│   ├── assets/          # Styles and images
+│   ├── components/      # Vue components
+│   ├── composables/     # Composable functions
+│   ├── config/          # Configuration files
+│   ├── router/          # Vue Router configuration
+│   ├── service/         # API services
+│   ├── stores/          # Pinia stores
+│   ├── utils/           # Utility functions
+│   ├── views/           # Page components
+│   ├── App.vue          # Root component
+│   └── main.ts          # Application entry point
+├── cypress/             # End-to-end tests
+└── test/                # Unit tests
+```
+
+## Development Guidelines
+
+- Use TypeScript for all components and services
+- Follow Vue 3 Composition API patterns
+- Use Pinia for global state management
+- Ensure all user-facing strings are localized
+- Write tests for critical functionality
