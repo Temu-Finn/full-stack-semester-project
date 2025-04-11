@@ -31,4 +31,28 @@ describe('Login Flow', () => {
     cy.wait('@loginRequest')
     cy.get('[data-test="login-error"]').should('be.visible')
   })
+
+  it('should successfully log in with valid credentials', () => {
+    const userResponse = {
+      userId: 1,
+      name: 'Test User',
+      email: 'test@example.com',
+      joinedAt: new Date().toISOString(),
+      admin: false,
+      token: '',
+      expiresIn: 3600,
+    }
+
+    cy.intercept('POST', '**/api/auth/login', {
+      statusCode: 200,
+      body: userResponse,
+    }).as('loginRequest')
+
+    cy.get('[data-test="email-input"]').type('test@example.com')
+    cy.get('[data-test="password-input"]').type('correctpassword')
+    cy.get('[data-test="login-button"]').click()
+
+    cy.wait('@loginRequest')
+    cy.get('[data-test="profile-name"]').should('contain', userResponse.name)
+  })
 })

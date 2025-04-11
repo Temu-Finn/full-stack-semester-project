@@ -47,7 +47,7 @@ const closeSidebar = () => {
             src="/profile-avatar.png"
             width="36"
           />
-          <p>{{ authStore.user?.name ?? 'Log in' }}</p>
+          <p data-test="profile-name">{{ authStore.user?.name ?? 'Log in' }}</p>
         </a>
       </div>
     </nav>

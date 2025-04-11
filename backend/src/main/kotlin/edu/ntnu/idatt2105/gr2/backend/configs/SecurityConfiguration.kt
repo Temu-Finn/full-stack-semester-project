@@ -34,6 +34,9 @@ class SecurityConfiguration(
                         "/v3/api-docs/**",
                         "/v3/api-docs.yaml",
                         "ws/**",
+                        "/api/item/recommended",
+                        "/api/item/search",
+                        "/api/categories/getAll",
                     ).permitAll()
                 authorize.anyRequest().authenticated()
             }.sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
