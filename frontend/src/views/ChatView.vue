@@ -88,7 +88,7 @@ const conversationResponse = ref<ConversationResponse>()
 const newMessage = ref('')
 
 onMounted(() => {
-  //sendMessage(null, 2, 'heyyy')
+  //sendMessage(null, 20, 'yyyyyy')
   fetchConversationCards()
   fetchConversation(conversationId)
 })
@@ -137,10 +137,6 @@ function openSidebar() {
 
 function closeSidebar() {
   isSidebarOpen.value = false
-}
-
-function handleContactClick(convId: number) {
-  router.push('/chat/' + convId)
 }
 </script>
 

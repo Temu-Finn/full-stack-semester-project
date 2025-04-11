@@ -31,21 +31,21 @@
         <div class="buttons">
           <BaseButton
             v-if="product.allowVippsBuy"
-            class="vipps-button"
             background-color="#ff5b24"
+            class="vipps-button"
             @click="startVipps"
           >
             <template #icon>
-              <img src="/VippsWhite.svg" alt="Vipps" />
+              <img alt="Vipps" src="/VippsWhite.svg" />
             </template>
             {{ $t('productView.buyNowVipps') }}
           </BaseButton>
           <BaseButton
             v-else
-            class="outline-button"
             :disabled="product.status === 'reserved' || product.status === 'reserved_by_user'"
-            text-color="#007bff"
             background-color="#ffffff"
+            class="outline-button"
+            text-color="#007bff"
             @click="reserveItemHandle"
           >
             {{
@@ -56,7 +56,7 @@
                   : $t('productView.reserveItem')
             }}
           </BaseButton>
-          <BaseButton :disabled="!product.sellerId">
+          <BaseButton :disabled="!product.sellerId" @click="showMessageDialog = true">
             {{ $t('productView.sendMessage') }}
           </BaseButton>
         </div>
@@ -75,7 +75,8 @@
             {{ product.category.name }}
           </p>
           <p>
-            <strong>{{ $t('productView.descriptionLabel') }}</strong> {{ product.description }}
+            <strong>{{ $t('productView.descriptionLabel') }}</strong>
+            {{ product.description }}
           </p>
         </div>
       </div>
@@ -92,11 +93,22 @@
       <Product v-for="item in filteredSimilarItems" :key="item.id" :product="item" />
     </div>
   </div>
+
+  <div v-if="showMessageDialog" class="dialog-overlay">
+    <div class="dialog">
+      <h2>Send a message to the owner</h2>
+      <input v-model="messageContent" placeholder="Type your message" type="text" />
+      <div class="dialog-buttons">
+        <button @click="handleSendMessage">Send</button>
+        <button @click="showMessageDialog = false">Cancel</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Map from '@/components/Map.vue'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import {
@@ -105,22 +117,22 @@ import {
   searchItems,
   type SearchItemsResponse,
   type ItemCard,
+  reserveItem,
 } from '@/service/itemService'
 import { logger } from '@/utils/logger'
 import { useI18n } from 'vue-i18n'
 import Product from '@/components/Product.vue'
-import { startVippsPayment as startVippsPaymentApi } from '@/service/vippsService'
-import { reserveItem } from '@/service/itemService'
 import BaseButton from '@/components/BaseButton.vue'
-import { useSessionStore } from '@/stores/session.ts'
+import { startVippsPayment } from '@/service/vippsService'
+import { sendMessage } from '@/service/conversationService.ts'
 
 const route = useRoute()
+const router = useRouter()
 const product = ref<CompleteItem | null>(null)
 const selectedImage = ref<string>('')
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const { t } = useI18n()
-const sessionStore = useSessionStore()
 
 const searchResponse = ref<SearchItemsResponse>({
   counties: [],
@@ -192,12 +204,6 @@ async function fetchItems(categoryId: number) {
   }
 }
 
-
-import { startVippsPayment } from '@/service/vippsService'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-
 const reserveItemHandle = async () => {
   if (!product.value) return
   product.value = await reserveItem(product.value.id)
@@ -211,7 +217,6 @@ const startVipps = async () => {
     localStorage.setItem('vippsPurchasedItemId', String(product.value.id))
 
     const { redirectUrl } = await startVippsPayment(product.value.price)
-
     window.location.href = redirectUrl
   } catch (err) {
     console.error('Could not start Vipps payment', err)
@@ -219,8 +224,15 @@ const startVipps = async () => {
   }
 }
 
+const showMessageDialog = ref(false)
+const messageContent = ref('')
 
-
+function handleSendMessage() {
+  if (!product.value) return
+  sendMessage(null, product.value.id, messageContent.value)
+  messageContent.value = ''
+  showMessageDialog.value = false
+}
 </script>
 
 <style scoped>
@@ -350,6 +362,44 @@ const startVipps = async () => {
 
 .outline-button:disabled {
   border: 2px solid #ccc;
+}
+
+/* Message Dialog Styles */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  min-width: 300px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dialog h2 {
+  margin-top: 0;
+}
+
+.dialog input {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.dialog-buttons {
+  display: flex;
+  gap: 10px;
 }
 
 @media (max-width: 960px) {
