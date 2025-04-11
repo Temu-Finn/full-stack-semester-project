@@ -66,7 +66,8 @@
     "offline": "Ikke på nett",
     "writeMessage": "Skriv en melding...",
     "send": "Send",
-    "allConversations": "Alle samtaler"
+    "allConversations": "Alle samtaler",
+    "noConversations": "Du har ingen samtaler enda..."
   },
   "login": {
     "title": "Logg inn",

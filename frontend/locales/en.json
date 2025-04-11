@@ -67,7 +67,7 @@
     "writeMessage": "Write a message...",
     "send": "Send",
     "allConversations": "All conversations",
-    "logout": "Log out"
+    "noConversations": "You have no conversations yet..."
   },
   "login": {
     "title": "Login",
@@ -232,6 +232,7 @@
       "bought": "Bought",
       "reserved": "Reserved",
       "archived": "Archived"
-    }
+    },
+    "vippsBuyAvailable": "Vipps Buy Available"
   }
 }
