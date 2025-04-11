@@ -117,7 +117,8 @@
     "sold": "Sold",
     "archived": "Archived",
     "bought": "Bought",
-    "logout": "Log out"
+    "logout": "Log out",
+    "editUser": "Edit user"
   },
   "validation": {
     "required": "{field} is required.",
@@ -232,6 +233,28 @@
       "bought": "Bought",
       "reserved": "Reserved",
       "archived": "Archived"
-    }
+    },
+    "vippsBuyAvailable": "Vipps purchase available"
+  },
+  "credentials": {
+    "title": "Account Settings",
+    "subtitle": "Edit your personal details",
+    "logout": "Log out",
+    "save": "Save",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "saveAndLogout": "Save and log out",
+    "updatedSuccess": "{{type}} updated successfully!",
+    "updatedLogout": "Update successful! You will now be logged out.",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "oldPassword": "Old password",
+    "newPassword": "New password"
+  },
+  "validation": {
+    "required": "{{field}} is required.",
+    "email": "Please enter a valid email.",
+    "passwordMinLength": "Password must be at least 8 characters."
   }
 }
