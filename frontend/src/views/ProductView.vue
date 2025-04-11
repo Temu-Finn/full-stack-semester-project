@@ -86,7 +86,9 @@
       </div>
     </div>
   </div>
-  <div v-else class="not-found">{{ $t('productView.notFound') }}</div>
+  <div v-else class="not-found">
+    {{ $t('productView.notFound') }}
+  </div>
   <div v-if="searchResponse && product" class="similar-items-section">
     <h3 v-if="filteredSimilarItems.length > 0">Similar items</h3>
     <div class="similar-items">
@@ -94,13 +96,24 @@
     </div>
   </div>
 
-  <div v-if="showMessageDialog" class="dialog-overlay">
-    <div class="dialog">
+  <!-- Toast Notification -->
+  <div v-if="toast.visible" :class="['toast', toast.success ? 'success' : 'error']">
+    {{ toast.message }}
+  </div>
+
+  <!-- Modern Message Dialog Popover -->
+  <div v-if="showMessageDialog" class="dialog-overlay" @click="showMessageDialog = false">
+    <div class="dialog" @click.stop>
       <h2>Send a message to the owner</h2>
-      <input v-model="messageContent" placeholder="Type your message" type="text" />
+      <input
+        v-model="messageContent"
+        placeholder="Type your message"
+        type="text"
+        @keydown.enter="handleSendMessage"
+      />
       <div class="dialog-buttons">
-        <button @click="handleSendMessage">Send</button>
-        <button @click="showMessageDialog = false">Cancel</button>
+        <button class="send-btn" @click="handleSendMessage">Send</button>
+        <button class="cancel-btn" @click="showMessageDialog = false">Cancel</button>
       </div>
     </div>
   </div>
@@ -217,7 +230,6 @@ const startVipps = async () => {
 
   try {
     localStorage.setItem('vippsPurchasedItemId', String(product.value.id))
-
     const { redirectUrl } = await startVippsPayment(product.value.price)
     window.location.href = redirectUrl
   } catch (err) {
@@ -229,9 +241,33 @@ const startVipps = async () => {
 const showMessageDialog = ref(false)
 const messageContent = ref('')
 
-function handleSendMessage() {
+// Toast reactive object
+const toast = ref({
+  message: '',
+  success: true,
+  visible: false,
+})
+
+// Helper function to show toast notifications
+function showToast(message: string, success = true) {
+  toast.value = { message, success, visible: true }
+  // Hide the toast after 3 seconds
+  setTimeout(() => {
+    toast.value.visible = false
+  }, 3000)
+}
+
+// Updated handleSendMessage to be async and show toast notifications
+async function handleSendMessage() {
   if (!product.value) return
-  sendMessage(null, product.value.id, messageContent.value)
+  try {
+    // Await the sendMessage function (assuming it returns a promise)
+    await sendMessage(null, product.value.id, messageContent.value)
+    showToast('Message sent successfully!', true)
+  } catch (err) {
+    console.error('Error sending message:', err)
+    showToast('Message failed to send.', false)
+  }
   messageContent.value = ''
   showMessageDialog.value = false
 }
@@ -366,7 +402,50 @@ function handleSendMessage() {
   border: 2px solid #ccc;
 }
 
-/* Message Dialog Styles */
+/* Toast Styles */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 200px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  text-align: center;
+  color: #fff;
+  z-index: 1100;
+  animation:
+    fadein 0.5s,
+    fadeout 0.5s 2.5s;
+}
+.toast.success {
+  background-color: #4caf50;
+}
+.toast.error {
+  background-color: #f44336;
+}
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+@keyframes fadeout {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+}
+
+/* Modern Popover (Dialog) Styles */
 .dialog-overlay {
   position: fixed;
   top: 0;
@@ -382,26 +461,50 @@ function handleSendMessage() {
 
 .dialog {
   background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  min-width: 300px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
+  width: 90%;
 }
 
 .dialog h2 {
   margin-top: 0;
+  font-size: 1.5rem;
 }
 
 .dialog input {
   width: 100%;
-  padding: 8px;
+  padding: 12px;
   font-size: 16px;
-  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  outline: none;
 }
 
 .dialog-buttons {
   display: flex;
   gap: 10px;
+}
+
+.dialog-buttons button {
+  flex: 1;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.send-btn {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.cancel-btn {
+  background-color: #bbb;
+  color: #fff;
 }
 
 @media (max-width: 960px) {
