@@ -29,3 +29,6 @@ coverage
 
 *.tsbuildinfo
 .env
+
+/test-results
+/coverage
