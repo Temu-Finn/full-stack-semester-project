@@ -71,13 +71,19 @@ const router = createRouter({
     {
       path: '/edit-user',
       name: 'UpdateCredentials',
-      component: UpdateCredentials
+      component: UpdateCredentials,
     },
     {
       path: '/receipt/:id',
       name: 'Receipt',
       component: () => import('@/views/Receipt.vue'),
-    }     
+    },
+    {
+      path: '/messages',
+      name: 'messages',
+      component: MessagesView,
+      meta: { requiresAuth: true },
+    },
   ],
 })
 

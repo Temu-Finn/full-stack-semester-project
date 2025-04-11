@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import api from '@/config/api'
 import router from '@/router'
 import { loginUser, signupUser, type UserResponse } from '@/service/authService'
 
