@@ -8,7 +8,7 @@ import org.springframework.web.context.annotation.RequestScope
 class UserContextService {
     private var userId: Int? = null
 
-    fun getCurrentUserId(): Int = userId ?: throw IllegalStateException("No userId set in current context")
+    fun getCurrentUserId(): Int = userId ?: -1
 
     fun setCurrentUserId(userId: Int) {
         this.userId = userId
