@@ -11,7 +11,18 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+
+/**
+ * Controller for handling user-related requests. It includes endpoints for
+ * updating user email, name, and password.
+ *
+ * @constructor              Creates a new instance of UserController.
+ * @param userService       The service for handling user-related operations.
+ */
 
 @RestController
 @RequestMapping("/api/user")
@@ -19,10 +30,20 @@ import org.springframework.web.bind.annotation.*
 class UserController(
     private val userService: UserService,
 ) {
+
     private val logger = LoggerFactory.getLogger(UserController::class.java)
 
+    /**
+     * Handles client requests to update user email. It delegates the request to the
+     * service layer and returns response status from service layer
+     *
+     * @param request     UpdateEmailRequest                The user email update details.
+     * @return            ResponseEntity<Void>              contains the status code.
+     */
+
     @PutMapping("/update-email")
-    @Operation(summary = "Update user email", description = "Updates the email of the currently authenticated user")
+    @Operation(summary = "Update user email",
+        description = "Updates the email of the currently authenticated user")
     @ApiResponses(
         value = [
             ApiResponse(responseCode = "200", description = "Email updated successfully"),
@@ -38,6 +59,14 @@ class UserController(
         userService.updateEmail(request)
         return ResponseEntity.ok().build()
     }
+
+    /**
+     * Handles client requests to update user name. It delegates the request to the
+     * service layer and returns response status from service layer
+     *
+     * @param request     UpdateNameRequest                The user name update details.
+     * @return            ResponseEntity<Void>             Contains the status code.
+     */
 
     @PutMapping("/update-name")
     @Operation(summary = "Update user name", description = "Updates the name of the currently authenticated user")
@@ -55,6 +84,14 @@ class UserController(
         userService.updateName(request)
         return ResponseEntity.ok().build()
     }
+
+    /**
+     * Handles client requests to change user password. It delegates the request to the
+     * service layer and returns response status from service layer
+     *
+     * @param request     ChangePasswordRequest            The user password change details.
+     * @return            ResponseEntity<Void>             Contains the status code.
+     */
 
     @PutMapping("/update-password")
     @Operation(summary = "Change user password", description = "Allows authenticated users to change their password")

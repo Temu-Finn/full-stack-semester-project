@@ -12,17 +12,9 @@ data class ConversationCardResponse(
     val item: ItemCard,
 )
 
-/**
- * Represents a list of conversations with their basic information
- */
-
 data class ConversationsResponse(
     val conversations: List<ConversationCardResponse>,
 )
-
-/**
- * Represents a new message response in a conversation
- */
 
 data class NewMessageResponse(
     val conversationId: Int,
@@ -30,10 +22,6 @@ data class NewMessageResponse(
     val content: String,
     val sentAt: String,
 )
-
-/**
- * Represents a detailed message response in a conversation
- */
 
 data class MessageResponse(
     val id: Int,
@@ -44,19 +32,11 @@ data class MessageResponse(
     val isRead: Boolean,
 )
 
-/**
- * Represents a request to create a new conversation
- */
-
 data class SendMessageRequest(
     val conversationId: Int? = null,
     val itemId: Int,
     val content: String,
 )
-
-/**
- * Represents a request to create a new conversation
- */
 
 data class GetConversationResponse(
     val otherParticipantName: String,

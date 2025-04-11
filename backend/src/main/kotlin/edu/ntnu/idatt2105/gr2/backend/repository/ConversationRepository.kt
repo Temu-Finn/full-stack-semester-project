@@ -108,12 +108,14 @@ class ConversationRepository(
     fun findAllConversationsByUserId(userId: Int): List<Conversation> {
         dataSource.connection.use { conn ->
             val sql = """
-            SELECT * FROM conversations
-            WHERE buyer_id = ?
-            ORDER BY updated_at DESC
+        SELECT c.* FROM conversations c
+        JOIN items i ON c.item_id = i.id
+        WHERE c.buyer_id = ? OR i.seller_id = ?
+        ORDER BY c.updated_at DESC
         """
             conn.prepareStatement(sql).use { stmt ->
                 stmt.setInt(1, userId)
+                stmt.setInt(2, userId)
                 stmt.executeQuery().use { rows ->
                     val conversations = mutableListOf<Conversation>()
                     while (rows.next()) {
@@ -124,7 +126,7 @@ class ConversationRepository(
                                 buyerId = rows.getInt("buyer_id"),
                                 createdAt = rows.getTimestamp("created_at").toInstant(),
                                 updatedAt = rows.getTimestamp("updated_at").toInstant(),
-                            ),
+                            )
                         )
                     }
                     return conversations

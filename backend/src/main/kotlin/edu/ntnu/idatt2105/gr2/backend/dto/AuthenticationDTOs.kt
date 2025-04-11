@@ -5,6 +5,11 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 import java.time.Instant
 
+/**
+ * Data Transfer Objects (DTOs) for user authentication and profile management.
+ * Used for transferring data between the backend and frontend.
+ */
+
 data class CreateUserRequest(
     @field:NotBlank(message = "Name cannot be empty")
     val name: String,
