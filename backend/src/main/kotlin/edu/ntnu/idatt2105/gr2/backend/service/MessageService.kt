@@ -12,24 +12,25 @@ import java.time.Instant
  */
 @Service
 class MessageService(
-    private val messageRepository: MessageRepository
+    private val messageRepository: MessageRepository,
 ) {
-    fun createMessage(id: Int, conversationId: Int, senderId: Int, content: String, sentAt: Timestamp): Message {
-
-        val message = Message(
-            id = id,
-            conversationId = conversationId,
-            senderId = senderId,
-            content = content,
-            sentAt = Instant.now()
-        )
+    fun createMessage(
+        id: Int,
+        conversationId: Int,
+        senderId: Int,
+        content: String,
+        sentAt: Timestamp,
+    ): Message {
+        val message =
+            Message(
+                id = id,
+                conversationId = conversationId,
+                senderId = senderId,
+                content = content,
+                sentAt = Instant.now(),
+            )
         return messageRepository.save(message)
     }
 
-
-
-
-    fun getMessageById(id: Int): Message? {
-        return messageRepository.findMessageById(id)
-    }
+    fun getMessageById(id: Int): Message? = messageRepository.findMessageById(id)
 }

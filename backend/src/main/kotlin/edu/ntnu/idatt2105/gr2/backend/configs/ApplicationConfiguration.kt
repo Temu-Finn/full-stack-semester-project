@@ -11,27 +11,23 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
-
 @Configuration
-class ApplicationConfiguration(private val userRepository: UserRepository) {
+class ApplicationConfiguration(
+    private val userRepository: UserRepository,
+) {
     @Bean
-    fun userDetailsService(): UserDetailsService {
-        return UserDetailsService { email ->
+    fun userDetailsService(): UserDetailsService =
+        UserDetailsService { email ->
             userRepository.findByEmail(email)
                 ?: throw UsernameNotFoundException("User with email $email not found")
         }
-    }
 
     @Bean
-    fun passwordEncoder(): BCryptPasswordEncoder {
-        return BCryptPasswordEncoder()
-    }
+    fun passwordEncoder(): BCryptPasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
     @Throws(Exception::class)
-    fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager {
-        return config.authenticationManager
-    }
+    fun authenticationManager(config: AuthenticationConfiguration): AuthenticationManager = config.authenticationManager
 
     @Bean
     fun authenticationProvider(): AuthenticationProvider {

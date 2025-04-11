@@ -5,8 +5,8 @@ import edu.ntnu.idatt2105.gr2.backend.model.Item
 import edu.ntnu.idatt2105.gr2.backend.model.ItemStatus
 import java.time.Instant
 
-internal fun CreateItemRequest.toItem(userId: Int): Item {
-    return Item(
+internal fun CreateItemRequest.toItem(userId: Int): Item =
+    Item(
         sellerId = userId,
         categoryId = this.categoryId,
         postalCode = this.postalCode,
@@ -20,6 +20,5 @@ internal fun CreateItemRequest.toItem(userId: Int): Item {
         primaryImageId = -1,
         status = ItemStatus.Available,
         createdAt = Instant.now(),
-        updatedAt = Instant.now()
+        updatedAt = Instant.now(),
     )
-}

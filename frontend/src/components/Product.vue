@@ -1,16 +1,50 @@
 <template>
   <div class="product-container">
-    <a :href="`/product/${product.id}`" class="product-card">
-      <img
-        :alt="product.title"
-        :src="product.image?.dataURL || '/placeholder.svg'"
-        class="product-image"
-      />
+    <a
+      class="product-card"
+      :class="{
+        'status-reserved': product.status === 'reserved' || product.status === 'reserved_by_user',
+        'status-sold': product.status === 'sold',
+        'status-bought': product.status === 'bought',
+        'status-archived': product.status === 'archived',
+      }"
+      :href="`/product/${product.id}`"
+    >
+      <div class="image-container">
+        <img
+          :alt="product.title"
+          :src="product.image?.dataURL || '/placeholder.svg'"
+          class="product-image"
+        />
+        <span v-if="product.status === 'sold'" class="status-badge sold">{{
+          t('product.status.sold')
+        }}</span>
+        <span v-else-if="product.status === 'bought'" class="status-badge bought">{{
+          t('product.status.bought')
+        }}</span>
+        <span
+          v-else-if="product.status === 'reserved' || product.status === 'reserved_by_user'"
+          class="status-badge reserved"
+          >{{ t('product.status.reserved') }}</span
+        >
+        <span v-else-if="product.status === 'archived'" class="status-badge archived">{{
+          t('product.status.archived')
+        }}</span>
+      </div>
       <div class="product-info">
         <h3 class="product-name">{{ product.title }}</h3>
         <div class="product-meta">
           <span class="product-location">{{ product.municipality }}</span>
-          <span class="product-price">{{ product.price }} kr</span>
+          <div class="price-container">
+            <img
+              v-if="product.allowVippsBuy"
+              src="/VippsRound.svg"
+              alt="Vipps Logo"
+              class="vipps-logo"
+              :title="t('product.vippsBuyAvailable')"
+            />
+            <span class="product-price">{{ product.price }} kr</span>
+          </div>
         </div>
       </div>
     </a>
@@ -82,6 +116,7 @@ async function confirmAndDelete() {
   height: 100%;
   text-decoration: none;
   color: inherit;
+  position: relative;
   width: 100%;
 }
 
@@ -90,10 +125,57 @@ async function confirmAndDelete() {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
-.product-image {
+.image-container {
+  position: relative;
   width: 100%;
   height: 180px;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+.status-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  z-index: 1;
+}
+
+.status-badge.sold {
+  background-color: #d34242;
+}
+
+.status-badge.bought {
+  background-color: #1fb726;
+}
+
+.status-badge.reserved {
+  background-color: #027bff;
+}
+
+.status-badge.archived {
+  background-color: #bdbdbd;
+}
+
+.status-sold .product-image,
+.status-bought .product-image,
+.status-archived .product-image {
+  filter: grayscale(60%) opacity(75%);
+}
+
+.status-sold .product-info,
+.status-bought .product-info,
+.status-archived .product-info {
+  opacity: 0.85;
 }
 
 .product-info {
@@ -124,6 +206,16 @@ async function confirmAndDelete() {
   color: #777;
   margin-top: auto;
   padding-top: 0.5rem;
+}
+
+.price-container {
+  display: flex;
+  align-items: center;
+}
+
+.vipps-logo {
+  height: 16px;
+  margin-right: 6px;
 }
 
 .product-price {

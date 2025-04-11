@@ -27,6 +27,7 @@ declare module 'vue' {
     LanguageSelector: typeof import('./src/components/LanguageSelector.vue')['default']
     Map: typeof import('./src/components/Map.vue')['default']
     NavBar: typeof import('./src/components/NavBar.vue')['default']
+    NewProductMap: typeof import('./src/components/newProduct/NewProductMap.vue')['default']
     Product: typeof import('./src/components/Product.vue')['default']
     ProductsCarousel: typeof import('./src/components/home/ProductsCarousel.vue')['default']
     ProductsGrid: typeof import('./src/components/home/ProductsGrid.vue')['default']
@@ -35,6 +36,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     Search: typeof import('./src/components/home/Search.vue')['default']
     SearchResultsContent: typeof import('./src/components/searchResults/SearchResultsContent.vue')['default']
+    Spinner: typeof import('./src/components/Spinner.vue')['default']
     ToggleButton: typeof import('./src/components/ToggleButton.vue')['default']
   }
 }

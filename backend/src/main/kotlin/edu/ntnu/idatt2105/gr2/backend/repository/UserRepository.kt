@@ -7,8 +7,9 @@ import java.sql.Statement
 import javax.sql.DataSource
 
 @Repository
-class UserRepository(private val dataSource: DataSource) {
-
+class UserRepository(
+    private val dataSource: DataSource,
+) {
     fun save(user: User): User {
         val email = user.email
         val name = user.name
@@ -65,16 +66,15 @@ class UserRepository(private val dataSource: DataSource) {
         return null
     }
 
-    fun mapRowToUser(rs: ResultSet): User {
-        return User(
+    fun mapRowToUser(rs: ResultSet): User =
+        User(
             id = rs.getInt("id"),
             name = rs.getString("name"),
             email = rs.getString("email"),
             joinedAt = rs.getTimestamp("created_at").toInstant(),
             isAdmin = rs.getBoolean("is_admin"),
-            passwordHashed = rs.getString("password")
+            passwordHashed = rs.getString("password"),
         )
-    }
 
     fun findUserById(id: Int): User? {
         dataSource.connection.use { conn ->
@@ -98,7 +98,6 @@ class UserRepository(private val dataSource: DataSource) {
         return null
     }
 
-
     fun isAdmin(userId: Int): Boolean {
         dataSource.connection.use { conn ->
             val sql = "SELECT is_admin FROM users WHERE id = ?"
@@ -114,7 +113,10 @@ class UserRepository(private val dataSource: DataSource) {
         return false
     }
 
-    fun updateName(userId: Int, newName: String): Boolean {
+    fun updateName(
+        userId: Int,
+        newName: String,
+    ): Boolean {
         dataSource.connection.use { conn ->
             val sql = "UPDATE users SET name = ? WHERE id = ?"
             conn.prepareStatement(sql).use { stmt ->
@@ -125,7 +127,10 @@ class UserRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun updateEmail(userId: Int, newEmail: String): Boolean {
+    fun updateEmail(
+        userId: Int,
+        newEmail: String,
+    ): Boolean {
         dataSource.connection.use { conn ->
             val sql = "UPDATE users SET email = ? WHERE id = ?"
             conn.prepareStatement(sql).use { stmt ->
@@ -136,7 +141,10 @@ class UserRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun updatePassword(userId: Int, hashedPassword: String): Boolean {
+    fun updatePassword(
+        userId: Int,
+        hashedPassword: String,
+    ): Boolean {
         dataSource.connection.use { conn ->
             val sql = "UPDATE users SET password = ? WHERE id = ?"
             conn.prepareStatement(sql).use { stmt ->

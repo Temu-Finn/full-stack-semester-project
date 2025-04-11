@@ -10,11 +10,13 @@ data class SearchRequest(
     val city: String? = null,
     val latitude: Double? = null,
     val longitude: Double? = null,
-    val maxDistanceKm: Double? = null // Maximum distance in kilometers
+    val maxDistanceKm: Double? = null, // Maximum distance in kilometers
 ) {
     init {
-        require((latitude != null && longitude != null && maxDistanceKm != null) ||
-            (latitude == null && longitude == null && maxDistanceKm == null)) {
+        require(
+            (latitude != null && longitude != null && maxDistanceKm != null) ||
+                (latitude == null && longitude == null && maxDistanceKm == null),
+        ) {
             "Latitude, longitude, and maxDistanceKm must be either all provided or all null"
         }
     }
@@ -22,5 +24,5 @@ data class SearchRequest(
 
 data class SearchResponse(
     val counties: List<CountyResponse>,
-    val result: Page<ItemCard>
+    val result: Page<ItemCard>,
 )
