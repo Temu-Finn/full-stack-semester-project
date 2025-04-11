@@ -28,24 +28,24 @@
         <h1 class="product-title">{{ product.title }}</h1>
         <div class="product-price">{{ product.price }}{{ $t('productView.currencySuffix') }}</div>
 
-        <div class="buttons">
+        <div v-if="userId != product.sellerId" class="buttons">
           <BaseButton
             v-if="product.allowVippsBuy"
-            class="vipps-button"
             background-color="#ff5b24"
+            class="vipps-button"
             @click="startVipps"
           >
             <template #icon>
-              <img src="/VippsWhite.svg" alt="Vipps" />
+              <img alt="Vipps" src="/VippsWhite.svg" />
             </template>
             {{ $t('productView.buyNowVipps') }}
           </BaseButton>
           <BaseButton
             v-else
-            class="outline-button"
             :disabled="product.status === 'reserved' || product.status === 'reserved_by_user'"
-            text-color="#007bff"
             background-color="#ffffff"
+            class="outline-button"
+            text-color="#007bff"
             @click="reserveItemHandle"
           >
             {{
@@ -56,7 +56,7 @@
                   : $t('productView.reserveItem')
             }}
           </BaseButton>
-          <BaseButton :disabled="!product.sellerId">
+          <BaseButton :disabled="!product.sellerId" @click="showMessageDialog = true">
             {{ $t('productView.sendMessage') }}
           </BaseButton>
         </div>
@@ -75,7 +75,8 @@
             {{ product.category.name }}
           </p>
           <p>
-            <strong>{{ $t('productView.descriptionLabel') }}</strong> {{ product.description }}
+            <strong>{{ $t('productView.descriptionLabel') }}</strong>
+            {{ product.description }}
           </p>
         </div>
       </div>
@@ -85,18 +86,42 @@
       </div>
     </div>
   </div>
-  <div v-else class="not-found">{{ $t('productView.notFound') }}</div>
+  <div v-else class="not-found">
+    {{ $t('productView.notFound') }}
+  </div>
   <div v-if="searchResponse && product" class="similar-items-section">
     <h3 v-if="filteredSimilarItems.length > 0">Similar items</h3>
     <div class="similar-items">
       <Product v-for="item in filteredSimilarItems" :key="item.id" :product="item" />
     </div>
   </div>
+
+  <!-- Toast Notification -->
+  <div v-if="toast.visible" :class="['toast', toast.success ? 'success' : 'error']">
+    {{ toast.message }}
+  </div>
+
+  <!-- Modern Message Dialog Popover -->
+  <div v-if="showMessageDialog" class="dialog-overlay" @click="showMessageDialog = false">
+    <div class="dialog" @click.stop>
+      <h2>Send a message to the owner</h2>
+      <input
+        v-model="messageContent"
+        placeholder="Type your message"
+        type="text"
+        @keydown.enter="handleSendMessage"
+      />
+      <div class="dialog-buttons">
+        <button class="send-btn" @click="handleSendMessage">Send</button>
+        <button class="cancel-btn" @click="showMessageDialog = false">Cancel</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import Map from '@/components/Map.vue'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import {
@@ -105,22 +130,24 @@ import {
   searchItems,
   type SearchItemsResponse,
   type ItemCard,
+  reserveItem,
 } from '@/service/itemService'
 import { logger } from '@/utils/logger'
 import { useI18n } from 'vue-i18n'
 import Product from '@/components/Product.vue'
-import { startVippsPayment as startVippsPaymentApi } from '@/service/vippsService'
-import { reserveItem } from '@/service/itemService'
 import BaseButton from '@/components/BaseButton.vue'
+import { startVippsPayment } from '@/service/vippsService'
+import { sendMessage } from '@/service/conversationService.ts'
 import { useSessionStore } from '@/stores/session.ts'
 
+const userId = useSessionStore().user.id
 const route = useRoute()
+const router = useRouter()
 const product = ref<CompleteItem | null>(null)
 const selectedImage = ref<string>('')
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const { t } = useI18n()
-const sessionStore = useSessionStore()
 
 const searchResponse = ref<SearchItemsResponse>({
   counties: [],
@@ -192,12 +219,6 @@ async function fetchItems(categoryId: number) {
   }
 }
 
-
-import { startVippsPayment } from '@/service/vippsService'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-
 const reserveItemHandle = async () => {
   if (!product.value) return
   product.value = await reserveItem(product.value.id)
@@ -209,9 +230,7 @@ const startVipps = async () => {
 
   try {
     localStorage.setItem('vippsPurchasedItemId', String(product.value.id))
-
     const { redirectUrl } = await startVippsPayment(product.value.price)
-
     window.location.href = redirectUrl
   } catch (err) {
     console.error('Could not start Vipps payment', err)
@@ -219,8 +238,39 @@ const startVipps = async () => {
   }
 }
 
+const showMessageDialog = ref(false)
+const messageContent = ref('')
 
+// Toast reactive object
+const toast = ref({
+  message: '',
+  success: true,
+  visible: false,
+})
 
+// Helper function to show toast notifications
+function showToast(message: string, success = true) {
+  toast.value = { message, success, visible: true }
+  // Hide the toast after 3 seconds
+  setTimeout(() => {
+    toast.value.visible = false
+  }, 3000)
+}
+
+// Updated handleSendMessage to be async and show toast notifications
+async function handleSendMessage() {
+  if (!product.value) return
+  try {
+    // Await the sendMessage function (assuming it returns a promise)
+    await sendMessage(null, product.value.id, messageContent.value)
+    showToast('Message sent successfully!', true)
+  } catch (err) {
+    console.error('Error sending message:', err)
+    showToast('Message failed to send.', false)
+  }
+  messageContent.value = ''
+  showMessageDialog.value = false
+}
 </script>
 
 <style scoped>
@@ -350,6 +400,111 @@ const startVipps = async () => {
 
 .outline-button:disabled {
   border: 2px solid #ccc;
+}
+
+/* Toast Styles */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 200px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  text-align: center;
+  color: #fff;
+  z-index: 1100;
+  animation:
+    fadein 0.5s,
+    fadeout 0.5s 2.5s;
+}
+.toast.success {
+  background-color: #4caf50;
+}
+.toast.error {
+  background-color: #f44336;
+}
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+@keyframes fadeout {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+}
+
+/* Modern Popover (Dialog) Styles */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-width: 400px;
+  width: 90%;
+}
+
+.dialog h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+}
+
+.dialog input {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  outline: none;
+}
+
+.dialog-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.dialog-buttons button {
+  flex: 1;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.send-btn {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.cancel-btn {
+  background-color: #bbb;
+  color: #fff;
 }
 
 @media (max-width: 960px) {

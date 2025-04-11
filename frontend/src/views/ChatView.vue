@@ -1,6 +1,10 @@
 <template>
   <div class="container">
-    <aside v-if="!isLoading && conversationCardsResponse" class="sidebar">
+    <aside
+      v-if="!isLoading && conversationCardsResponse"
+      :class="isSidebarOpen ? 'mobile-open' : ''"
+      class="sidebar"
+    >
       <button v-if="isSidebarOpen" class="close-sidebar" @click="closeSidebar">&times;</button>
       <a
         v-for="conversation in conversationCardsResponse.conversations || []"
@@ -88,7 +92,6 @@ const conversationResponse = ref<ConversationResponse>()
 const newMessage = ref('')
 
 onMounted(() => {
-  //sendMessage(null, 2, 'heyyy')
   fetchConversationCards()
   fetchConversation(conversationId)
 })
@@ -137,10 +140,6 @@ function openSidebar() {
 
 function closeSidebar() {
   isSidebarOpen.value = false
-}
-
-function handleContactClick(convId: number) {
-  router.push('/chat/' + convId)
 }
 </script>
 

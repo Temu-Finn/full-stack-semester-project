@@ -6,19 +6,7 @@ export type ConversationCardsResponse = z.infer<typeof ConversationCardsResponse
 export type ConversationResponse = z.infer<typeof getConversationResponseSchema>
 export type MessageResponse = z.infer<typeof MessageResponseSchema>
 
-const ItemSchema = z.object({
-  id: z.number(),
-  title: z.string(),
-  price: z.number(),
-  municipality: z.string(),
-  image: z.string().nullable(),
-  location: z.object({
-    latitude: z.number(),
-    longitude: z.number(),
-  }),
-  status: z.string(),
-  updatedAt: z.string(),
-})
+import { ItemCardSchema } from '@/service/itemService.ts'
 
 const ConversationCardsResponseSchema = z.object({
   conversations: z.array(
@@ -26,7 +14,7 @@ const ConversationCardsResponseSchema = z.object({
       id: z.number(),
       lastMessage: z.string().nullable(),
       lastMessageTime: z.string().nullable(),
-      item: ItemSchema,
+      item: ItemCardSchema,
     }),
   ),
 })
@@ -43,7 +31,7 @@ const getConversationResponseSchema = z.object({
   createdAt: z.string(), // ISO 8601 string for LocalDateTime
   updatedAt: z.string(), // ISO 8601 string for LocalDateTime
   messages: z.array(MessageResponseSchema),
-  item: ItemSchema,
+  item: ItemCardSchema,
 })
 
 export async function getConversations(): Promise<ConversationCardsResponse> {
