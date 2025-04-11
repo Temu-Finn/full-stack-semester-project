@@ -69,6 +69,35 @@ class ConversationRepository(
         return null
     }
 
+    fun findConversationByItemAndSeller(itemId: Int, sellerId: Int): Conversation? {
+        dataSource.connection.use { conn ->
+            val sql = """
+            SELECT c.* FROM conversations c
+            JOIN items i ON c.item_id = i.id
+            WHERE c.item_id = ? AND i.seller_id = ?
+        """.trimIndent()
+
+            conn.prepareStatement(sql).use { stmt ->
+                stmt.setInt(1, itemId)
+                stmt.setInt(2, sellerId)
+
+                stmt.executeQuery().use { rows ->
+                    if (rows.next()) {
+                        return Conversation(
+                            id = rows.getInt("id"),
+                            itemId = rows.getInt("item_id"),
+                            buyerId = rows.getInt("buyer_id"),
+                            createdAt = rows.getTimestamp("created_at").toInstant(),
+                            updatedAt = rows.getTimestamp("updated_at").toInstant(),
+                        )
+                    }
+                }
+            }
+        }
+
+        return null
+    }
+
     fun findConversationByParticipants(
         userId1: Int,
         userId2: Int,
