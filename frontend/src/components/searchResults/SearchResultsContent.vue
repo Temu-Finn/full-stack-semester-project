@@ -41,11 +41,11 @@ const totalPagesRange = computed(() => {
     <Spinner v-if="isLoading"></Spinner>
     <div v-else>
       <div class="search-count">
-        {{ searchResponse.result.page.totalElements }} results
+        {{ searchResponse?.result.page.totalElements }} results
         <span v-if="searchQuery.length !== 0"> for "{{ searchQuery }}"</span>
       </div>
       <div class="results-grid">
-        <Product v-for="item in searchResponse.result.content" :key="item.id" :product="item" />
+        <Product v-for="item in searchResponse?.result.content" :key="item.id" :product="item" />
       </div>
       <div v-if="totalPagesRange.length > 1" class="pagination">
         <button
@@ -67,7 +67,7 @@ const totalPagesRange = computed(() => {
         </button>
 
         <button
-          :disabled="currentPage === searchResponse.result.page.totalPages"
+          :disabled="currentPage === searchResponse?.result.page.totalPages"
           class="pagination-button"
           @click="$emit('pageChange', currentPage + 1)"
         >
