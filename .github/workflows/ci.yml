@@ -78,7 +78,7 @@ jobs:
 
       - name: Build
         working-directory: ./frontend
-        run: pnpm build
+        run: pnpm build-only
 
       - name: Run e2e tests with Cypress
         uses: cypress-io/github-action@v6
