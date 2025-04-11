@@ -1,42 +1,46 @@
 <template>
   <div class="container">
-    <aside v-if="!isLoading" class="sidebar">
-      <button v-if="isSidebarOpen" class="close-sidebar">&times;</button>
-      <div
-        v-for="conversation in conversationCardsResponse.value.conversations || []"
+    <aside v-if="!isLoading && conversationCardsResponse" class="sidebar">
+      <button v-if="isSidebarOpen" class="close-sidebar" @click="closeSidebar">&times;</button>
+      <a
+        v-for="conversation in conversationCardsResponse.conversations || []"
         :key="conversation.id"
+        :href="`/chat/` + conversation.id"
         class="contact"
-        @click="handleContactClick(conversation.id)"
       >
-        <div class="avatar">lol</div>
+        <img
+          :alt="`Image of` + conversation.item.title"
+          :src="conversation.item.image?.dataURL || '/placeholder.svg'"
+          class="avatar"
+        />
         <div class="details">
-          <div class="name">{{ conversation.name }}</div>
+          <div class="name">{{ conversation.item.title }}</div>
           <div class="last-text">{{ conversation.lastMessage }}</div>
         </div>
-      </div>
+      </a>
+      <p v-if="conversationCardsResponse.conversations.length == 0">
+        {{ $t('chat.noConversations') }}
+      </p>
     </aside>
 
     <div :class="isSidebarOpen ? 'overlay' : 'overlay hidden'" @click="closeSidebar"></div>
 
-    <!--main v-if="currentConversation" class="chat-window">
+    <main v-if="!isLoading && conversationResponse" class="chat-window">
       <button class="open-sidebar-btn" @click="openSidebar">
         {{ $t('chat.allConversations') }}
       </button>
       <div class="chat-header">
         <div class="chat-avatar"></div>
         <div class="chat-info">
-          <div class="chat-name name">{{ currentConversation.name }}</div>
-          <div class="chat-status">
-            {{ currentConversation.online ? $t('chat.online') : $t('chat.offline') }}
-          </div>
+          <div class="chat-name name">{{ conversationResponse.otherParticipantName }}</div>
         </div>
       </div>
 
       <div class="chat-body">
         <div
-          v-for="(msg, index) in currentConversation.messages"
+          v-for="(msg, index) in conversationResponse.messages"
           :key="index"
-          :class="msg.type"
+          :class="msg.senderId == sessionStore.user.id ? 'sent' : 'received'"
           class="message"
         >
           {{ msg.content }}
@@ -49,37 +53,94 @@
             v-model="newMessage"
             :placeholder="$t('chat.writeMessage')"
             type="text"
-            @keyup.enter="sendMessage"
+            @keyup.enter="handleSendMessage"
           />
-          <button class="send-btn" @click="sendMessage">{{ $t('chat.send') }}</button>
+          <button class="send-btn" @click="handleSendMessage">{{ $t('chat.send') }}</button>
         </div>
       </div>
-    </main-->
+    </main>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {getConversations, type ConversationCardsResponse} from "@/service/conversationService.js";
-import {onMounted, ref} from "vue";
+import {
+  getConversations,
+  type ConversationCardsResponse,
+  sendMessage,
+  getConversation,
+  type ConversationResponse,
+} from '@/service/conversationService.js'
+import { onMounted, ref } from 'vue'
+import { useSessionStore } from '@/stores/session.ts'
+import { useRoute } from 'vue-router'
+import router from '@/router'
 
+const sessionStore = useSessionStore()
+const route = useRoute()
+const conversationId = Number(route.params.id)
+console.log('Conversation ID:', conversationId)
+
+const isSidebarOpen = ref(false)
 const isLoading = ref(true)
 const conversationCardsResponse = ref<ConversationCardsResponse>()
+const conversationResponse = ref<ConversationResponse>()
+
+const newMessage = ref('')
 
 onMounted(() => {
-  fetchConversations()
+  //sendMessage(null, 2, 'heyyy')
+  fetchConversationCards()
+  fetchConversation(conversationId)
 })
 
-async function fetchConversations() {
+async function fetchConversationCards() {
   isLoading.value = true
   try {
-    conversationCardsResponse.value = await getConversations();
-    console.log('Conversations fetched:', conversationCardsResponse.value.conversations[0].id)
-  } catch(error) {
-    console.error('Error fetching conversations:', error)
-    conversationCardsResponse.value = null;
+    conversationCardsResponse.value = await getConversations()
+    console.log('Conversations fetched:', conversationCardsResponse.value.conversations.length)
+  } catch (error) {
+    console.error('Error fetching conversations: ', error)
+    conversationCardsResponse.value = null
   } finally {
     isLoading.value = false
   }
+}
+
+async function fetchConversation(convId: number) {
+  isLoading.value = true
+  try {
+    conversationResponse.value = await getConversation(convId)
+    console.log('Conversation fetched:', conversationResponse.value)
+  } catch (error) {
+    console.error('Error fetching current conversation: ', error)
+    conversationResponse.value = null
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function handleSendMessage() {
+  if (!newMessage.value.trim()) return
+
+  try {
+    await sendMessage(conversationId, conversationResponse.value.item.id || null, newMessage.value)
+    await fetchConversation(conversationId)
+    newMessage.value = ''
+  } catch (error) {
+    console.error('Error sending message:', error)
+  }
+}
+
+function openSidebar() {
+  isSidebarOpen.value = true
+}
+
+function closeSidebar() {
+  isSidebarOpen.value = false
+}
+
+function handleContactClick(convId: number) {
+  router.push('/chat/' + convId)
 }
 </script>
 
@@ -117,6 +178,7 @@ async function fetchConversations() {
   height: 40px;
   background-color: #ddd;
   border-radius: 6px;
+  object-fit: cover;
 }
 
 .details {
