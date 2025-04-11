@@ -1,5 +1,10 @@
 package edu.ntnu.idatt2105.gr2.backend.dto
 
+/**
+ * Data Transfer Objects (DTOs) for representing areas and their counties.
+ * Used for transferring data between the backend and frontend
+ */
+
 interface Area {
     val name: String
     val count: Int

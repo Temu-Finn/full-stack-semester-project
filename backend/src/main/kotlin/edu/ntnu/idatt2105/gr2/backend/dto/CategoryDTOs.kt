@@ -3,6 +3,11 @@ package edu.ntnu.idatt2105.gr2.backend.dto
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Positive
 
+/**
+ * Data Transfer Objects (DTOs) for representing category.
+ * Used for transferring data between the backend and frontend.
+ */
+
 data class CategoryResponse(
     val id: Int,
     val name: String,
