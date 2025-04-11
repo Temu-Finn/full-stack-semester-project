@@ -6,14 +6,15 @@ import LanguageSelector from '@/components/LanguageSelector.vue'
 import { useSessionStore, type User } from '@/stores/session'
 import Product from '@/components/Product.vue'
 import BaseButton from '@/components/BaseButton.vue'
+import { useRouter } from 'vue-router'
 
 const sessionStore = useSessionStore()
-
 const { t } = useI18n()
+const router = useRouter()
 
 const user = ref<User | null>(null)
-
 const items = ref<ItemCard[]>([])
+
 onMounted(async () => {
   if (sessionStore.user) {
     user.value = sessionStore.user
@@ -47,6 +48,10 @@ const filteredItems = computed(() => {
 const selectStatus = (status: ItemStatus) => {
   selectedStatus.value = status
 }
+
+const editUser = () => {
+  router.push({ name: 'UpdateCredentials' }) // Ensure the route exists
+}
 </script>
 
 <template>
@@ -69,6 +74,9 @@ const selectStatus = (status: ItemStatus) => {
         </div>
       </div>
       <div class="header-actions">
+        <BaseButton class="edit-button" @click="editUser">
+          {{ t('profile.editUser') }}
+        </BaseButton>
         <BaseButton class="logout-button" @click="sessionStore.logout">
           {{ t('profile.logout') }}
         </BaseButton>
@@ -182,10 +190,24 @@ const selectStatus = (status: ItemStatus) => {
   width: auto;
   max-height: 20px;
   margin-bottom: 1rem;
+  color: #fff;
 }
 
 .logout-button:hover:not(:disabled) {
   background-color: #cc3311;
+}
+
+.edit-button {
+  background-color: #007bff;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  width: auto;
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.edit-button:hover:not(:disabled) {
+  background-color: #0056b3;
 }
 
 .listings {
@@ -236,7 +258,8 @@ const selectStatus = (status: ItemStatus) => {
     flex-flow: row-reverse;
     align-items: end;
   }
-  .logout-button {
+  .logout-button,
+  .edit-button {
     margin-bottom: 1.5rem;
   }
 }

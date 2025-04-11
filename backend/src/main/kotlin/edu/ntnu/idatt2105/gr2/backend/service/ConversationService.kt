@@ -68,16 +68,24 @@ class ConversationService(
     fun sendMessage(request: SendMessageRequest): NewMessageResponse {
         val senderId = userContextService.getCurrentUserId()
         val item = itemService.getItemById(request.itemId)
-        val itemBuyer = senderId
         val itemOwnerId = item.sellerId
+        val isSeller = senderId == itemOwnerId
 
-        val existingConversation = conversationRepository.findConversationByParticipants(
-            itemBuyer, itemOwnerId, request.itemId)
-
-        if (existingConversation == null) {
-            return createConversation(request)
+        val existingConversation = if (isSeller) {
+            conversationRepository.findConversationByItemAndSeller(request.itemId, senderId)
         } else {
-            return sendToConversation(existingConversation.id, senderId, request.content)
+            conversationRepository.findConversationByParticipants(
+                senderId, itemOwnerId, request.itemId
+            )
+        }
+
+        return if (existingConversation == null) {
+            if (isSeller) {
+                throw IllegalArgumentException("Seller cannot initiate a conversation — no buyer context found")
+            }
+            createConversation(request) //
+        } else {
+            sendToConversation(existingConversation.id, senderId, request.content)
         }
     }
 
