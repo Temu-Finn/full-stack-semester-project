@@ -28,7 +28,7 @@ const ItemStatusSchema = z.enum([
   'bought',
 ])
 
-const ItemCardSchema = z.object({
+export const ItemCardSchema = z.object({
   id: z.number(),
   title: z.string(),
   price: z.number(),
