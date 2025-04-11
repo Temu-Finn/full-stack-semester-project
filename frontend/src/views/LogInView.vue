@@ -46,23 +46,26 @@ const handleLogin = async () => {
   <div class="login-container">
     <h2 class="login-title">{{ $t('login.title') }}</h2>
 
-    <form @submit.prevent="handleLogin" class="login-form">
-      <div v-if="errorMessage" class="error-message">
+    <form @submit.prevent="handleLogin" class="login-form" data-test="login-form">
+      <div v-if="errorMessage" class="error-message" data-test="login-error">
         {{ errorMessage }}
       </div>
 
       <div>
         <label for="email" class="input-label">{{ $t('login.emailLabel') }}</label>
-        <input id="email" v-model="email" type="email" class="input-field" required />
+        <input id="email" v-model="email" type="email" class="input-field" required data-test="email-input" />
+        <div v-if="email && !email.includes('@')" class="error-message" data-test="email-error">
+          {{ $t('login.error.invalidEmail') }}
+        </div>
       </div>
 
       <div>
         <label for="password" class="input-label">{{ $t('login.passwordLabel') }}</label>
-        <input id="password" v-model="password" type="password" class="input-field" required />
+        <input id="password" v-model="password" type="password" class="input-field" required data-test="password-input" />
       </div>
 
       <div>
-        <button type="submit" :disabled="isLoading" class="submit-button">
+        <button type="submit" :disabled="isLoading" class="submit-button" data-test="login-button">
           <span v-if="isLoading">{{ $t('login.loadingButton') }}</span>
           <span v-else>{{ $t('login.submitButton') }}</span>
         </button>
