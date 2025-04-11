@@ -34,6 +34,9 @@ class SecurityConfiguration(
                         "/v3/api-docs/**",
                         "/v3/api-docs.yaml",
                         "ws/**",
+                        "/api/item/recommended",
+                        "/api/item/search",
+                        "/api/categories/getAll",
                     ).permitAll()
                 authorize.anyRequest().authenticated()
             }.sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
@@ -50,6 +53,7 @@ class SecurityConfiguration(
         configuration.allowedOrigins =
             listOf(
                 "http://localhost:5173",
+                "http://localhost:4173",
                 "http://localhost:63342",
             )
         configuration.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")

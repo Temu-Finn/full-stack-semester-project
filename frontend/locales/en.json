@@ -81,7 +81,8 @@
     "error": {
       "required": "Email and password are required",
       "invalidCredentials": "Invalid credentials",
-      "unexpected": "An unexpected error occurred during login."
+      "unexpected": "An unexpected error occurred during login.",
+      "invalidEmail": "Invalid email format"
     }
   },
   "signup": {
@@ -117,7 +118,8 @@
     "sold": "Sold",
     "archived": "Archived",
     "bought": "Bought",
-    "logout": "Log out"
+    "logout": "Log out",
+    "editUser": "Edit User"
   },
   "validation": {
     "required": "{field} is required.",
